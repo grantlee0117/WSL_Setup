@@ -223,23 +223,25 @@ wsl
 
 ### 2.2 配置代理与 DNS
 
-本节包含两部分：**代理配置**（如果你用 Clash 等代理工具）和 **DNS 原理说明**。
+> **好消息**：如果你按 2.1 节配了 `wsl.conf`（包含 boot command 和 `generateResolvConf=false`），DNS 的核心修复**已经完成了**。每次 WSL 启动时，boot command 会自动写入正确的 DNS 配置。
 
-> **好消息**：如果你按 2.1 节配了 `wsl.conf`（包含 boot command 和 `generateResolvConf=false`），DNS 的核心修复**已经完成了**。每次 WSL 启动时，boot command 会自动断开可能存在的 symlink 并写入正确的 DNS 配置。本节的 DNS 部分主要是解释原理和排错。
+本节做两件事：**配置代理**（让各种工具都能科学上网）和**验证网络**。最后附有 DNS 原理说明供了解。
 
 #### 代理配置（使用 Clash 等代理工具的用户）
 
-如果你不用代理，可以跳过这整个"代理配置"部分，直接看后面的 "DNS 原理说明"。
+如果你不用代理，可以跳过这整个"代理配置"部分，直接看后面的"验证"。
 
-虽然 `.wslconfig` 里配了 `autoProxy`，但 `apt` 等工具可能不会自动走代理。需要手动配置。
+虽然 `.wslconfig` 里配了 `autoProxy`，但很多 Linux 命令行工具并不会自动读取系统代理设置，需要手动配置。如果 Windows 侧 Clash 开了 **TUN 模式**，TUN 会在网络层兜底拦截所有流量，但下面的配置仍然建议做——这样即使关了 TUN 模式，工具也能正常走代理，形成双保险。
 
-**apt 代理（让 apt 命令走代理）：**
+**① apt 代理**
+
+> **apt 是什么？** apt 是 Ubuntu 的包管理器，相当于手机上的"应用商店"。后续所有 `sudo apt install xxx` 命令都通过它下载软件。apt 有自己独立的代理配置，不读 `http_proxy` 环境变量，所以必须单独配。
 
 ```bash
 sudo nano /etc/apt/apt.conf.d/proxy.conf
 ```
 
-写入（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
+写入以下两行（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
 
 ```
 Acquire::http::Proxy "http://127.0.0.1:7897";
@@ -248,7 +250,7 @@ Acquire::https::Proxy "http://127.0.0.1:7897";
 
 `Ctrl+O` 回车保存，`Ctrl+X` 退出。
 
-**全局代理（让 curl、wget、git 等命令行工具都走代理）：**
+**② 全局代理（让 curl、wget、pip、npm、docker pull 等命令行工具都走代理）**
 
 以下 5 行可以一次性粘贴执行：
 
@@ -262,9 +264,9 @@ source ~/.bashrc
 
 > **注意**：`7897` 是 Clash Verge 的默认代理端口，根据你实际使用的代理工具修改。
 
-**Git SSH 代理（让 `git clone git@github.com` 也走代理，可选）：**
+**③ Git SSH 代理（可选）**
 
-上面的 `http_proxy` 环境变量只对 HTTPS 协议生效。如果 DNS 配好后 `git clone git@github.com:...` 仍然很慢或超时（说明你的网络直连 github.com:22 被阻断），需要给 SSH 单独配代理：
+上面的 `http_proxy` 环境变量只对 HTTP/HTTPS 协议生效。如果 `git clone git@github.com:...` 仍然很慢或超时（说明你的网络直连 github.com:22 被阻断），需要给 SSH 单独配代理：
 
 ```bash
 mkdir -p ~/.ssh
@@ -275,22 +277,62 @@ EOF
 chmod 600 ~/.ssh/config
 ```
 
-> **大多数情况下不需要这步**。DNS 修好后直连就行，只有直连 github.com:22 被网络阻断时才需要 ProxyCommand。
+> **大多数情况下不需要这步**。DNS 修好后直连就行，只有直连 github.com:22 被网络阻断时才需要。
 
-验证代理是否生效：
+**④ Tailscale 用户（如果你装了 Tailscale）**
+
+Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 2.1 节 boot command 写入的正确 DNS 被改掉。必须禁止它：
 
 ```bash
-curl -I https://www.google.com
+sudo tailscale set --accept-dns=false
 ```
 
-看到 `HTTP/2 200` 即成功。如果超时，检查代理端口是否正确、Clash 是否开启。
+> 没装 Tailscale 的跳过这步。
 
-> **代理覆盖范围总结**：至此代理已全部配好，不需要再为其他工具单独配置。
-> - `/etc/apt/apt.conf.d/proxy.conf` → `apt` 命令
-> - `~/.bashrc` 中的环境变量 → `curl`、`wget`、`pip`、`npm`、`docker pull` 等所有读取 `http_proxy` 的工具
-> - `~/.ssh/config` 中的 ProxyCommand → `git clone git@...` 等 SSH 连接（如已配置）
+#### 验证网络
 
-#### DNS 原理说明（了解为什么 2.1 节的 boot command 是必要的）
+代理和 DNS 全部配置完毕，现在集中验证。以下命令**逐条执行**：
+
+```bash
+# 1. 检查 DNS 配置文件内容
+cat /etc/resolv.conf
+# 应该只有两行：nameserver 223.5.5.5 和 nameserver 8.8.8.8
+```
+
+```bash
+# 2. 检查 DNS 解析是否正常
+getent hosts github.com
+# 应返回 IP 地址
+```
+
+```bash
+# 3. 检查代理是否生效（需要代理的用户）
+curl -I https://www.google.com
+# 看到 HTTP/2 200 即成功
+```
+
+```bash
+# 4. 检查 apt 是否能正常更新
+sudo apt update
+# 应该能正常获取软件包列表，没有超时报错
+```
+
+> **如果验证不通过**：先在 PowerShell 中 `wsl --shutdown` 重启（让 boot command 重新执行），再检查。详见第五节"网络健康检查"和第六节"常见问题"。
+
+**代理覆盖范围总结**：
+
+| 配置 | 覆盖范围 |
+|------|---------|
+| `/etc/apt/apt.conf.d/proxy.conf` | `apt` 命令 |
+| `~/.bashrc` 中的环境变量 | `curl`、`wget`、`pip`、`npm`、`docker pull` 等所有读取 `http_proxy` 的工具 |
+| `~/.ssh/config` 中的 ProxyCommand | `git clone git@...` 等 SSH 连接（如已配置） |
+| Windows 侧 TUN 模式（如开启） | 兜底拦截所有未被上述覆盖的流量 |
+
+至此代理已全部配好，后续安装的工具不需要再单独配代理。
+
+#### DNS 原理说明（可跳过，排错时再看）
+
+> 这部分解释为什么 2.1 节的 boot command 是必要的。如果你的网络验证全部通过了，可以直接跳到第三节。
 
 镜像模式下 WSL 的 DNS 可能不通（无论是否使用代理）。症状：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
@@ -310,24 +352,6 @@ curl -I https://www.google.com
 3. 配合 `generateResolvConf=false` — 阻止 WSL 覆盖
 
 这三者协同工作，确保每次 WSL 启动后 DNS 都指向正确的地址。
-
-**如果你装了 Tailscale**，还需要额外一步，禁止 Tailscale 覆盖 DNS：
-
-```bash
-sudo tailscale set --accept-dns=false
-```
-
-**验证 DNS 是否正常**：
-
-```bash
-cat /etc/resolv.conf
-# 应该只有两行：nameserver 223.5.5.5 和 nameserver 8.8.8.8
-
-getent hosts github.com
-# 应返回 IP 地址
-```
-
-> **如果验证不通过**：先 `wsl --shutdown` 重启（让 boot command 重新执行），再检查。详见第五节"网络健康检查"和第六节"常见问题"。
 
 ---
 
