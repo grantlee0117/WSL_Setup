@@ -34,10 +34,11 @@ Claude Code 的 skill（docx、pptx、xlsx、pdf、latex 等）在生成文件�
 
 **关于代码块的执行方式**：
 
-本文中的代码块分为两种情况：
+本文中每个代码块都会标注执行方式，一共三种情况：
 
-- **可以整块复制粘贴执行的**：大部分 `sudo apt install` 命令、带 `\` 续行符的多行命令、`&&` 连接的命令。从第一行到最后一行全选，一次性粘贴到终端回车即可。
-- **必须逐条执行的**：文中会用**独立的代码块**分隔，并明确标注"以下命令**逐条执行**"。典型场景是前一条命令会改变环境（如 `source ~/.bashrc`），后续命令依赖这个变更。
+- 📋 **整块复制粘贴执行**：从第一行到最后一行全选，一次性粘贴到终端回车即可。包括：单条命令、带 `\` 续行符的多行命令、`&&` 连接的命令、多条独立命令写在同一个代码块中。
+- ✂️ **逐条复制粘贴执行**：前一条命令会改变环境（如 `source ~/.bashrc`），后续命令依赖这个变更，所以必须一条一条来。文中会拆成**独立的代码块**，并明确标注"**逐条执行**"。
+- 📝 **粘贴到编辑器中的配置内容**：不是在终端执行的命令，而是要粘贴到 nano、notepad 等编辑器中的文件内容。
 
 ---
 
@@ -47,7 +48,7 @@ Claude Code 的 skill（docx、pptx、xlsx、pdf、latex 等）在生成文件�
 
 > **为什么先配**：`.wslconfig` 控制 WSL2 虚拟机的资源和网络行为，装完 WSL 再改也行，但先配好可以避免首次启动时默认设置不合适。
 
-打开 **PowerShell**（不是 Git Bash），执行：
+打开 **PowerShell**（不是 Git Bash），📋 执行：
 
 ```powershell
 notepad C:\Users\你的用户名\.wslconfig
@@ -55,7 +56,7 @@ notepad C:\Users\你的用户名\.wslconfig
 
 > **注意**：把 `你的用户名` 替换成你的 Windows 用户名。不知道用户名的话，在 PowerShell 里执行 `echo $env:USERNAME` 即可查看。提示文件不存在是否新建，点"是"。
 
-写入以下内容：
+📝 写入以下内容：
 
 ```ini
 [wsl2]
@@ -99,7 +100,7 @@ autoProxy=true
 
 ### 1.2 安装 WSL2
 
-PowerShell（**管理员**模式）中执行：
+PowerShell（**管理员**模式）中 📋 执行：
 
 ```powershell
 wsl --install
@@ -112,7 +113,7 @@ wsl --install
 
 安装完成后**必须重启电脑**。
 
-重启后，再次打开 PowerShell（管理员模式），执行以下命令安装指定版本的 Ubuntu：
+重启后，再次打开 PowerShell（管理员模式），📋 执行以下命令安装指定版本的 Ubuntu：
 
 ```powershell
 wsl --install -d Ubuntu-24.04
@@ -155,7 +156,7 @@ wsl --install -d Ubuntu-24.04
 
 ### 2.1 配置 wsl.conf
 
-编辑配置文件：
+📋 编辑配置文件：
 
 ```bash
 sudo nano /etc/wsl.conf
@@ -171,7 +172,7 @@ sudo nano /etc/wsl.conf
    - 按 `Ctrl+K`（剪切/删除选中内容）
    - 现在文件应该是空的了
 
-2. **粘贴新内容**：在 Windows 浏览器里选中下面这整段配置复制，然后回到终端窗口**鼠标右键**粘贴：
+2. **粘贴新内容**：在 Windows 浏览器里选中下面这整段配置复制，然后回到终端窗口**鼠标右键**粘贴（📝 这是粘贴到 nano 编辑器里的内容，不是终端命令）：
 
 ```ini
 [boot]
@@ -203,19 +204,15 @@ generateResolvConf=false
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管） |
 
-退出并重启 WSL 使配置生效：
+退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
 ```bash
 exit
 ```
 
-回到 PowerShell，执行：
-
 ```powershell
 wsl --shutdown
 ```
-
-等几秒钟，再重新进入：
 
 ```powershell
 wsl
@@ -237,11 +234,13 @@ wsl
 
 > **apt 是什么？** apt 是 Ubuntu 的包管理器，相当于手机上的"应用商店"。后续所有 `sudo apt install xxx` 命令都通过它下载软件。apt 有自己独立的代理配置，不读 `http_proxy` 环境变量，所以必须单独配。
 
+📋 执行：
+
 ```bash
 sudo nano /etc/apt/apt.conf.d/proxy.conf
 ```
 
-写入以下两行（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
+📝 写入以下两行（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
 
 ```
 Acquire::http::Proxy "http://127.0.0.1:7897";
@@ -252,7 +251,7 @@ Acquire::https::Proxy "http://127.0.0.1:7897";
 
 **② 全局代理（让 curl、wget、pip、npm、docker pull 等命令行工具都走代理）**
 
-以下 5 行可以一次性粘贴执行：
+📋 以下 5 行整块复制粘贴执行：
 
 ```bash
 echo 'export http_proxy=http://127.0.0.1:7897' >> ~/.bashrc
@@ -266,7 +265,7 @@ source ~/.bashrc
 
 **③ Git SSH 代理（可选）**
 
-上面的 `http_proxy` 环境变量只对 HTTP/HTTPS 协议生效。如果 `git clone git@github.com:...` 仍然很慢或超时（说明你的网络直连 github.com:22 被阻断），需要给 SSH 单独配代理：
+上面的 `http_proxy` 环境变量只对 HTTP/HTTPS 协议生效。如果 `git clone git@github.com:...` 仍然很慢或超时（说明你的网络直连 github.com:22 被阻断），需要给 SSH 单独配代理。📋 以下整块复制粘贴执行：
 
 ```bash
 mkdir -p ~/.ssh
@@ -281,7 +280,7 @@ chmod 600 ~/.ssh/config
 
 **④ Tailscale 用户（如果你装了 Tailscale）**
 
-Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 2.1 节 boot command 写入的正确 DNS 被改掉。必须禁止它：
+Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 2.1 节 boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
 
 ```bash
 sudo tailscale set --accept-dns=false
@@ -365,6 +364,8 @@ sudo apt update
 
 ### 3.1 系统更新与基础工具
 
+📋 整块复制粘贴执行：
+
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y build-essential wget
@@ -374,7 +375,7 @@ sudo apt install -y build-essential wget
 
 ### 3.2 Git 配置
 
-WSL 和 Windows 是隔离的两个系统，需要在 WSL 里**重新配置一遍** Git：
+WSL 和 Windows 是隔离的两个系统，需要在 WSL 里**重新配置一遍** Git。📋 以下 6 行整块复制粘贴执行：
 
 ```bash
 git config --global user.name "你的名字"
@@ -385,11 +386,11 @@ git config --global credential.helper store
 git config --global core.quotepath false
 ```
 
-> 以上 6 行可以一次性粘贴执行。
+> 把 `你的名字` 和 `你的邮箱` 替换成你自己的即可。
 
 ### 3.3 SSH Key 配置
 
-WSL 里需要**单独生成一对**密钥，和 Windows 侧的是独立的：
+WSL 里需要**单独生成一对**密钥，和 Windows 侧的是独立的。📋 执行：
 
 ```bash
 ssh-keygen -t ed25519 -C "你的邮箱"
@@ -397,7 +398,7 @@ ssh-keygen -t ed25519 -C "你的邮箱"
 
 一路回车（默认路径、不设密码）。
 
-查看公钥：
+📋 查看公钥：
 
 ```bash
 cat ~/.ssh/id_ed25519.pub
@@ -407,7 +408,7 @@ cat ~/.ssh/id_ed25519.pub
 
 > **说明**：GitHub 允许添加多个 SSH key。每台电脑、每个环境（Windows / WSL）各自生成各自的，把公钥都加到 GitHub 即可。
 
-验证：
+📋 验证：
 
 ```bash
 ssh -T git@github.com
@@ -420,6 +421,8 @@ ssh -T git@github.com
 这些全是 `-dev` 包，只提供头文件（`.h`）和静态库（`.a`），对应的运行时 `.so` 是 Ubuntu 预装的。不会修改任何系统行为，不会互相冲突，卸载干净。
 
 **为什么要装**：后续编译 Python C 扩展、Node.js 原生模块、任何开源项目时都需要这些头文件。
+
+📋 整块复制粘贴执行（每行末尾的 `\` 是续行符，shell 会自动拼成一条命令）：
 
 ```bash
 sudo apt install -y \
@@ -436,8 +439,6 @@ sudo apt install -y \
     libcurl4-openssl-dev \
     pkgconf
 ```
-
-> **怎么用这段代码**：从 `sudo` 到最后一行 `pkgconf` 全部选中，一次性粘贴到终端里回车执行。每行末尾的 `\` 是续行符，shell 会自动把它们拼成一条命令。
 
 各包说明：
 
@@ -459,6 +460,8 @@ sudo apt install -y \
 独立的二进制工具，互相之间无依赖关系，每个都可以单独装或卸。
 
 **为什么要装**：Claude Code 的各个 skill 在处理文件时会调用这些工具。
+
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y \
@@ -482,6 +485,8 @@ sudo apt install -y \
 
 ### 3.6 CLI 效率工具 🟢 无风险
 
+📋 整块复制粘贴执行：
+
 ```bash
 sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 ```
@@ -502,6 +507,8 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 
 **为什么要装**：Claude Code 的 pdf、xlsx 等 skill 的脚本是 Python 写的，需要 pip 安装依赖（如 pypdf、openpyxl）。
 
+📋 整块复制粘贴执行：
+
 ```bash
 sudo apt install -y python3 python3-pip python3-venv python3-dev
 ```
@@ -517,7 +524,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev
 
 **为什么要装**：Claude Code 本体不再需要 Node.js（已改为原生安装器），但 skill 中的 npm 包（pptxgenjs 做 PPT、docx-js 做 Word、pdf-lib 做 PDF）仍然需要 Node.js 运行。Codex CLI 和 Gemini CLI 也通过 npm 安装。
 
-> **注意**：以下三条命令必须**逐条执行**，不能一起粘贴。第一条装完 nvm 后，必须 `source ~/.bashrc` 加载 nvm，否则第三条会报 `nvm: command not found`。
+✂️ 以下三条命令必须**逐条复制粘贴执行**，不能一起粘贴。第一条装完 nvm 后，必须 `source ~/.bashrc` 加载 nvm，否则第三条会报 `nvm: command not found`。
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -542,11 +549,13 @@ nvm install --lts
 
 **为什么要装**：很多工具链（如 Gradle、Maven、部分 IDE 功能）依赖 JDK。LibreOffice 也会拉入 OpenJDK，但这里显式安装确保版本可控。
 
+📋 执行：
+
 ```bash
 sudo apt install -y default-jdk
 ```
 
-验证：
+📋 验证（整块粘贴执行）：
 
 ```bash
 java --version
@@ -559,7 +568,7 @@ javac --version
 
 **为什么要装**：很多现代 CLI 工具（如 ripgrep、fd、bat）和系统工具都用 Rust 编写。部分 Python 包（如 pydantic-core）也需要 Rust 编译。
 
-以下命令**逐条执行**：
+✂️ 以下命令**逐条复制粘贴执行**：
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -571,7 +580,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 ```
 
-验证：
+📋 验证（整块粘贴执行）：
 
 ```bash
 rustc --version
@@ -584,7 +593,7 @@ cargo --version
 
 **为什么要装**：很多云原生工具（如 Docker、Kubernetes 相关工具）和开发工具用 Go 编写。
 
-以下命令**逐条执行**：
+✂️ 以下命令**逐条复制粘贴执行**：
 
 ```bash
 curl -fsSL https://go.dev/dl/go1.24.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xzf -
@@ -594,7 +603,7 @@ curl -fsSL https://go.dev/dl/go1.24.1.linux-amd64.tar.gz | sudo tar -C /usr/loca
 echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> ~/.bashrc && source ~/.bashrc
 ```
 
-验证：
+📋 验证：
 
 ```bash
 go version
@@ -608,6 +617,8 @@ go version
 
 **为什么要装**：Claude Code 的 pdf skill 处理扫描件 PDF 时需要 OCR 识别文字。如果你不处理扫描件，可以跳过。
 
+📋 整块复制粘贴执行：
+
 ```bash
 sudo apt install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 ```
@@ -617,6 +628,8 @@ sudo apt install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 ### 3.13 LibreOffice 🟠 需注意
 
 **为什么要装**：Claude Code 的 docx / pptx / xlsx skill 都依赖 `soffice --headless` 做格式转换（比如 docx → PDF），没有替代品。
+
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libreoffice-calc
@@ -632,6 +645,8 @@ sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libr
 ### 3.14 TeX Live 🟠 需注意
 
 **为什么要装**：latex-document-writer skill 需要 `xelatex` 编译 LaTeX 文档（支持中文排版）。
+
+📋 执行（安装需要 10-20 分钟，耐心等待）：
 
 ```bash
 sudo apt install -y texlive-full
@@ -654,7 +669,7 @@ sudo apt install -y texlive-full
 >
 > npm 安装方式（`npm install -g @anthropic-ai/claude-code`）已被官方弃用。以下是当前官方推荐的原生安装方式，会自动后台更新。
 
-以下命令**逐条执行**：
+✂️ 以下命令**逐条复制粘贴执行**：
 
 ```bash
 curl -fsSL https://claude.ai/install.sh | bash
@@ -666,13 +681,13 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 
 > **说明**：第二条是将安装路径加入 PATH。安装脚本把二进制文件放在 `~/.local/bin/claude`，但该路径默认不在 PATH 里，不加这步会报 `command not found`。
 
-验证：
+📋 验证：
 
 ```bash
 claude --version
 ```
 
-安装沙盒依赖（Claude Code 使用 bubblewrap 实现 OS 级沙盒隔离）：
+📋 安装沙盒依赖（Claude Code 使用 bubblewrap 实现 OS 级沙盒隔离）：
 
 ```bash
 sudo apt install -y bubblewrap socat
@@ -686,11 +701,13 @@ sudo apt install -y bubblewrap socat
 >
 > Codex CLI 是 OpenAI 的终端编程代理。需要 ChatGPT Plus/Pro/Team 账号或 OpenAI API Key。
 
+📋 执行：
+
 ```bash
 npm i -g @openai/codex
 ```
 
-验证：
+📋 验证：
 
 ```bash
 codex --version
@@ -702,6 +719,8 @@ codex --version
 >
 > Gemini CLI 是 Google 的开源终端 AI 代理（Apache 2.0）。需要 Google API Key 或 Gemini Code Assist 许可证。
 
+📋 执行：
+
 ```bash
 npm i -g @google/gemini-cli
 ```
@@ -712,7 +731,7 @@ npm i -g @google/gemini-cli
 > echo 'export GOOGLE_API_KEY="你的API Key"' >> ~/.bashrc && source ~/.bashrc
 > ```
 
-验证：
+📋 验证：
 
 ```bash
 gemini --version
@@ -726,7 +745,7 @@ gemini --version
 
 **第一步：添加 Docker 官方 apt 源**
 
-以下整块可以一次性粘贴执行：
+📋 以下整块复制粘贴执行：
 
 ```bash
 # 安装前置依赖
@@ -746,6 +765,8 @@ echo \
 
 **第二步：安装 Docker Engine**
 
+📋 整块复制粘贴执行：
+
 ```bash
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -753,13 +774,15 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 **第三步：免 sudo 使用 Docker**
 
+📋 执行：
+
 ```bash
 sudo usermod -aG docker $USER
 ```
 
 > **注意**：执行后需要**重启 WSL** 才能生效。方法：输入 `exit` 退出，然后在 PowerShell 里执行 `wsl --shutdown`，再重新 `wsl` 进入。不重启的话 `docker` 命令仍然需要加 `sudo`。
 
-验证：
+📋 验证（整块粘贴执行）：
 
 ```bash
 docker --version
@@ -802,7 +825,7 @@ sudo apt install -y cmake ninja-build gdb valgrind strace ccache
 
 ## 四、验证清单
 
-全部配置完成后，逐项验证（以下命令逐条执行，不要全部粘贴）：
+全部配置完成后，逐项验证。✂️ 以下命令**逐条复制粘贴执行**（不要整块粘贴，因为有些命令需要看输出确认结果）：
 
 ```bash
 # 1. 网络（验证代理或直连）
@@ -866,7 +889,7 @@ docker --version && docker compose version
 
 ## 五、网络健康检查（一键诊断）
 
-DNS 和代理问题反复出现时，用以下命令一键定位。直接复制粘贴到 WSL 终端执行：
+DNS 和代理问题反复出现时，用以下命令一键定位。📋 整块复制粘贴到 WSL 终端执行：
 
 ```bash
 echo "=== WSL 网络健康检查 ===" && \
