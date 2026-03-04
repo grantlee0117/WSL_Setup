@@ -321,6 +321,8 @@ sudo apt update
 
 **代理覆盖范围总结**：
 
+本文的代理配置思路很简单：`apt`、`curl`/`wget`、`git SSH` 这几个系统级工具不会自动读取系统代理，所以手动给它们单独配上；其余所有程序的流量，通过镜像模式（`networkingMode=mirrored`）走 Windows 网络栈，被 Windows 侧 Clash 的 TUN 模式在网络层统一拦截（前提是 Windows 侧开启了 Clash TUN 模式）。
+
 | 配置 | 覆盖范围 |
 |------|---------|
 | `/etc/apt/apt.conf.d/proxy.conf` | `apt` 命令 |
