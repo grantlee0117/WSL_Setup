@@ -199,10 +199,10 @@ generateResolvConf=false
 | 配置项 | 作用 |
 |--------|------|
 | `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
-| `command=rm -f ... && printf ...` | 每次 WSL 启动时自动写入正确的 DNS 配置（详见 2.2 节） |
+| `command=rm -f ... && printf ...` | 每次 WSL 启动时先断开 symlink 再写入正确的 DNS 配置（详见 2.2 节） |
 | `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
-| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管） |
+| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管）。注意：这只阻止 WSL 写入，不会删除 Ubuntu 初装时就存在的 symlink（`/etc/resolv.conf → systemd-resolved stub`），所以 boot command 里的 `rm -f` 仍然是必要的 |
 
 > **注意**：`[boot]` 段只能有一条 `command=`。如果你已经有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
 
@@ -356,7 +356,7 @@ sudo apt update
 
 **2.1 节的 boot command 做了什么**：
 
-1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 systemd-resolved 的 stub 文件）
+1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 `/run/systemd/resolve/stub-resolv.conf`）。**必须先断开 symlink**：如果直接 `printf > /etc/resolv.conf`，实际修改的是 symlink 的目标文件，systemd-resolved 重启后会覆盖回 `127.0.0.53`
 2. `printf 'nameserver 223.5.5.5\n...' > /etc/resolv.conf` — 写入正确的公共 DNS
 3. 配合 `generateResolvConf=false` — 阻止 WSL 覆盖
 
