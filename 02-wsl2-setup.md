@@ -204,6 +204,8 @@ generateResolvConf=false
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管） |
 
+> **注意**：`[boot]` 段只能有一条 `command=`。如果你已经有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
+
 退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
 ```bash
@@ -345,6 +347,12 @@ sudo apt update
 | WSL 自动生成 | `nameserver 10.255.255.254`（虚拟网关） | 不经过 Clash，通常不能 |
 | Tailscale | `nameserver 100.100.100.100`（MagicDNS） | 不经过 Clash，通常不能 |
 | boot command 手动写 | `nameserver 223.5.5.5`（公共 DNS） | 经过 Windows 网络栈 → 正常 |
+
+**常见触发场景**（配好后突然又坏了）：
+
+- **在 Windows 侧切换 Clash 模式**（规则模式 ↔ 全局模式）：改变 Clash 对 DNS 的拦截方式，可能导致 WSL 内 DNS 路径断裂
+- **WSL 重启**后 Tailscale 或 WSL 重新覆盖 `resolv.conf`
+- **Tailscale 更新或重启**后重新接管 DNS
 
 **2.1 节的 boot command 做了什么**：
 
@@ -1025,5 +1033,10 @@ A：两者走的网络路径不同：
 
 **解法**：修好 resolv.conf 即可（见上一个 Q）。DNS 修好后 SSH 直连 github.com 正常工作，不需要额外配置 SSH ProxyCommand。
 
+**误区**：以为需要给 SSH 配 ProxyCommand 走代理。实际测试发现：1) 很多代理（包括 Clash 的 autoProxy）不支持 CONNECT 到端口 22（SSH），会报 `Connection closed by UNKNOWN port 65535`；2) DNS 修好后直连就行，加 ProxyCommand 反而引入不必要的复杂度。ProxyCommand 只在直连 github.com:22 被网络阻断时才需要。一句话：**DNS 修好是根本解法，ProxyCommand 是绕路方案**。
+
 **Q：在 Windows 里切换了 Clash 的代理模式后，WSL 的 DNS 突然不通了？**
 A：`wsl --shutdown` 重启即可恢复（boot command 会重新写入正确 DNS）。
+
+**Q：为什么用 `getent hosts` 而不是 `nslookup` 验证 DNS？**
+A：`nslookup` 属于 `dnsutils` 包，WSL 最小安装中默认不存在。`getent hosts` 是系统自带的，且直接使用系统 DNS 配置（`/etc/resolv.conf`），验证结果更准确。本文全程使用 `getent hosts`。
