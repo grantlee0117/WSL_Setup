@@ -967,41 +967,77 @@ echo "=== 检查完毕 ==="
 
 ## 六、常见问题
 
-**Q：启动 WSL 时提示"检测到 localhost 代理配置，但未镜像到 WSL"**
-A：`.wslconfig` 中的 `networkingMode=mirrored` 没生效。在 PowerShell 中执行 `wsl --shutdown` 后重新进入。
+---
 
-**Q：`apt update` 超时（Connection timed out）**
-A：apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了代理地址和端口。
+### Q：启动 WSL 时提示"检测到 localhost 代理配置，但未镜像到 WSL"
 
-**Q：安装过程中某个包下载失败（502 Bad Gateway）**
-A：代理临时抽风。已下载的不会重复下载，在原命令后面加 `--fix-missing` 重试即可。例如 `sudo apt install -y --fix-missing texlive-full`。
+`.wslconfig` 中的 `networkingMode=mirrored` 没生效。在 PowerShell 中执行 `wsl --shutdown` 后重新进入。
 
-**Q：`.wslconfig` 中 `autoMemoryReclaim` 或 `sparseVhd` 报"键未知"**
-A：你的 WSL 版本不支持这些实验性选项，删掉即可。
+---
 
-**Q：SSH key 的公钥和私钥是什么关系？**
-A：公钥（锁）放到 GitHub 上，私钥（钥匙）留在本地电脑。每台电脑各生成一对，把公钥都加到 GitHub 就行。私钥永远不要发给别人。
+### Q：`apt update` 超时（Connection timed out）
 
-**Q：PowerShell 中 `curl` 提示要输入 Uri？**
-A：PowerShell 的 `curl` 是 `Invoke-WebRequest` 的别名，不是真正的 curl。用 `curl.exe` 代替。
+apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了代理地址和端口。
 
-**Q：修改 `.wslconfig` 后没有生效？**
-A：必须在 PowerShell 中执行 `wsl --shutdown` 完全关闭 WSL，再重新 `wsl` 进入才能生效。
+---
 
-**Q：`docker` 命令报 `permission denied`？**
-A：执行 `sudo usermod -aG docker $USER` 后需要重启 WSL（`exit` → `wsl --shutdown` → `wsl`）。
+### Q：安装过程中某个包下载失败（502 Bad Gateway）
 
-**Q：Linux 密码输入时屏幕没有任何反应？**
-A：这是正常的。Linux 终端输入密码时不会显示任何字符（包括星号），直接输完回车即可。
+代理临时抽风。已下载的不会重复下载，在原命令后面加 `--fix-missing` 重试即可。例如 `sudo apt install -y --fix-missing texlive-full`。
 
-**Q：`git clone git@github.com:...` 超时或报 DNS 错误，但 `git clone https://...` 正常？**
-A：先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见 2.2 节 DNS 原理说明）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见 2.2 节 Git SSH 代理）。`http_proxy` 只对 HTTPS 协议生效，SSH 不读这个变量。
+---
 
-**Q：关掉 Clash 后所有命令都报代理错误？**
-A：因为代理写在了 `~/.bashrc` 和 apt 配置里。临时关闭代理可以执行 `unset http_proxy https_proxy all_proxy`，但下次开终端又会恢复。如果要永久去掉，需要编辑 `~/.bashrc` 和 `/etc/apt/apt.conf.d/proxy.conf` 删除相关行。
+### Q：`.wslconfig` 中 `autoMemoryReclaim` 或 `sparseVhd` 报"键未知"
 
-**Q：DNS 突然不通了（之前一直好好的）？**
-A：终极排查流程：
+你的 WSL 版本不支持这些实验性选项，删掉即可。
+
+---
+
+### Q：SSH key 的公钥和私钥是什么关系？
+
+公钥（锁）放到 GitHub 上，私钥（钥匙）留在本地电脑。每台电脑各生成一对，把公钥都加到 GitHub 就行。私钥永远不要发给别人。
+
+---
+
+### Q：PowerShell 中 `curl` 提示要输入 Uri？
+
+PowerShell 的 `curl` 是 `Invoke-WebRequest` 的别名，不是真正的 curl。用 `curl.exe` 代替。
+
+---
+
+### Q：修改 `.wslconfig` 后没有生效？
+
+必须在 PowerShell 中执行 `wsl --shutdown` 完全关闭 WSL，再重新 `wsl` 进入才能生效。
+
+---
+
+### Q：`docker` 命令报 `permission denied`？
+
+执行 `sudo usermod -aG docker $USER` 后需要重启 WSL（`exit` → `wsl --shutdown` → `wsl`）。
+
+---
+
+### Q：Linux 密码输入时屏幕没有任何反应？
+
+这是正常的。Linux 终端输入密码时不会显示任何字符（包括星号），直接输完回车即可。
+
+---
+
+### Q：`git clone git@github.com:...` 超时或报 DNS 错误，但 `git clone https://...` 正常？
+
+先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见 2.2 节 DNS 原理说明）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见 2.2 节 Git SSH 代理）。`http_proxy` 只对 HTTPS 协议生效，SSH 不读这个变量。
+
+---
+
+### Q：关掉 Clash 后所有命令都报代理错误？
+
+因为代理写在了 `~/.bashrc` 和 apt 配置里。临时关闭代理可以执行 `unset http_proxy https_proxy all_proxy`，但下次开终端又会恢复。如果要永久去掉，需要编辑 `~/.bashrc` 和 `/etc/apt/apt.conf.d/proxy.conf` 删除相关行。
+
+---
+
+### Q：DNS 突然不通了（之前一直好好的）？
+
+终极排查流程：
 
 ```bash
 # 1. 检查 resolv.conf 有没有被覆盖
@@ -1022,9 +1058,11 @@ getent hosts github.com
 - `10.255.255.254` → 检查 `/etc/wsl.conf` 中 `generateResolvConf=false`
 - `127.0.0.53` → `/etc/resolv.conf` 是 symlink，boot command 里缺少 `rm -f`
 
-**Q：Claude Code 能正常使用，但 `git push git@github.com` 报 DNS 解析失败？**
+---
 
-A：两者走的网络路径不同：
+### Q：Claude Code 能正常使用，但 `git push git@github.com` 报 DNS 解析失败？
+
+两者走的网络路径不同：
 
 | 工具 | 协议 | DNS 解析在哪里 | 是否依赖 resolv.conf |
 |------|------|-------------|:---:|
@@ -1035,8 +1073,14 @@ A：两者走的网络路径不同：
 
 **误区**：以为需要给 SSH 配 ProxyCommand 走代理。实际测试发现：1) 很多代理（包括 Clash 的 autoProxy）不支持 CONNECT 到端口 22（SSH），会报 `Connection closed by UNKNOWN port 65535`；2) DNS 修好后直连就行，加 ProxyCommand 反而引入不必要的复杂度。ProxyCommand 只在直连 github.com:22 被网络阻断时才需要。一句话：**DNS 修好是根本解法，ProxyCommand 是绕路方案**。
 
-**Q：在 Windows 里切换了 Clash 的代理模式后，WSL 的 DNS 突然不通了？**
-A：`wsl --shutdown` 重启即可恢复（boot command 会重新写入正确 DNS）。
+---
 
-**Q：为什么用 `getent hosts` 而不是 `nslookup` 验证 DNS？**
-A：`nslookup` 属于 `dnsutils` 包，WSL 最小安装中默认不存在。`getent hosts` 是系统自带的，且直接使用系统 DNS 配置（`/etc/resolv.conf`），验证结果更准确。本文全程使用 `getent hosts`。
+### Q：在 Windows 里切换了 Clash 的代理模式后，WSL 的 DNS 突然不通了？
+
+`wsl --shutdown` 重启即可恢复（boot command 会重新写入正确 DNS）。
+
+---
+
+### Q：为什么用 `getent hosts` 而不是 `nslookup` 验证 DNS？
+
+`nslookup` 属于 `dnsutils` 包，WSL 最小安装中默认不存在。`getent hosts` 是系统自带的，且直接使用系统 DNS 配置（`/etc/resolv.conf`），验证结果更准确。本文全程使用 `getent hosts`。
