@@ -460,6 +460,14 @@ function main(config) {
     // ─── 国内兜底 ───
     "GEOSITE,cn,DIRECT",                           // 国内常见域名集合兜底
     "GEOIP,CN,DIRECT,no-resolve",                  // 中国大陆 IP 兜底直连
+    // ─── 游戏平台进程直连 ───
+    "PROCESS-NAME,WeGame.exe,DIRECT",
+    "PROCESS-NAME,wegame.exe,DIRECT",
+    "PROCESS-NAME,TenioDL.exe,DIRECT",
+    "PROCESS-NAME,VALORANT.exe,DIRECT",
+    "PROCESS-NAME,RiotClientServices.exe,DIRECT",
+    "PROCESS-NAME,vgc.exe,DIRECT",
+    "PROCESS-NAME,vgtray.exe,DIRECT",
   ];
 
 
@@ -980,7 +988,7 @@ function main(config) {
     // ─── 按域名指定 DNS ───
     "nameserver-policy": {
       "+.arpa": "10.0.0.1",
-      "rule-set:cn": [
+      "geosite:cn": [
         "https://doh.pub/dns-query",
         "https://dns.alidns.com/dns-query"
       ]
@@ -998,6 +1006,14 @@ function main(config) {
       "localhost.ptlogin2.qq.com",
       "*.msftncsi.com",
       "www.msftconnecttest.com",
+      // ─── 游戏平台（必须拿到真实 IP）───
+      "+.wegame.com.cn",
+      "+.wegame.com",
+      "+.tgp.qq.com",
+      "+.pvp.net",
+      "+.riotgames.com",
+      "+.valorant.com",
+      "+.tencentgames.com",
     ],
   };
 
