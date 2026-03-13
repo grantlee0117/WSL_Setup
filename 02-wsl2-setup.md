@@ -424,7 +424,52 @@ ssh -T git@github.com
 
 首次连接输入 **yes**，看到 `successfully authenticated` 即成功。
 
-### 3.4 C/C++ 编译基础库 🟢 无风险
+### 3.4 GitHub CLI 🟢 无风险
+
+**为什么要装**：`gh` 是 GitHub 官方命令行工具，可以在终端直接创建 PR、管理 Issue、查看 CI 状态等。Claude Code 执行 GitHub 相关操作时也会调用 `gh`。
+
+**第一步：添加 GitHub CLI apt 源**
+
+📋 整块复制粘贴执行：
+
+```bash
+sudo mkdir -p -m 755 /etc/apt/keyrings
+wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+```
+
+**第二步：安装**
+
+📋 执行：
+
+```bash
+sudo apt update && sudo apt install -y gh
+```
+
+**第三步：登录认证**
+
+📋 执行：
+
+```bash
+gh auth login
+```
+
+按提示操作：
+
+- 选择 **GitHub.com**
+- 协议选择 **SSH**（已在 3.3 配好密钥）
+- 登录方式选择 **Login with a web browser**，复制终端显示的一次性代码，在浏览器中打开链接粘贴即可
+
+📋 验证：
+
+```bash
+gh auth status
+```
+
+> **说明**：`gh` 通过 apt 管理，更新只需 `sudo apt upgrade`。认证信息存在 `~/.config/gh/` 下。
+
+### 3.5 C/C++ 编译基础库 🟢 无风险
 
 这些全是 `-dev` 包，只提供头文件（`.h`）和静态库（`.a`），对应的运行时 `.so` 是 Ubuntu 预装的。不会修改任何系统行为，不会互相冲突，卸载干净。
 
@@ -463,7 +508,7 @@ sudo apt install -y \
 | `libcurl4-openssl-dev` | curl 的开发头文件 |
 | `pkgconf` | 库路径查找工具，编译时 `pkg-config --cflags/--libs` 需要 |
 
-### 3.5 命令行工具 🟢 无风险
+### 3.6 命令行工具 🟢 无风险
 
 独立的二进制工具，互相之间无依赖关系，每个都可以单独装或卸。
 
@@ -491,7 +536,7 @@ sudo apt install -y \
 | `jq` | JSON 处理 |
 | `tree` / `zip` / `unzip` | 目录展示和压缩解压 |
 
-### 3.6 CLI 效率工具 🟢 无风险
+### 3.7 CLI 效率工具 🟢 无风险
 
 📋 整块复制粘贴执行：
 
@@ -511,7 +556,7 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 
 > **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+B` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。更多用法可以搜索"tmux 入门教程"。
 
-### 3.7 Python 环境 🟡 低风险
+### 3.8 Python 环境 🟡 低风险
 
 **为什么要装**：Claude Code 的 pdf、xlsx 等 skill 的脚本是 Python 写的，需要 pip 安装依赖（如 pypdf、openpyxl）。
 
@@ -528,7 +573,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev
 | `python3-venv` | 虚拟环境支持 |
 | `python3-dev` | Python.h 头文件，编译 C 扩展需要 |
 
-### 3.8 Node.js 环境 🟡 低风险
+### 3.9 Node.js 环境 🟡 低风险
 
 **为什么要装**：Claude Code 本体不再需要 Node.js（已改为原生安装器），但 skill 中的 npm 包（pptxgenjs 做 PPT、docx-js 做 Word、pdf-lib 做 PDF）仍然需要 Node.js 运行。Codex CLI 和 Gemini CLI 也通过 npm 安装。
 
@@ -553,7 +598,7 @@ nvm install --lts
 
 > **为什么不用 `sudo apt install nodejs`**：Ubuntu 源里的 Node.js 版本通常偏老，且会装到系统目录和 nvm 冲突。用 nvm 管理是业界标准做法。
 
-### 3.9 Java 环境 🟡 低风险
+### 3.10 Java 环境 🟡 低风险
 
 **为什么要装**：很多工具链（如 Gradle、Maven、部分 IDE 功能）依赖 JDK。LibreOffice 也会拉入 OpenJDK，但这里显式安装确保版本可控。
 
@@ -572,7 +617,7 @@ javac --version
 
 > **说明**：`default-jdk` 在 Ubuntu 24.04 上安装 OpenJDK 21。如果需要其他版本（如 JDK 17），可以用 `sudo apt install openjdk-17-jdk`。
 
-### 3.10 Rust 环境 🟡 低风险
+### 3.11 Rust 环境 🟡 低风险
 
 **为什么要装**：很多现代 CLI 工具（如 ripgrep、fd、bat）和系统工具都用 Rust 编写。部分 Python 包（如 pydantic-core）也需要 Rust 编译。
 
@@ -597,7 +642,7 @@ cargo --version
 
 > **说明**：Rust 通过 rustup 安装，所有文件在 `~/.rustup/` 和 `~/.cargo/` 下，不碰系统目录，卸载只需 `rustup self uninstall`。
 
-### 3.11 Go 环境 🟡 低风险
+### 3.12 Go 环境 🟡 低风险
 
 **为什么要装**：很多云原生工具（如 Docker、Kubernetes 相关工具）和开发工具用 Go 编写。
 
@@ -621,7 +666,7 @@ go version
 >
 > **版本号**：上面的 `go1.24.1` 是示例版本号，安装前建议去 [Go 官网](https://go.dev/dl/) 查看最新版本号并替换。
 
-### 3.12 Tesseract OCR 🟡 低风险（可选）
+### 3.13 Tesseract OCR 🟡 低风险（可选）
 
 **为什么要装**：Claude Code 的 pdf skill 处理扫描件 PDF 时需要 OCR 识别文字。如果你不处理扫描件，可以跳过。
 
@@ -633,7 +678,7 @@ sudo apt install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 
 > `chi-sim` 和 `chi-tra` 分别是简体和繁体中文的 OCR 训练模型，纯数据文件。
 
-### 3.13 LibreOffice 🟠 需注意
+### 3.14 LibreOffice 🟠 需注意
 
 **为什么要装**：Claude Code 的 docx / pptx / xlsx skill 都依赖 `soffice --headless` 做格式转换（比如 docx → PDF），没有替代品。
 
@@ -646,11 +691,11 @@ sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libr
 > **为什么标 🟠**：
 > - 依赖链约 300-500MB，会拉入 Java 运行时（OpenJDK）和 GTK 图形库
 > - 但这些依赖不会破坏系统，只是体积大
-> - 如果 3.9 已装了 JDK，不会重复安装
+> - 如果 3.10 已装了 JDK，不会重复安装
 >
 > **风险是"需要知道"而非"会出问题"**。
 
-### 3.14 TeX Live 🟠 需注意
+### 3.15 TeX Live 🟠 需注意
 
 **为什么要装**：latex-document-writer skill 需要 `xelatex` 编译 LaTeX 文档（支持中文排版）。
 
@@ -671,7 +716,7 @@ sudo apt install -y texlive-full
 > sudo apt install -y texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-lang-chinese texlive-xetex texlive-science texlive-pictures latexmk
 > ```
 
-### 3.15 Claude Code 安装
+### 3.16 Claude Code 安装
 
 > **来源**：[官方文档](https://claude.ai/docs/claude-code)
 >
@@ -703,7 +748,7 @@ sudo apt install -y bubblewrap socat
 
 > **说明**：bubblewrap + socat 是 Claude Code 沙盒功能的必要依赖。
 
-### 3.16 OpenAI Codex CLI 安装
+### 3.17 OpenAI Codex CLI 安装
 
 > **来源**：[官方 GitHub](https://github.com/openai/codex) / [官方文档](https://developers.openai.com/codex/cli/)
 >
@@ -721,7 +766,7 @@ npm i -g @openai/codex
 codex --version
 ```
 
-### 3.17 Google Gemini CLI 安装
+### 3.18 Google Gemini CLI 安装
 
 > **来源**：[官方 GitHub](https://github.com/google-gemini/gemini-cli) / [官方文档](https://geminicli.com/docs/get-started/installation/)
 >
@@ -745,7 +790,7 @@ npm i -g @google/gemini-cli
 gemini --version
 ```
 
-### 3.18 Docker Engine 安装
+### 3.19 Docker Engine 安装
 
 > **来源**：[Docker 官方文档](https://docs.docker.com/engine/install/ubuntu/)
 >
@@ -800,7 +845,7 @@ docker run --rm hello-world
 
 > 看到 `Hello from Docker!` 即表示安装成功。
 
-### 3.19 暂不安装（按需再加）
+### 3.20 暂不安装（按需再加）
 
 以下工具根据实际需要再装，这里只记录命令备用：
 
@@ -851,43 +896,46 @@ systemctl list-unit-files --type=service | head
 # 5. 资源分配（确认内存和 CPU 核心数符合 .wslconfig 配置）
 free -h && nproc
 
-# 6. C/C++ 编译基础
+# 6. GitHub CLI
+gh --version
+
+# 7. C/C++ 编译基础
 pkg-config --cflags openssl
 
-# 7. 命令行工具（Claude Code skill 依赖）
+# 8. 命令行工具（Claude Code skill 依赖）
 pdftoppm -v && pandoc --version && ffmpeg -version
 
-# 8. Python
+# 9. Python
 python3 --version && pip3 --version
 
-# 9. Node.js
+# 10. Node.js
 node -v && npm -v
 
-# 10. Java
+# 11. Java
 java --version
 
-# 11. Rust
+# 12. Rust
 rustc --version
 
-# 12. Go
+# 13. Go
 go version
 
-# 13. LibreOffice（docx/pptx/xlsx skill 的格式转换引擎）
+# 14. LibreOffice（docx/pptx/xlsx skill 的格式转换引擎）
 soffice --version
 
-# 14. TeX Live（latex skill 的编译器）
+# 15. TeX Live（latex skill 的编译器）
 xelatex --version
 
-# 15. Claude Code
+# 16. Claude Code
 claude --version
 
-# 16. OpenAI Codex CLI
+# 17. OpenAI Codex CLI
 codex --version
 
-# 17. Google Gemini CLI
+# 18. Google Gemini CLI
 gemini --version
 
-# 18. Docker
+# 19. Docker
 docker --version && docker compose version
 ```
 
