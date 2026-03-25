@@ -20,8 +20,8 @@ config.harfbuzz_features = { "calt=1", "clig=1", "liga=1" }
 -- ─── 配色 (Catppuccin Mocha) ────────────────────────────
 config.color_scheme = "Catppuccin Mocha"
 
--- 微透明 (92%)
-config.window_background_opacity = 0.92
+-- 微透明 (85%)
+config.window_background_opacity = 0.85
 config.win32_system_backdrop = "Acrylic"
 
 -- ─── 窗口 ───────────────────────────────────────────────
@@ -37,9 +37,7 @@ config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 
 -- ─── 默认启动 WSL ────────────────────────────────────────
-config.default_domain = "WSL:Ubuntu"
--- 如果你的发行版名字不同，用下面这行替换:
--- config.default_domain = "WSL:Ubuntu-24.04"
+config.default_domain = "WSL:Ubuntu-24.04"
 
 -- ─── 滚动 ───────────────────────────────────────────────
 config.scrollback_lines = 100000

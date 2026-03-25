@@ -554,7 +554,7 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 | `ncdu` | 磁盘空间分析工具 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
 
-> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+B` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见下方"终端环境配置"部分。
+> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+A` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见下方"终端环境配置"部分。
 
 **清理 Zone.Identifier 垃圾文件**：
 
@@ -613,9 +613,9 @@ chmod +x setup.sh
 
 **部署后还需要**：
 
-1. **安装字体**：脚本会提示字体下载路径，在 Windows 资源管理器中打开该目录，全选 `.ttf` 文件 → 右键 → **为所有用户安装**
+1. **安装字体**：在 Windows 资源管理器地址栏输入 `C:\Users\你的用户名\AppData\Local\Microsoft\Windows\Fonts`，全选所有 `.ttf` 文件 → 右键 → **为所有用户安装**
 2. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
-3. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+B` 然后按大写 `I`（Install），等待插件安装完成
+3. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+A` 然后按大写 `I`（Install），等待插件安装完成
 
 📋 验证：
 
@@ -623,22 +623,22 @@ chmod +x setup.sh
 ta test
 ```
 
-> 应创建一个名为 `test` 的 tmux 会话并自动连接。`Ctrl+B` 然后按 `D` 退出，`ta kill test` 关闭会话。
+> 应创建一个名为 `test` 的 tmux 会话并自动连接。`Ctrl+A` 然后按 `D` 退出，`ta kill test` 关闭会话。
 
 **常用操作速查**：
 
 | 操作 | 快捷键 / 命令 |
 |------|--------------|
-| 左右分屏 | `Ctrl+B %` |
-| 上下分屏 | `Ctrl+B "` |
-| Vim 风格切换 pane | `Ctrl+B h/j/k/l` |
-| 后台挂起会话 | `Ctrl+B d` |
+| 左右分屏 | `Ctrl+A %` |
+| 上下分屏 | `Ctrl+A "` |
+| Vim 风格切换 pane | `Ctrl+A h/j/k/l` |
+| 后台挂起会话 | `Ctrl+A d` |
 | 重新连接会话 | `ta` 或 `ta 会话名` |
 | 创建带 N 个 pane 的会话 | `ta 名称 N`（如 `ta dev 3`） |
-| 三格布局（1 大 + 2 小） | `Ctrl+B A` |
-| 田字格布局（4 等分） | `Ctrl+B Q` |
-| 保存会话（重启后可恢复） | `Ctrl+B Ctrl+S` |
-| 恢复会话 | `Ctrl+B Ctrl+R` |
+| 三格布局（1 大 + 2 小） | `Ctrl+A A` |
+| 田字格布局（4 等分） | `Ctrl+A Q` |
+| 保存会话（重启后可恢复） | `Ctrl+A Ctrl+S` |
+| 恢复会话 | `Ctrl+A Ctrl+R` |
 | 关闭所有会话 | `ta kill-all` |
 | 查看完整速查卡 | `ta help` 或查看 `terminal-setup/cheatsheet.md` |
 
