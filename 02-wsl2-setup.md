@@ -668,8 +668,9 @@ ta test
 | 后台挂起会话 | `Ctrl+A d` |
 | 重新连接会话 | `ta` 或 `ta 会话名` |
 | 创建带 N 个 pane 的会话 | `ta 名称 N`（如 `ta dev 3`） |
-| 三格布局（1 大 + 2 小） | `Ctrl+A A` |
-| 田字格布局（4 等分） | `Ctrl+A Q` |
+| 调整 pane 大小 | `Alt+h/j/k/l`（不需要前缀键） |
+| 三格布局（1 大 + 2 小） | `Ctrl+A a` |
+| 田字格布局（4 等分） | `Ctrl+A q` |
 | 保存会话（重启后可恢复） | `Ctrl+A Ctrl+S` |
 | 恢复会话 | `Ctrl+A Ctrl+R` |
 | 关闭所有会话 | `ta kill-all` |

@@ -24,7 +24,7 @@ chmod +x setup.sh
 | `Ctrl+A %` | 左右分屏 |
 | `Ctrl+A "` | 上下分屏 |
 | `Ctrl+A h/j/k/l` | Vim 风格切换 pane |
-| `Ctrl+A H/J/K/L` | 调整 pane 大小 |
+| `Alt+h/j/k/l` | 调整 pane 大小 (不需要前缀) |
 | `Ctrl+A d` | 后台挂起 (detach) |
 | `Ctrl+A c` | 新窗口 |
 | `Ctrl+A 1-9` | 切换窗口 |
@@ -34,15 +34,15 @@ chmod +x setup.sh
 ### Agent Team 布局
 | 快捷键 | 功能 |
 |--------|------|
-| `Ctrl+A A` | 三格布局 (1 大 + 2 小) |
-| `Ctrl+A Q` | 田字格 (4 等分) |
+| `Ctrl+A a` | 三格布局 (1 大 + 2 小) |
+| `Ctrl+A q` | 田字格 (4 等分) |
 
 ### 会话保存/恢复
 | 快捷键 | 功能 |
 |--------|------|
 | `Ctrl+A Ctrl+S` | 保存 session |
 | `Ctrl+A Ctrl+R` | 恢复 session |
-| `Ctrl+A I` | 安装插件 (首次需要) |
+| `Ctrl+A I` | 安装插件 (首次需要，TPM 硬编码大写无法更改) |
 
 ## ta 快捷命令
 
@@ -67,7 +67,7 @@ ta nn           # 第二天回来看结果
 
 ```bash
 ta agents 4     # 开一个 4-pane 布局
-# 或进入 tmux 后按 Ctrl+A Q 创建田字格
+# 或进入 tmux 后按 Ctrl+A q 创建田字格
 # 每个 pane 跑一个 Claude Code 实例
 ```
 
