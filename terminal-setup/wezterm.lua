@@ -8,20 +8,20 @@ local config = wezterm.config_builder()
 
 -- ─── 字体 ───────────────────────────────────────────────
 config.font = wezterm.font_with_fallback({
-	{ family = "JetBrainsMono Nerd Font", weight = "Medium" },
+	{ family = "Consolas", weight = "Regular" },
 	"Noto Sans CJK SC", -- 中文回退
 })
 config.font_size = 12.0
 config.line_height = 1.15
 
--- 连字 (ligature): => -> != === 等
-config.harfbuzz_features = { "calt=1", "clig=1", "liga=1" }
+-- 关闭连字
+config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 
 -- ─── 配色 (Catppuccin Mocha) ────────────────────────────
 config.color_scheme = "Catppuccin Mocha"
 
--- 微透明 (85%)
-config.window_background_opacity = 0.85
+-- 半透明 + Acrylic 毛玻璃
+config.window_background_opacity = 0.5
 config.win32_system_backdrop = "Acrylic"
 
 -- ─── 窗口 ───────────────────────────────────────────────

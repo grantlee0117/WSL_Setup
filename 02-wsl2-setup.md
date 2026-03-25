@@ -381,6 +381,30 @@ sudo apt install -y build-essential wget
 
 > **说明**：`build-essential` 包含 gcc、g++、make 等编译工具链。`wget` 是下载工具。`git`、`curl`、`unzip` 在 Ubuntu 24.04 中已预装。
 
+**配置中文 locale**：
+
+WSL 默认 locale 是 `C.UTF-8`，中文内容复制粘贴容易乱码。✂️ 逐条执行：
+
+```bash
+sudo apt install -y locales
+```
+
+```bash
+sudo locale-gen zh_CN.UTF-8
+```
+
+```bash
+echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
+source ~/.bashrc
+```
+
+📋 验证：
+
+```bash
+echo $LANG
+# 应输出 zh_CN.UTF-8
+```
+
 ### 3.2 Git 配置
 
 WSL 和 Windows 是隔离的两个系统，需要在 WSL 里**重新配置一遍** Git。📋 以下 6 行整块复制粘贴执行：
