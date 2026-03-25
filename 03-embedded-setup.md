@@ -285,6 +285,8 @@ cd ~/projects/blink
 > rm -rf ~/projects/blink && cp -r /mnt/c/STM32Projects/blink ~/projects/blink
 > ```
 
+> **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（安装方式见 [02-wsl2-setup.md](./02-wsl2-setup.md) 3.7 节）。
+
 ### 3.3 修复编译器路径（首次必做）
 
 > **为什么要这一步**：CubeMX 生成的工具链文件里，编译器路径很可能是硬编码的绝对路径（指向 CubeCLT 的安装位置），而不是直接写 `arm-none-eabi-gcc`。如果你没装 CubeCLT，编译会直接报"找不到编译器"。这个坑几乎 100% 会遇到。
