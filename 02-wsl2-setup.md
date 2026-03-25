@@ -554,7 +554,7 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 | `ncdu` | 磁盘空间分析工具 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
 
-> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+B` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。更多用法可以搜索"tmux 入门教程"。
+> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+B` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见下方"终端环境配置"部分。
 
 **清理 Zone.Identifier 垃圾文件**：
 
@@ -570,6 +570,79 @@ source ~/.bashrc
 之后在任意目录执行 `fuck-zone` 即可扫描并清理当前目录下所有 `Zone.Identifier` 文件（会先列出找到的文件，按 Enter 确认删除）。
 
 > **说明**：脚本安装到 `~/.local/bin/`，不需要 sudo。如果已经在 02 文档中配置过 `PATH="$HOME/.local/bin:$PATH"`（如 3.16 Claude Code 安装），则不需要重复添加 PATH。
+
+**终端环境配置（WezTerm + tmux 主题化）**：
+
+> 这一步是可选的美化和效率提升，不影响任何开发工具的功能。但配置后体验会好很多——统一的 Catppuccin Mocha 深色主题、Nerd Font 图标、tmux 会话保存/恢复、一键分屏布局。
+
+仓库的 `terminal-setup/` 目录提供了完整的配置文件和一键部署脚本：
+
+| 文件 | 作用 |
+|------|------|
+| `wezterm.lua` | WezTerm 配置：Catppuccin Mocha 主题、JetBrainsMono Nerd Font、默认启动 WSL、GPU 加速、快捷键 |
+| `tmux.conf` | tmux 配置：Vim 风格 pane 切换、Catppuccin 状态栏、Agent Team 快捷布局、会话自动保存/恢复 |
+| `ta` | tmux 快捷命令：快速创建/连接/关闭会话，自动分屏 |
+| `setup.sh` | 一键部署脚本：部署上述所有配置 + 下载 Nerd Font + 安装 TPM 插件管理器 |
+| `cheatsheet.md` | 快捷键速查卡 |
+
+**前提**：Windows 侧已安装 WezTerm。如果还没装，在 PowerShell 中 📋 执行：
+
+```powershell
+winget install wez.wezterm
+```
+
+**部署配置**（在 WSL 中执行）：
+
+✂️ 逐条执行：
+
+```bash
+cd ~/projects/WSL_Setup/terminal-setup
+chmod +x setup.sh
+```
+
+```bash
+./setup.sh
+```
+
+脚本会自动完成：
+1. 下载 JetBrainsMono Nerd Font 到 Windows 字体目录
+2. 部署 `tmux.conf` 到 `~/.tmux.conf`
+3. 安装 TPM（tmux 插件管理器）
+4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`
+5. 安装 `ta` 快捷命令到 `~/.local/bin/`
+
+**部署后还需要**：
+
+1. **安装字体**：脚本会提示字体下载路径，在 Windows 资源管理器中打开该目录，全选 `.ttf` 文件 → 右键 → **为所有用户安装**
+2. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
+3. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+B` 然后按大写 `I`（Install），等待插件安装完成
+
+📋 验证：
+
+```bash
+ta test
+```
+
+> 应创建一个名为 `test` 的 tmux 会话并自动连接。`Ctrl+B` 然后按 `D` 退出，`ta kill test` 关闭会话。
+
+**常用操作速查**：
+
+| 操作 | 快捷键 / 命令 |
+|------|--------------|
+| 左右分屏 | `Ctrl+B %` |
+| 上下分屏 | `Ctrl+B "` |
+| Vim 风格切换 pane | `Ctrl+B h/j/k/l` |
+| 后台挂起会话 | `Ctrl+B d` |
+| 重新连接会话 | `ta` 或 `ta 会话名` |
+| 创建带 N 个 pane 的会话 | `ta 名称 N`（如 `ta dev 3`） |
+| 三格布局（1 大 + 2 小） | `Ctrl+B A` |
+| 田字格布局（4 等分） | `Ctrl+B Q` |
+| 保存会话（重启后可恢复） | `Ctrl+B Ctrl+S` |
+| 恢复会话 | `Ctrl+B Ctrl+R` |
+| 关闭所有会话 | `ta kill-all` |
+| 查看完整速查卡 | `ta help` 或查看 `terminal-setup/cheatsheet.md` |
+
+> **WezTerm 快捷键**：`Ctrl+Shift+T` 新标签页、`Ctrl+Shift+W` 关闭标签页、`Alt+1-5` 切换标签页、`Ctrl+Shift+F` 搜索、右键粘贴。
 
 ### 3.8 Python 环境 🟡 低风险
 
