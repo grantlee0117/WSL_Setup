@@ -638,8 +638,17 @@ chmod +x setup.sh
 **部署后还需要**：
 
 1. **安装字体**：在 Windows 资源管理器地址栏输入 `C:\Users\你的用户名\AppData\Local\Microsoft\Windows\Fonts`，全选所有 `.ttf` 文件 → 右键 → **为所有用户安装**
-2. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
-3. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+A` 然后按大写 `I`（Install），等待插件安装完成
+
+2. **安装 win32yank**（修复 tmux 复制中文乱码）：WSL 默认的 `clip.exe` 不支持 UTF-8，复制中文会乱码。📋 整块执行：
+
+```bash
+curl -fsSL -o /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip
+unzip -o /tmp/win32yank.zip -d /tmp/win32yank
+sudo cp /tmp/win32yank/win32yank.exe /usr/local/bin/
+```
+
+3. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
+4. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+A` 然后按大写 `I`（Install），等待插件安装完成
 
 📋 验证：
 

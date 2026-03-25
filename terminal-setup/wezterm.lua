@@ -8,7 +8,7 @@ local config = wezterm.config_builder()
 
 -- ─── 字体 ───────────────────────────────────────────────
 config.font = wezterm.font_with_fallback({
-	{ family = "Consolas", weight = "Regular" },
+	{ family = "JetBrainsMono Nerd Font", weight = "Medium" },
 	"Noto Sans CJK SC", -- 中文回退
 })
 config.font_size = 12.0
