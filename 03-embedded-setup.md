@@ -18,14 +18,14 @@ Keil 的项目配置（`.uvprojx`）、编译器（armcc/armclang）、构建过
 
 **核心工具链选型**：
 
-| 环节 | 选择 | 替代了 Keil 的什么 |
-|------|------|------------------|
-| SDK / HAL | STM32CubeMX + HAL 库 | Keil 的 Pack Manager |
-| 构建系统 | CMake | Keil 的 `.uvprojx` 工程文件 |
-| 编译器 | arm-none-eabi-gcc | Keil 的 armcc / armclang |
-| 构建执行器 | Ninja（Make 备用） | Keil 的"Build"按钮 |
-| 烧录 | OpenOCD（CubeProgrammer 备用） | Keil 的"Download"按钮 |
-| USB 透传 | usbipd-win | 不需要（Keil 在 Windows 原生运行） |
+| 环节 | 主力选择 | 备选 | 替代了 Keil 的什么 |
+|------|---------|------|------------------|
+| SDK / HAL | STM32CubeMX + HAL 库 | LL 库（可按外设混用） | Keil 的 Pack Manager |
+| 构建系统 | CMake | Makefile | Keil 的 `.uvprojx` 工程文件 |
+| 编译器 | arm-none-eabi-gcc | — | Keil 的 armcc / armclang |
+| 构建执行器 | Ninja | Make | Keil 的"Build"按钮 |
+| 烧录 | OpenOCD | STM32CubeProgrammer CLI | Keil 的"Download"按钮 |
+| USB 透传 | usbipd-win | Windows 侧烧录 | 不需要（Keil 在 Windows 原生运行） |
 
 **预估耗时和空间**：
 
@@ -252,6 +252,8 @@ usbipd --version
 - 左侧树形菜单选择需要的外设（GPIO、UART、SPI、TIM 等）
 - 配置引脚分配、时钟树等
 - 初次使用可以只配一个 GPIO 输出（用来做最简单的 LED 闪烁验证）
+
+> **HAL vs LL 备选**：CubeMX 默认为每个外设生成 HAL 库代码。如果某个外设对性能敏感（比如高频定时器中断里的 ADC 读取），可以在 CubeMX 的外设配置页面中把该外设单独切换成 LL 库——**同一个项目里 HAL 和 LL 可以按外设混用，互不干扰**。建议先全用 HAL 跑通，以后用示波器测量发现某个中断处理耗时过长时，再把那个外设换成 LL。
 
 **③ 项目设置（关键步骤）**
 
@@ -585,6 +587,23 @@ STM32_Programmer_CLI -c port=SWD -w build/firmware.bin 0x08000000 -v -rst
 | `-w ... 0x08000000` | 写入固件到 Flash 起始地址 |
 | `-v` | 校验 |
 | `-rst` | 烧录后复位 |
+
+### 4.5 备选方案：Windows 侧烧录（不折腾 USB 透传）
+
+如果不想配 usbipd-win，或者 USB 透传遇到兼容性问题，可以**在 WSL 里编译、在 Windows 侧烧录**——编译产物通过文件系统共享，不需要 USB 透传。
+
+**方式 1：Windows 侧装 STM32CubeProgrammer GUI**
+
+1. 从 [ST 官网](https://www.st.com/en/development-tools/stm32cubeprog.html) 下载 Windows 版安装
+2. 打开 STM32CubeProgrammer，选择 ST-Link 连接方式
+3. 固件文件路径填 WSL 中的产物，Windows 可以通过 `\\wsl$\Ubuntu\home\用户名\projects\blink\build\` 访问
+4. 点击 `Download` 烧录
+
+**方式 2：Windows 侧装 OpenOCD**
+
+从 [OpenOCD 官方](https://github.com/openocd-org/openocd/releases) 下载 Windows 版本，解压后在 PowerShell 中使用，命令和 WSL 中一样。
+
+> **这个方案的代价**：开发流程断成两截（WSL 编译 + Windows 烧录），但 AI 开发循环（改代码 → 编译 → 修 bug）不受任何影响。只是烧录那一步要在 Windows 里操作而已。
 
 ---
 
