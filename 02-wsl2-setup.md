@@ -650,6 +650,19 @@ sudo cp /tmp/win32yank/win32yank.exe /usr/local/bin/
 3. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
 4. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+A` 然后按大写 `I`（Install），等待插件安装完成
 
+> ⚠️ **常见问题：`Ctrl+A I` 只装上了一个插件**
+> 这个交互式快捷键依赖 TPM 被正确加载，有时只会装上 `tpm` 自身（或第一个插件），其余的 `tmux-sensible`、`tmux-resurrect`、`tmux-continuum` 不会被装上。**更可靠的做法是直接用命令行安装**，📋 在 WSL 终端（不必进 tmux）执行：
+>
+> ```bash
+> ~/.tmux/plugins/tpm/bin/install_plugins
+> ```
+>
+> 📋 验证 4 个插件是否都已装上（应列出 `tpm`、`tmux-continuum`、`tmux-resurrect`、`tmux-sensible`）：
+>
+> ```bash
+> ls ~/.tmux/plugins/
+> ```
+
 📋 验证：
 
 ```bash
