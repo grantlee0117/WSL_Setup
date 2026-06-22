@@ -3,7 +3,7 @@
 > **适用场景**：已完成 WSL2 开发环境搭建，需要在此基础上配置 STM32 嵌入式开发工具链。
 > 目标是搭建一套 **AI 原生友好** 的开发环境——项目结构全文本化、构建全命令行化，AI 可以直接读写源码和构建配置、执行编译、解析报错并修复。
 >
-> **前置条件**：请先完成 [02-wsl2-setup.md](./02-wsl2-setup.md) 中的全部配置。
+> **前置条件**：请先完成 [3-wsl](../3-wsl/README.md) 中的全部配置。
 
 **这份文档做什么**：
 
@@ -285,7 +285,7 @@ cd ~/projects/blink
 > rm -rf ~/projects/blink && cp -r /mnt/c/STM32Projects/blink ~/projects/blink
 > ```
 
-> **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（安装方式见 [02-wsl2-setup.md](./02-wsl2-setup.md) 3.7 节）。
+> **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（脚本见 [3-wsl/scripts/](../3-wsl/scripts/)，安装方式见 [3-wsl](../3-wsl/README.md) 3.7 节）。
 
 ### 3.3 修复编译器路径（首次必做）
 

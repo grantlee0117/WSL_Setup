@@ -8,9 +8,9 @@
 
 | 文档 | 内容 | 预估耗时 |
 |------|------|:---:|
-| [01-windows-setup.md](./01-windows-setup.md) | Windows 侧配置：纯净系统、显示器、显卡、基础软件安装 | 30-60 分钟 |
-| [02-wsl2-setup.md](./02-wsl2-setup.md) | WSL2 安装配置：网络代理、开发工具链、Claude Code 等 | 60-90 分钟 |
-| [03-embedded-setup.md](./03-embedded-setup.md) | STM32 嵌入式开发：交叉编译工具链、CubeMX、烧录链路 | 30-60 分钟 |
+| [1-windows](./1-windows/README.md) | Windows 侧配置：纯净系统、显示器、显卡、基础软件安装 | 30-60 分钟 |
+| [3-wsl](./3-wsl/README.md) | WSL2 安装配置：开发工具链、Claude Code 等（网络见 2-network、终端见 4-terminal） | 60-90 分钟 |
+| [5-embedded](./5-embedded/README.md) | STM32 嵌入式开发：交叉编译工具链、CubeMX、烧录链路 | 30-60 分钟 |
 
 按顺序阅读，先完成 01，再做 02，嵌入式开发需要再做 03。
 

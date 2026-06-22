@@ -346,4 +346,4 @@ New-NetFirewallRule -DisplayName "Deskflow" -Direction Inbound -Protocol TCP -Lo
 
 ---
 
-接下来请参阅 [02-wsl2-setup.md](./02-wsl2-setup.md) 配置 WSL2 开发环境。
+接下来请参阅 [3-wsl](../3-wsl/README.md) 配置 WSL2 开发环境。

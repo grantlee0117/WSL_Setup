@@ -3,7 +3,7 @@
 > **适用场景**：一台全新 Windows 电脑，从零开始搭建 WSL2 开发环境。
 > 基于实际配置经验整理，适用于 Windows 11 + Ubuntu 24.04 (Noble)。
 >
-> **前置条件**：请先完成 [01-windows-setup.md](./01-windows-setup.md) 中的 Windows 基础配置（Git、SSH Key、代理工具等）。
+> **前置条件**：请先完成 [1-windows](../1-windows/README.md) 中的 Windows 基础配置（Git、SSH Key、代理工具等）。
 
 **这份文档做什么**：
 

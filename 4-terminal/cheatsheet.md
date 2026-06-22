@@ -7,7 +7,7 @@
 winget install wez.wezterm --source winget
 
 # 2. WSL 里运行配置脚本
-cd ~/terminal-setup
+cd ~/projects/WSL_Setup/4-terminal
 chmod +x setup.sh
 ./setup.sh
 
