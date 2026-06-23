@@ -1,1 +1,4 @@
-2-network/梯子配置/梯子配置/LapTop/软件安装包/win/WebView2_Bundled/
+# 2-network：只把超过 GitHub 单文件 100MB 上限的安装包挡在 git 外
+# 其余小安装包、配置、数据库、文档照常入库——仓库本身就是来源
+2-network/desktop/amnezia/*.exe
+2-network/**/WebView2_Bundled/
