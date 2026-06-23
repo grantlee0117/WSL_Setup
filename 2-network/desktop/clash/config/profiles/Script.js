@@ -30,6 +30,7 @@ function main(config) {
   // 模板示例（SOCKS5 类型）:
   // {
   //   "name": "节点名称",
+  //   "_groups": ["static-residential"],       // 加入哪些自定义策略组
   //   "type": "socks5",
   //   "server": "服务器地址",
   //   "port": 端口号,
@@ -41,6 +42,11 @@ function main(config) {
   //
   // ──────────────────────────────────────────────────────────────────────────
 
+  // 【直连节点为什么也放进 static-residential】
+  // 带 "-直连" 的节点有意保留在"静态住宅-链式代理"同一个策略组里。
+  // 这样用户想临时绕过一级跳时，只需要在当前策略组点一下，不用去别的组找。
+  // 判断是否链式只看有没有 dialer-proxy；节点名里的"直连/链式"用于提醒用户。
+
   const customProxies = [
     // ┌─────────────────────────────────────────────────────────────────────┐
     // │  原生静态住宅IP - 美国洛杉矶                                          │
@@ -49,6 +55,7 @@ function main(config) {
     // └─────────────────────────────────────────────────────────────────────┘
     {
       "name": "原生静态住宅IP-美国洛杉矶",
+      "_groups": ["static-residential"],
       "type": "socks5",
       "server": "223.29.147.115",
       "port": 12324,
@@ -59,7 +66,8 @@ function main(config) {
     },
     
     {
-      "name": "Equaldcdn专属纯净静态住宅节点",
+      "name": "Equaldcdn专属纯净静态住宅节点-1",
+      "_groups": ["static-residential"],
       "type": "vless",
       "server": "64.186.231.160",
       "port": 443,
@@ -77,8 +85,273 @@ function main(config) {
       "dialer-proxy": "美日自动-链式代理一级跳",
       "skip-cert-verify": true
     },
+// ┌───────────────────────────────────────────────────────────────────┐
+    // │  EqualVPN 订阅节点 - 作为链式代理落地节点                         │
+    // └───────────────────────────────────────────────────────────────────┘
+    {
+      "name": "EQ静态住宅-专属纯净美国-2-直连",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "154.17.26.231",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.cooper.edu",
+      "reality-opts": {
+        "public-key": "emSlk1MUdnH3F8ZitX5itotTKPbXl-T3Fsflis3yABE",
+        "short-id": "d1d3242aafbae0fc"
+      },
+      "client-fingerprint": "chrome"
+    },
+    {
+      "name": "EQ静态住宅-专属纯净美国-2-链式",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "154.17.26.231",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.cooper.edu",
+      "reality-opts": {
+        "public-key": "emSlk1MUdnH3F8ZitX5itotTKPbXl-T3Fsflis3yABE",
+        "short-id": "d1d3242aafbae0fc"
+      },
+      "client-fingerprint": "chrome",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-美国CN2GIA-2-直连",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "64.186.237.196",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.whitman.edu",
+      "reality-opts": {
+        "public-key": "Rwa93v43P2Mx6dr4CeS1dugvAb6Io5Hyda0e7-7EIhc",
+        "short-id": "7981b594eddfaa48"
+      },
+      "client-fingerprint": "random"
+    },
+    {
+      "name": "EQ静态住宅-美国CN2GIA-2-链式",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "64.186.237.196",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.whitman.edu",
+      "reality-opts": {
+        "public-key": "Rwa93v43P2Mx6dr4CeS1dugvAb6Io5Hyda0e7-7EIhc",
+        "short-id": "7981b594eddfaa48"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-香港专线-2",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "141.11.238.73",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.hkapa.edu",
+      "reality-opts": {
+        "public-key": "xNwwFYvIQlMzqxbbt3CWqXCwRfNQVdo6XGPoAwihqxo",
+        "short-id": "7c227eb0cb763f75"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-日本CN2GIA-2",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "103.232.213.30",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.geidai.ac.jp",
+      "reality-opts": {
+        "public-key": "5xYLyky8PE34VoJkoL3PmTUS0Mtmp36fOSYB_52E4EM",
+        "short-id": "bac09a67ddb49ee5"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-日本专线2-2",
+      "_groups": ["static-residential"],
+      "type": "trojan",
+      "server": "chunjingip.shop",
+      "port": 25840,
+      "password": "d396d829-b477-41ed-8cfa-216e49cae2a6",
+      "udp": true,
+      "sni": "chunjingip.shop",
+      "alpn": ["http/1.1"],
+      "client-fingerprint": "chrome",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-英国CN2GIA-2",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "185.212.62.166",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.ucas.com",
+      "reality-opts": {
+        "public-key": "WvTAHW2tDT8-Qeh86lHittzlYanQQefGutdivn-RmgY",
+        "short-id": "d523b429257961c8"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-韩国CN2GIA-2",
+      "_groups": ["static-residential"],
+      "type": "trojan",
+      "server": "sokeeping.com",
+      "port": 16732,
+      "password": "27ae21ce-9acc-46bb-ad97-c9ea047dd40f",
+      "udp": true,
+      "sni": "sokeeping.com",
+      "alpn": ["http/1.1"],
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-荷兰CN2GIA-2",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "192.109.228.220",
+      "port": 443,
+      "uuid": "258D0695-F324-4F3F-AF2C-50841AE63315",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.ahk.nl",
+      "reality-opts": {
+        "public-key": "__4BCMwwFVC6eA9R5DGkp1Cbl5rBqAJUpOEvANSriUA",
+        "short-id": "588d68a40e597679"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "EQ静态住宅-德国CN2GIA-2",
+      "_groups": ["static-residential"],
+      "type": "vless",
+      "server": "45.147.48.173",
+      "port": 443,
+      "uuid": "31F2163B-EBF7-4BBC-980B-2C43597A6B10",
+      "network": "tcp",
+      "udp": true,
+      "tls": true,
+      "flow": "xtls-rprx-vision",
+      "servername": "www.udk-berlin.de",
+      "reality-opts": {
+        "public-key": "kyghsI3CL26JJxQJfoRIO37ol6ug4Dll9OjdbO9fzH8",
+        "short-id": "023f4244191d2cfd"
+      },
+      "client-fingerprint": "random",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
 
-        // ──────────────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────
+    // 【用户自定义节点区域 - Decodo 静态 ISP 节点】
+    //
+    // Decodo 页面给出的 SOCKS5 格式:
+    //   socks5h://用户名:密码@isp.decodo.com:端口
+    // 这里每个端口拆成两个逻辑节点：
+    //   - 直连：本机直接连接 Decodo
+    //   - 链式：本机 → 一级跳 → Decodo → 目标网站
+    // ──────────────────────────────────────────────────────────────────────
+    {
+      "name": "Decodo静态ISP-日本-直连",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10001,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn"
+    },
+    {
+      "name": "Decodo静态ISP-日本-链式",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10001,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "Decodo静态ISP-美国-1-直连",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10002,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn"
+    },
+    {
+      "name": "Decodo静态ISP-美国-1-链式",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10002,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+    {
+      "name": "Decodo静态ISP-美国-2-直连",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10003,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn"
+    },
+    {
+      "name": "Decodo静态ISP-美国-2-链式",
+      "_groups": ["static-residential"],
+      "type": "socks5",
+      "server": "isp.decodo.com",
+      "port": 10003,
+      "username": "sp8t4b5j5i",
+      "password": "R2qx3cOMqj85Q~sqjn",
+      "dialer-proxy": "美日自动-链式代理一级跳"
+    },
+
+    // ──────────────────────────────────────────────────────────────────────
     // 【用户自定义节点区域 - VVCloud 家宽静态住宅节点】
     //
     // 来源: VVCloud 订阅中标注"家宽IP"的美国/日本静态节点
@@ -91,6 +364,7 @@ function main(config) {
     // └───────────────────────────────────────────────────────────────────┘
     {
       "name": "VV静态住宅-A1美国4-家宽IP银行视频全解锁",
+      "_groups": ["static-residential"],
       "type": "ss",
       "server": "zf.sg-iepl.com",
       "port": 56512,
@@ -102,6 +376,7 @@ function main(config) {
 
     {
       "name": "VV静态住宅-A1美国5-ChatGPT流媒体银行全解锁",
+      "_groups": ["static-residential"],
       "type": "ss",
       "server": "zf.sg-iepl.com",
       "port": 21386,
@@ -110,70 +385,12 @@ function main(config) {
       "udp": true,
       "dialer-proxy": "美日自动-链式代理一级跳"
     },
-
-    // ┌───────────────────────────────────────────────────────────────────┐
-    // │  VVCloud 专线A1 - 日本家宽静态住宅                                │
-    // └───────────────────────────────────────────────────────────────────┘
-    {
-      "name": "VV静态住宅-A1日本5s高速-家宽IP纯净全解锁",
-      "type": "ss",
-      "server": "jmswyh.edu2026.cn",
-      "port": 61850,
-      "cipher": "chacha20-ietf-poly1305",
-      "password": "80792e40-0461-4783-9871-24bfa345a2ea",
-      "udp": true,
-      "dialer-proxy": "美日自动-链式代理一级跳"
-    },
-    {
-      "name": "VV静态住宅-A1日本4-家宽IP视频AI全解锁",
-      "type": "ss",
-      "server": "zf.sg-iepl.com",
-      "port": 8641,
-      "cipher": "chacha20-ietf-poly1305",
-      "password": "80792e40-0461-4783-9871-24bfa345a2ea",
-      "udp": true,
-      "dialer-proxy": "美日自动-链式代理一级跳"
-    },
-
-    // ┌───────────────────────────────────────────────────────────────────┐
-    // │  VVCloud 移动专线B1 - 美国家宽静态住宅                            │
-    // └───────────────────────────────────────────────────────────────────┘
-    {
-      "name": "VV静态住宅-B1美国4-家宽IP银行视频全解锁",
-      "type": "ss",
-      "server": "jmswyh.edu2026.cn",
-      "port": 20372,
-      "cipher": "chacha20-ietf-poly1305",
-      "password": "80792e40-0461-4783-9871-24bfa345a2ea",
-      "udp": true,
-      "dialer-proxy": "美日自动-链式代理一级跳"
-    },
-    {
-      "name": "VV静态住宅-B1美国4b-家宽IP银行视频全解锁",
-      "type": "ss",
-      "server": "jmswyh.edu2026.cn",
-      "port": 19307,
-      "cipher": "chacha20-ietf-poly1305",
-      "password": "80792e40-0461-4783-9871-24bfa345a2ea",
-      "udp": true,
-      "dialer-proxy": "美日自动-链式代理一级跳"
-    },
-    {
-      "name": "VV静态住宅-B1美国5-ChatGPT流媒体银行全解锁",
-      "type": "ss",
-      "server": "jmswyh.edu2026.cn",
-      "port": 59071,
-      "cipher": "chacha20-ietf-poly1305",
-      "password": "80792e40-0461-4783-9871-24bfa345a2ea",
-      "udp": true,
-      "dialer-proxy": "美日自动-链式代理一级跳"
-    },
-
     // ┌───────────────────────────────────────────────────────────────────┐
     // │  VVCloud 移动专线B1 - 日本家宽静态住宅                            │
     // └───────────────────────────────────────────────────────────────────┘
     {
       "name": "VV静态住宅-B1日本4-家宽IP视频AI全解锁",
+      "_groups": ["static-residential"],
       "type": "ss",
       "server": "jmswyh.edu2026.cn",
       "port": 52778,
@@ -189,6 +406,7 @@ function main(config) {
     // 示例：第二个节点（去掉注释并修改参数即可使用）
     // {
     //   "name": "原生静态住宅IP-节点2",
+    //   "_groups": ["static-residential"],
     //   "type": "socks5",
     //   "server": "8.8.8.8",
     //   "port": 443,
@@ -198,9 +416,37 @@ function main(config) {
     //   "skip-cert-verify": true
     // },
 
+    // 示例：新增一个不加入"静态住宅-链式代理"的新分组节点
+    // 用法：
+    // 1. 取消下面节点对象的注释，并修改节点参数
+    // 2. 保持 _groups 中的 "custom-secondary" 不变，或改成你自己的分组名
+    // 3. 到下方"用户自定义策略组区域"取消同名策略组模板的注释
+    // {
+    //   "name": "自定义二级组-节点1",
+    //   "_groups": ["custom-secondary"],
+    //   "type": "socks5",
+    //   "server": "1.2.3.4",
+    //   "port": 12345,
+    //   "username": "username",
+    //   "password": "password",
+    //   "dialer-proxy": "美日自动-链式代理一级跳",
+    //   "skip-cert-verify": true
+    // },
+
     // ──────────────────────────────────────────────────────────────────────
 
   ];
+
+  // 按节点元数据收集策略组成员。_groups 只用于脚本内部，不写入最终 Clash 配置。
+  const proxyNamesByGroup = (groupName) =>
+    customProxies
+      .filter(proxy => proxy._groups?.includes(groupName))
+      .map(proxy => proxy.name);
+
+  const stripProxyMetadata = (proxy) => {
+    const { _groups, ...runtimeProxy } = proxy;
+    return runtimeProxy;
+  };
 
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -234,12 +480,12 @@ function main(config) {
       // mihomo 特有字段，自动包含 config.proxies 中的所有节点
       // 注意：必须是 "include-all-proxies"，不是 "include-all"
       "include-all-proxies": true,
-      // ─── filter 正则过滤 ───
-      // 从所有节点中筛选出美国/日本节点，同时排除静态住宅节点
-      // (?!.*原生静态住宅IP) = 负向预查放最前，排除节点名包含"原生静态住宅IP"的节点
-      // (?i) = 忽略大小写
-      // (美国|US|...) = 匹配包含这些关键词的节点名
-      "filter": "^(?!.*静态)(?i).*(美国|US|United States|日本|JP|Japan|🇺🇸|🇯🇵)",
+      // ─── exclude-filter 正则过滤 ───
+      // 默认包含所有订阅节点，再排除不适合作为一级跳的节点：
+      // 1. 自定义住宅落地节点，避免链式代理自套
+      // 2. 香港、台湾、中国大陆节点，避免一级跳出口位置不理想
+      // 3. 订阅信息/套餐/流量/官网等非代理节点
+      "exclude-filter": "(?i)静态|香港|港|HK|Hong ?Kong|Hongkong|🇭🇰|台湾|台灣|台|TW|TWN|Taiwan|Tai wan|🇹🇼|中国|中國|大陆|大陸|内地",
       // ─── url 测速地址 ───
       // 【重要】不能使用 gstatic.com！因为它在规则中被分配到链式代理，会造成死循环：
       //   测速 → gstatic.com → 静态住宅-链式代理 → 需要一级跳 → 需要测速 → 死循环
@@ -257,27 +503,26 @@ function main(config) {
     {
       "name": "静态住宅-链式代理",
       "type": "select",
-      "proxies": [
-      "原生静态住宅IP-美国洛杉矶",
-      "Equaldcdn专属纯净静态住宅节点",
-      "VV静态住宅-A1美国4-家宽IP银行视频全解锁",
-      "VV静态住宅-A1美国5-ChatGPT流媒体银行全解锁",
-      "VV静态住宅-A1日本5s高速-家宽IP纯净全解锁",
-      "VV静态住宅-A1日本4-家宽IP视频AI全解锁",
-      "VV静态住宅-B1美国4-家宽IP银行视频全解锁",
-      "VV静态住宅-B1美国4b-家宽IP银行视频全解锁",
-      "VV静态住宅-B1美国5-ChatGPT流媒体银行全解锁",
-      "VV静态住宅-B1日本4-家宽IP视频AI全解锁",
-
-      ]
-      // 如果以后有多个住宅节点，在这里添加:
-      // "proxies": ["原生静态住宅IP-美国洛杉矶", "其他住宅节点"]
+      // 自动使用上方 customProxies 中标记为 static-residential 的住宅落地节点。
+      // 以后节点加入哪个策略组，只需要维护节点自己的 _groups。
+      "proxies": proxyNamesByGroup("static-residential")
     },
 
     // ──────────────────────────────────────────────────────────────────────
     // 【用户自定义策略组区域】
     // 在此处添加你的自定义策略组，格式参考上方模板
     // ──────────────────────────────────────────────────────────────────────
+
+    // 示例：新增一个独立策略组
+    // 用法：
+    // 1. 取消下面策略组对象的注释
+    // 2. 确保上方节点的 _groups 包含同一个分组名 "custom-secondary"
+    // 3. 如果改分组名，节点 _groups 和这里的 proxyNamesByGroup(...) 必须一起改
+    // {
+    //   "name": "自定义二级策略组",
+    //   "type": "select",
+    //   "proxies": proxyNamesByGroup("custom-secondary")
+    // },
 
   ];
 
@@ -486,12 +731,22 @@ function main(config) {
     // ══════════════════════════════════════════════════════════════════════
     //                          OpenAI / ChatGPT
     // ══════════════════════════════════════════════════════════════════════
+    // 核心目标不是只代理 openai.com/chatgpt.com 表面域名，而是让登录、
+    // WebSocket、文件、静态资源、实验开关、支付、验证和 SSO 依赖保持同类出口。
     "DOMAIN-SUFFIX,openai.com,静态住宅-链式代理",         // OpenAI 主域名
     "DOMAIN,api.openai.com,静态住宅-链式代理",            // OpenAI API
     "DOMAIN,platform.openai.com,静态住宅-链式代理",       // OpenAI Platform
     "DOMAIN,chat.openai.com,静态住宅-链式代理",           // ChatGPT Web
     "DOMAIN,auth.openai.com,静态住宅-链式代理",           // OpenAI Auth
+    "DOMAIN-SUFFIX,auth.openai.com,静态住宅-链式代理",    // OpenAI Auth 子域名
+    "DOMAIN,auth0.openai.com,静态住宅-链式代理",          // OpenAI Auth0 登录
+    "DOMAIN,setup.auth.openai.com,静态住宅-链式代理",     // OpenAI Auth 设置/初始化
     "DOMAIN-SUFFIX,chatgpt.com,静态住宅-链式代理",        // ChatGPT 主域名
+    "DOMAIN,ws.chatgpt.com,静态住宅-链式代理",            // ChatGPT WebSocket
+    "DOMAIN,ios.chat.openai.com,静态住宅-链式代理",       // ChatGPT iOS
+    "DOMAIN,android.chat.openai.com,静态住宅-链式代理",   // ChatGPT Android
+    "DOMAIN,desktop.chat.openai.com,静态住宅-链式代理",   // ChatGPT Desktop
+    "DOMAIN,tcr9i.chat.openai.com,静态住宅-链式代理",     // ChatGPT Web 辅助端点
     "DOMAIN-SUFFIX,chat.com,静态住宅-链式代理",           // Chat 相关域名
     "DOMAIN-SUFFIX,ai.com,静态住宅-链式代理",             // AI.com 跳转域名
     "DOMAIN-SUFFIX,oaiusercontent.com,静态住宅-链式代理", // OpenAI 用户内容域名
@@ -499,11 +754,45 @@ function main(config) {
     "DOMAIN-SUFFIX,sora.com,静态住宅-链式代理",           // OpenAI Sora 视频模型
     "DOMAIN-KEYWORD,openai,静态住宅-链式代理",           // 关键词匹配 OpenAI
     "DOMAIN-KEYWORD,chatgpt,静态住宅-链式代理",          // 关键词匹配 ChatGPT
+    "DOMAIN,chat.openai.com.cdn.cloudflare.net,静态住宅-链式代理", // ChatGPT Cloudflare CDN
+    // ─── OpenAI 实时能力 / ChatGPT Voice UDP 3478 官方 IP（需按官方 JSON 定期更新）───
+    "IP-CIDR,102.37.57.54/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,13.71.25.29/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,135.220.40.201/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,172.203.39.49/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,172.207.173.200/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,172.214.226.198/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,191.233.251.27/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,20.162.96.163/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,20.168.48.117/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,20.184.36.134/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,20.203.144.245/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,20.74.221.21/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,4.151.200.38/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,4.155.146.196/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,4.197.172.116/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,4.217.235.100/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,4.245.198.13/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,40.118.236.137/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,51.4.112.173/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,52.143.181.161/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,68.155.152.41/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,72.146.20.246/32,静态住宅-链式代理,no-resolve",
+    "IP-CIDR,74.248.148.7/32,静态住宅-链式代理,no-resolve",
     // ─── OpenAI 辅助服务（认证/会话/实验/反作弊/通信闭环）───
     "DOMAIN-SUFFIX,sentry.io,静态住宅-链式代理",          // 错误跟踪服务
+    "DOMAIN,o207216.ingest.sentry.io,静态住宅-链式代理",  // OpenAI Sentry ingest
+    "DOMAIN,o33249.ingest.sentry.io,静态住宅-链式代理",   // OpenAI Sentry ingest
     "DOMAIN-SUFFIX,statsig.com,静态住宅-链式代理",        // A/B 测试服务
     "DOMAIN-SUFFIX,statsigapi.net,静态住宅-链式代理",     // Statsig API
+    "DOMAIN,events.statsigapi.net,静态住宅-链式代理",     // Statsig 事件端点
     "DOMAIN-SUFFIX,arkoselabs.com,静态住宅-链式代理",     // 人机验证/反作弊服务
+    "DOMAIN-SUFFIX,funcaptcha.com,静态住宅-链式代理",     // Arkose/FunCaptcha 旧域名
+    "DOMAIN,challenges.cloudflare.com,静态住宅-链式代理", // Cloudflare challenge / Turnstile
+    "DOMAIN,app.withpersona.com,静态住宅-链式代理",       // Persona 身份验证界面
+    "DOMAIN,api.withpersona.com,静态住宅-链式代理",       // Persona API
+    "DOMAIN,files.withpersona.com,静态住宅-链式代理",     // Persona 文件上传/读取
+    "DOMAIN-SUFFIX,withpersona.com,静态住宅-链式代理",    // Persona 身份验证（Claude IDV）
     "DOMAIN-SUFFIX,auth0.com,静态住宅-链式代理",          // 认证服务
     "DOMAIN-SUFFIX,okta.com,静态住宅-链式代理",           // Okta identity
     "DOMAIN-SUFFIX,okta-eu.com,静态住宅-链式代理",        // Okta EU
@@ -511,28 +800,102 @@ function main(config) {
     "DOMAIN-SUFFIX,oktacdn.com,静态住宅-链式代理",        // Okta CDN
     "DOMAIN-SUFFIX,onelogin.com,静态住宅-链式代理",       // OneLogin identity
     "DOMAIN-SUFFIX,loginradius.com,静态住宅-链式代理",    // LoginRadius identity
+    "DOMAIN-SUFFIX,workos.com,静态住宅-链式代理",         // WorkOS SSO / OAuth
+    "DOMAIN-SUFFIX,workoscdn.com,静态住宅-链式代理",      // WorkOS 图片/CDN
+    "DOMAIN,workos.imgix.net,静态住宅-链式代理",          // WorkOS 图片 CDN
     "DOMAIN-SUFFIX,intercom.io,静态住宅-链式代理",        // 客服系统
     "DOMAIN-SUFFIX,intercomcdn.com,静态住宅-链式代理",    // Intercom CDN
     "DOMAIN-SUFFIX,launchdarkly.com,静态住宅-链式代理",   // 特性开关服务
     "DOMAIN-SUFFIX,featuregates.org,静态住宅-链式代理",   // 特性开关服务
+    "DOMAIN-SUFFIX,featureassets.org,静态住宅-链式代理",  // 特性开关资源
+    "DOMAIN-SUFFIX,prodregistryv2.org,静态住宅-链式代理", // OpenAI 客户端注册/配置
+    "DOMAIN-SUFFIX,ct.sendgrid.net,静态住宅-链式代理",    // OpenAI 邮件点击/通知链路
     "DOMAIN-SUFFIX,segment.io,静态住宅-链式代理",         // 分析服务
     "DOMAIN-SUFFIX,stripe.com,静态住宅-链式代理",         // 支付服务
+    "DOMAIN,js.stripe.com,静态住宅-链式代理",             // Stripe JS
     "DOMAIN-SUFFIX,livekit.cloud,静态住宅-链式代理",      // 实时语音服务
     "DOMAIN-SUFFIX,identrust.com,静态住宅-链式代理",      // 证书服务
     "DOMAIN-SUFFIX,algolia.net,静态住宅-链式代理",        // 搜索服务
     "DOMAIN-SUFFIX,observeit.net,静态住宅-链式代理",      // 监控服务
     "DOMAIN-SUFFIX,datadoghq.com,静态住宅-链式代理",      // 监控分析服务
+    "DOMAIN-SUFFIX,datadoghq.eu,静态住宅-链式代理",       // 监控分析服务（EU 区域）
+    "DOMAIN,rum.browser-intake-datadoghq.com,静态住宅-链式代理", // Datadog RUM
+    "DOMAIN-SUFFIX,openaimerge.com,静态住宅-链式代理",    // OpenAI 前端合并资源
+    "DOMAIN,humb.apple.com,静态住宅-链式代理",            // Apple App Attest 依赖
+    "DOMAIN,register.appattest.apple.com,静态住宅-链式代理", // Apple App Attest 调试/注册
 
     // ══════════════════════════════════════════════════════════════════════
     //                          Anthropic / Claude
     // ══════════════════════════════════════════════════════════════════════
+    // Claude Code/Claude Desktop/Claude Web 同样需要覆盖登录、Console、下载更新、
+    // Chrome bridge、遥测、错误上报、SSO/IDV 等配套链路。
     "DOMAIN-SUFFIX,anthropic.com,静态住宅-链式代理",      // Anthropic 主域名（含 api.anthropic.com）
     "DOMAIN,api.anthropic.com,静态住宅-链式代理",         // Anthropic API
+    "DOMAIN,a-api.anthropic.com,静态住宅-链式代理",       // Claude Desktop/内部客户端 API
+    "DOMAIN,mcp-proxy.anthropic.com,静态住宅-链式代理",   // Claude Code MCP 工具代理
     "DOMAIN,console.anthropic.com,静态住宅-链式代理",     // Anthropic Console
+    "DOMAIN,docs.anthropic.com,静态住宅-链式代理",        // Anthropic 文档
+    "DOMAIN,statsig.anthropic.com,静态住宅-链式代理",     // Claude Code 遥测/指标
     "DOMAIN-SUFFIX,claude.ai,静态住宅-链式代理",          // Claude 网页聊天域名
+    "DOMAIN,pivot.claude.ai,静态住宅-链式代理",           // Claude for Office 加载项主机
+    "DOMAIN,downloads.claude.ai,静态住宅-链式代理",       // Claude Code/插件下载与更新
+    "DOMAIN,plugins.claude.ai,静态住宅-链式代理",         // Claude 插件/目录旧入口或客户端探测
+    "DOMAIN,storage.googleapis.com,静态住宅-链式代理",    // Claude Code 旧版安装器/自动更新
     "DOMAIN-SUFFIX,claude.com,静态住宅-链式代理",         // Claude 开发者平台域名（console 等）
+    "DOMAIN,code.claude.com,静态住宅-链式代理",           // Claude Code 文档/入口
+    "DOMAIN,docs.claude.com,静态住宅-链式代理",           // Claude 新文档站
+    "DOMAIN,platform.claude.com,静态住宅-链式代理",       // Anthropic Console/OAuth 认证
+    "DOMAIN,support.claude.com,静态住宅-链式代理",        // Claude Help Center
+    "DOMAIN,claude.fedstart.com,静态住宅-链式代理",       // Claude for Government
+    "DOMAIN-SUFFIX,claudeusercontent.com,静态住宅-链式代理", // Claude 用户内容/扩展桥接
+    "DOMAIN,bridge.claudeusercontent.com,静态住宅-链式代理", // Claude in Chrome WebSocket bridge
+    "DOMAIN,appsforoffice.microsoft.com,静态住宅-链式代理", // Claude for Office 依赖 Office.js
+    "DOMAIN,o1158394.ingest.us.sentry.io,静态住宅-链式代理", // Claude for Office Sentry ingest
+    // ─── Anthropic 第三方推理路径（Bedrock / Vertex AI / Azure AI Foundry）───
+    "DOMAIN,sts.amazonaws.com,静态住宅-链式代理",          // Claude for Office Bedrock direct
+    "DOMAIN-KEYWORD,bedrock-runtime,静态住宅-链式代理",   // Bedrock regional runtime
+    "DOMAIN-SUFFIX,aiplatform.googleapis.com,静态住宅-链式代理", // Vertex AI regional/global
+    "DOMAIN,accounts.google.com,静态住宅-链式代理",       // Vertex AI OAuth
+    "DOMAIN,oauth2.googleapis.com,静态住宅-链式代理",     // Vertex AI OAuth token
+    "DOMAIN-SUFFIX,services.ai.azure.com,静态住宅-链式代理", // Azure AI Foundry
+    // ─── Claude Connectors / 插件目录常见 OAuth 与交互式组件入口 ───
+    "DOMAIN-SUFFIX,slack.com,静态住宅-链式代理",          // Claude in Slack / Slack connector
+    "DOMAIN-SUFFIX,slack-edge.com,静态住宅-链式代理",     // Slack CDN/API 边缘
+    "DOMAIN-SUFFIX,slack-imgs.com,静态住宅-链式代理",     // Slack 图片资源
+    "DOMAIN-SUFFIX,linear.app,静态住宅-链式代理",         // Linear connector
+    "DOMAIN-SUFFIX,asana.com,静态住宅-链式代理",          // Asana interactive connector
+    "DOMAIN-SUFFIX,atlassian.com,静态住宅-链式代理",      // Atlassian connector/OAuth
+    "DOMAIN-SUFFIX,atlassian.net,静态住宅-链式代理",      // Jira/Confluence Cloud
+    "DOMAIN-SUFFIX,figma.com,静态住宅-链式代理",          // Figma interactive connector
+    "DOMAIN-SUFFIX,figmausercontent.com,静态住宅-链式代理", // Figma assets
+    "DOMAIN-SUFFIX,canva.com,静态住宅-链式代理",          // Canva interactive connector
+    "DOMAIN-SUFFIX,amplitude.com,静态住宅-链式代理",      // Amplitude interactive connector
+    "DOMAIN-SUFFIX,box.com,静态住宅-链式代理",            // Box interactive connector
+    "DOMAIN-SUFFIX,boxcdn.net,静态住宅-链式代理",         // Box CDN
+    "DOMAIN-SUFFIX,clay.com,静态住宅-链式代理",           // Clay interactive connector
+    "DOMAIN-SUFFIX,hex.tech,静态住宅-链式代理",           // Hex interactive connector
+    "DOMAIN,dash.cloudflare.com,静态住宅-链式代理",       // Cloudflare connector OAuth/UI
+    "DOMAIN,api.cloudflare.com,静态住宅-链式代理",        // Cloudflare connector API
+    "DOMAIN-SUFFIX,paypal.com,静态住宅-链式代理",         // PayPal connector/OAuth
+    "DOMAIN-SUFFIX,paypalobjects.com,静态住宅-链式代理",  // PayPal 静态资源
+    "DOMAIN-SUFFIX,squareup.com,静态住宅-链式代理",       // Square connector/OAuth
+    "DOMAIN-SUFFIX,plaid.com,静态住宅-链式代理",          // Plaid connector/OAuth
+    "DOMAIN-SUFFIX,zapier.com,静态住宅-链式代理",         // Zapier connector/OAuth
     "DOMAIN-KEYWORD,anthropic,静态住宅-链式代理",        // 关键词匹配 Anthropic
     "DOMAIN-KEYWORD,claude,静态住宅-链式代理",            // 关键词匹配 Claude
+    "PROCESS-NAME,Claude.exe,静态住宅-链式代理",          // Claude Desktop Windows
+    "PROCESS-NAME,Claude,静态住宅-链式代理",              // Claude Desktop / macOS 进程名
+    "PROCESS-NAME,Claude Helper.exe,静态住宅-链式代理",   // Claude Desktop 辅助进程
+    "PROCESS-NAME,Claude Helper,静态住宅-链式代理",       // Claude Desktop macOS 辅助进程
+    "PROCESS-NAME,Claude Helper (Renderer),静态住宅-链式代理", // Claude Desktop macOS 渲染进程
+    "PROCESS-NAME,Claude Helper (GPU),静态住宅-链式代理", // Claude Desktop macOS GPU 进程
+    "PROCESS-NAME,Claude Helper (Plugin),静态住宅-链式代理", // Claude Desktop macOS 插件进程
+    "PROCESS-NAME,claude.exe,静态住宅-链式代理",          // Claude Code CLI Windows
+    "PROCESS-NAME,claude,静态住宅-链式代理",              // Claude Code CLI
+    "PROCESS-NAME,Claude Code.exe,静态住宅-链式代理",     // Claude Code 可能的 Windows 进程名
+    "PROCESS-NAME,Claude Code,静态住宅-链式代理",         // Claude Code 可能的进程名
+    "PROCESS-NAME,claude-code.exe,静态住宅-链式代理",     // Claude Code 可能的 Windows 进程名
+    "PROCESS-NAME,claude-code,静态住宅-链式代理",         // Claude Code 可能的进程名
 
     // ══════════════════════════════════════════════════════════════════════
     //                          Google 全系
@@ -881,7 +1244,7 @@ function main(config) {
   // ─── 4.1 插入自定义节点 ───
   // unshift = 插入到数组最前面
   for (let i = customProxies.length - 1; i >= 0; i--) {
-    config.proxies.unshift(customProxies[i]);
+    config.proxies.unshift(stripProxyMetadata(customProxies[i]));
   }
 
   // ─── 4.2 插入自定义策略组 ───

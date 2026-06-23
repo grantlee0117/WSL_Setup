@@ -1,0 +1,158 @@
+# Profiles Config for Clash Verge
+
+current: RjmO9Kn5arJH
+items:
+- uid: Merge
+  type: merge
+  name: null
+  file: Merge.yaml
+  updated: 1772553465
+- uid: Script
+  type: script
+  name: null
+  file: Script.js
+  updated: 1772553465
+- uid: mln2F4E8zHXB
+  type: merge
+  name: null
+  file: mln2F4E8zHXB.yaml
+  updated: 1772553652
+- uid: smLpsG06fDPC
+  type: script
+  name: null
+  file: smLpsG06fDPC.js
+  updated: 1772553652
+- uid: r3L6ADgRQjq6
+  type: rules
+  name: null
+  file: r3L6ADgRQjq6.yaml
+  updated: 1772553652
+- uid: pJCcCPN3xSMV
+  type: proxies
+  name: null
+  file: pJCcCPN3xSMV.yaml
+  updated: 1772553652
+- uid: gOjaBaBMKU5G
+  type: groups
+  name: null
+  file: gOjaBaBMKU5G.yaml
+  updated: 1772553652
+- uid: RjmO9Kn5arJH
+  type: remote
+  name: 狗狗加速.com
+  file: RjmO9Kn5arJH.yaml
+  url: https://8M3Rwl.doggygosubs.com:8443/api/v1/client/5ff9cee60983b06d5e38d7330f8b8974
+  selected:
+  - name: GLOBAL
+    now: EQ静态住宅-日本CN2GIA-2
+  - name: 静态住宅-链式代理
+    now: EQ静态住宅-专属纯净美国-2-直连
+  - name: 狗狗加速.com
+    now: null
+  - name: Tuic
+    now: null
+  - name: 🔥ChatGPT
+    now: null
+  - name: AnyTLS
+    now: null
+  extra:
+    upload: 948348418
+    download: 3789215822
+    total: 171798691840
+    expire: 1783945386
+  updated: 1779605843
+  option:
+    update_interval: 1440
+    merge: mln2F4E8zHXB
+    script: smLpsG06fDPC
+    rules: r3L6ADgRQjq6
+    proxies: pJCcCPN3xSMV
+    groups: gOjaBaBMKU5G
+  home: https://pan.dg5.org
+- uid: mG6usUSfvEsw
+  type: merge
+  name: null
+  file: mG6usUSfvEsw.yaml
+  updated: 1773137016
+- uid: sDNXcO2aTxn8
+  type: script
+  name: null
+  file: sDNXcO2aTxn8.js
+  updated: 1773137016
+- uid: r7m5cI7IqKVJ
+  type: rules
+  name: null
+  file: r7m5cI7IqKVJ.yaml
+  updated: 1773137016
+- uid: pOWes9m2HhyL
+  type: proxies
+  name: null
+  file: pOWes9m2HhyL.yaml
+  updated: 1773137016
+- uid: ggMazZHHl3uM
+  type: groups
+  name: null
+  file: ggMazZHHl3uM.yaml
+  updated: 1773137016
+- uid: R7x6zvJk34b3
+  type: remote
+  name: VVCloud
+  file: R7x6zvJk34b3.yaml
+  url: https://s.vvud.us/s/9a262f3076434d659c019fcdf4d081d5
+  extra:
+    upload: 107126
+    download: 239221
+    total: 858993459200
+    expire: 0
+  updated: 1779605844
+  option:
+    update_interval: 1440
+    merge: mG6usUSfvEsw
+    script: sDNXcO2aTxn8
+    rules: r7m5cI7IqKVJ
+    proxies: pOWes9m2HhyL
+    groups: ggMazZHHl3uM
+- uid: mnwcApObZJvM
+  type: merge
+  name: null
+  file: mnwcApObZJvM.yaml
+  updated: 1775457724
+- uid: sNh4yVHOzPGY
+  type: script
+  name: null
+  file: sNh4yVHOzPGY.js
+  updated: 1775457724
+- uid: rR7Kwf5E2Wrj
+  type: rules
+  name: null
+  file: rR7Kwf5E2Wrj.yaml
+  updated: 1775457724
+- uid: pzHaHISTsXYm
+  type: proxies
+  name: null
+  file: pzHaHISTsXYm.yaml
+  updated: 1775457724
+- uid: gEsj4FGiKNzJ
+  type: groups
+  name: null
+  file: gEsj4FGiKNzJ.yaml
+  updated: 1775457724
+- uid: RfmHhMugMvCE
+  type: remote
+  name: EqualVPN
+  file: RfmHhMugMvCE.yaml
+  url: https://equaldcdn.com/use/unsafe/sub.php?t=eyJ1dWlkIjoiMjU4RDA2OTUtRjMyNC00RjNGLUFGMkMtNTA4NDFBRTYzMzE1Iiwic2VydmVyIjoiMTU0LjE3LjI2LjIzMSIsInBvcnQiOiI0NDMiLCJwdWJsaWNfa2V5IjoiZW1TbGsxTVVkbkgzRjhaaXRYNWl0b3RUS1BiWGwtVDNGc2ZsaXMzeUFCRSIsInNob3J0X2lkIjoiZDFkMzI0MmFhZmJhZTBmYyIsInNlcnZlcm5hbWUiOiJ3d3cuY29vcGVyLmVkdSIsInRvdGFsIjoxMjg4NDkwMTg4ODAwLCJleHBpcmUiOjE4MDY1NjE0MzR9&s=f85d1faf6c0e51064a38a0cab44fd2c0ef66defe21664aecf391b355dfba9c0a
+  extra:
+    upload: 12696106436
+    download: 58552630472
+    total: 1288490188800
+    expire: 1806561434
+  updated: 1779606141
+  option:
+    update_interval: 180
+    merge: mnwcApObZJvM
+    script: sNh4yVHOzPGY
+    rules: rR7Kwf5E2Wrj
+    proxies: pzHaHISTsXYm
+    groups: gEsj4FGiKNzJ
+  home: https://equaldcdn.com
