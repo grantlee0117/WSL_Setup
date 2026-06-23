@@ -185,7 +185,9 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 ### 5.5 Git
 
-下载安装 [Git for Windows](https://git-scm.com/download/win)。安装过程中一路默认即可。
+下载安装 [Git for Windows](https://git-scm.com/download/win)。
+
+> 嫌官网下载慢或想看图文步骤，本目录附带了一份离线安装教程：[`git安装教程.pdf`](./git安装教程.pdf)。
 
 安装完成后打开 **Git Bash**（不是 PowerShell），配置用户信息：
 
