@@ -441,22 +441,22 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 | `ncdu` | 磁盘空间分析工具 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
 
-> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+A` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见下方"终端环境配置"部分。
+> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+A` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见 [4-terminal](../4-terminal/README.md)。
 
 **清理 Zone.Identifier 垃圾文件**：
 
 从 Windows 复制或下载的文件带到 WSL 时，Windows 会给每个文件附带一个 `Zone.Identifier` 标记文件（"此文件来自互联网"的安全标记）。这些文件在 WSL 里完全没用，还会污染 `git status` 和目录结构。WSL 用户几乎必然会碰到这个问题。
 
-仓库根目录提供了 `fuck-zone` 一键清理脚本。📋 安装（只需一次）：
+本仓库 `3-wsl/scripts/` 提供了 `fuck-zone` 一键清理脚本。📋 安装（只需一次）：
 
 ```bash
-bash /path/to/WSL_Setup/install-fuck-zone.sh
+bash ~/projects/WSL_Setup/3-wsl/scripts/install-fuck-zone.sh
 source ~/.bashrc
 ```
 
 之后在任意目录执行 `fuck-zone` 即可扫描并清理当前目录下所有 `Zone.Identifier` 文件（会先列出找到的文件，按 Enter 确认删除）。
 
-> **说明**：脚本安装到 `~/.local/bin/`，不需要 sudo。如果已经在 02 文档中配置过 `PATH="$HOME/.local/bin:$PATH"`（如 3.16 Claude Code 安装），则不需要重复添加 PATH。
+> **说明**：脚本安装到 `~/.local/bin/`，不需要 sudo。如果已经在本章中配置过 `PATH="$HOME/.local/bin:$PATH"`（如 3.16 Claude Code 安装），则不需要重复添加 PATH。
 
 **终端环境配置（WezTerm + tmux 主题化）**：
 
