@@ -599,7 +599,7 @@ source ~/.bashrc
 
 > 这一步是可选的美化和效率提升，不影响任何开发工具的功能。但配置后体验会好很多——统一的 Catppuccin Mocha 深色主题、Nerd Font 图标、tmux 会话保存/恢复、一键分屏布局。
 
-仓库的 `terminal-setup/` 目录提供了完整的配置文件和一键部署脚本：
+仓库的 `4-terminal/` 目录提供了完整的配置文件和一键部署脚本：
 
 | 文件 | 作用 |
 |------|------|
@@ -620,7 +620,7 @@ winget install wez.wezterm
 ✂️ 逐条执行：
 
 ```bash
-cd ~/projects/WSL_Setup/terminal-setup
+cd ~/projects/WSL_Setup/4-terminal
 chmod +x setup.sh
 ```
 
@@ -687,7 +687,7 @@ ta test
 | 保存会话（重启后可恢复） | `Ctrl+A Ctrl+S` |
 | 恢复会话 | `Ctrl+A Ctrl+R` |
 | 关闭所有会话 | `ta kill-all` |
-| 查看完整速查卡 | `ta help` 或查看 `terminal-setup/cheatsheet.md` |
+| 查看完整速查卡 | `ta help` 或查看 `4-terminal/cheatsheet.md` |
 
 > **WezTerm 快捷键**：`Ctrl+Shift+T` 新标签页、`Ctrl+Shift+W` 关闭标签页、`Alt+1-5` 切换标签页、`Ctrl+Shift+F` 搜索、右键粘贴。
 
