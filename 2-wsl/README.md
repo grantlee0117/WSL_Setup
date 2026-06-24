@@ -238,7 +238,7 @@ wsl
 getent hosts github.com
 ```
 
-- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置，开发环境搭建见 [4-dev](../4-dev/README.md)。镜像模式下正常配好的机器即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
+- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置；开发环境搭建见 [4-dev](../4-dev/README.md)。镜像模式下正常配好的机器即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
 - 无输出或报错：DNS 不通，按 2.1.2 手动接管。
 
 #### 2.1.2 手动接管 DNS（仅 2.1.1 不通过时）
@@ -278,7 +278,7 @@ generateResolvConf=false
 
 ### 2.2 配置代理与 DNS （非必要）
 
-> **如果你是上文主线方案，本节直接跳过**：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式做全局接管时，WSL 镜像模式已经直接共享了 Windows 的网络与代理，`apt`/`curl`/`git` 等流量都被网络层 TUN 兜底拦截，**WSL 侧不需要任何额外的代理/DNS 配置**——配好 §2.1 的 `wsl.conf` 即可开发环境搭建见 [4-dev](../4-dev/README.md)。本机即是如此。
+> **如果你是上文主线方案，本节直接跳过**：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式做全局接管时，WSL 镜像模式已经直接共享了 Windows 的网络与代理，`apt`/`curl`/`git` 等流量都被网络层 TUN 兜底拦截，**WSL 侧不需要任何额外的代理/DNS 配置**——配好 §2.1 的 `wsl.conf` 即可；开发环境搭建见 [4-dev](../4-dev/README.md)。本机即是如此。
 >
 > **只有这种情况才需要往下看**：你用的是**普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）。此时 `apt`、`curl`/`wget`、`git SSH` 不会自动走系统代理，要手动配。完整步骤（apt 代理 / 全局环境变量 / SSH ProxyCommand / Tailscale / 网络验证 / DNS 原理）见 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」。
 

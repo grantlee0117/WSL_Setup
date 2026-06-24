@@ -209,7 +209,7 @@ sudo apt install -y \
 sudo apt install -y \
     cmake ninja-build meson \
     clang llvm lld lldb \
-    clang-format clang-tidy clang-tools \
+    clang-format clang-tidy clangd \
     gdb valgrind strace ltrace \
     autoconf automake libtool m4 \
     ccache bear
@@ -219,7 +219,7 @@ sudo apt install -y \
 |---|------|
 | `cmake` `ninja-build` `meson` | 主流 C/C++ 构建系统（CMake 事实标准，Ninja/Meson 现代项目常用） |
 | `clang` `llvm` `lld` | LLVM/Clang 编译器与链接器（GCC 之外的另一套，不少项目指定用 clang） |
-| `clang-format` `clang-tidy` `clang-tools` | 格式化、静态检查、`clangd` 语言服务器（IDE 补全/跳转） |
+| `clang-format` `clang-tidy` `clangd` | 格式化、静态检查、`clangd` 语言服务器（IDE 补全/跳转；该包与 `clang-tools` 冲突，二选一，这里取 clangd） |
 | `gdb` `lldb` `valgrind` | GNU/LLVM 调试器与内存检测 |
 | `strace` `ltrace` | 跟踪系统调用 / 库调用 |
 | `autoconf` `automake` `libtool` `m4` | autotools，编译 `./configure` 类老项目用 |

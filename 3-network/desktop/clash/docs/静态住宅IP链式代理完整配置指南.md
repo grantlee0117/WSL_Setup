@@ -205,7 +205,7 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 3. 当拥有多个订阅卡片时,可以直接点击卡片来激活对应的服务商订阅(被选中的卡片会显示蓝色高亮边框)。
 
 
-![Clash Verge 订阅界面](figures/Clash%20Verge%20订阅.png)
+![Clash Verge 订阅界面](Figures/Clash%20Verge%20订阅.png)
 
 
 
@@ -219,7 +219,7 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 5. “首页”菜单左侧中间“网络设置”板块 → 点击 **虚拟网卡模式** → 开启，这样可以劫持所有流量，包括 API 调用和命令行；该功能视个人需要而选择是否开启，开启之后，即使不走系统代理的流量——如终端或其他不遵循系统代理设置的软件——也会被强制接管转发。
 
 
-![Clash Verge 代理界面](figures/Clash%20Verge%20首页.png)
+![Clash Verge 代理界面](Figures/Clash%20Verge%20首页.png)
 
 ### 4.3 模式与基础设置
 
@@ -240,7 +240,7 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 
 
 
-![Clash Verge 模式选择界面](figures/Clash%20Verge%20模式.png)
+![Clash Verge 模式选择界面](Figures/Clash%20Verge%20模式.png)
 
 
 
@@ -255,7 +255,7 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 2. 虚拟网卡模式：建议开启，不开启的话，虽然也能代理浏览器流量，但终端等其他软件的流量就无法被劫持
 3. DNS 覆写：默认开启即可
 
-![Clash Verge 设置界面](figures/Clash%20Verge%20设置.png)
+![Clash Verge 设置界面](Figures/Clash%20Verge%20设置.png)
 
 至此，Clash Verge 的基础配置已完成。接下来我们先了解一些原理知识，为后续配置链式代理打好基础。
 
@@ -291,7 +291,7 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 
 
 <div align="center">
-  <img src="figures/Clash%20Verge%20订阅界面图标功能.png" alt="Clash Verge 订阅界面图标功能" />
+  <img src="Figures/Clash%20Verge%20订阅界面图标功能.png" alt="Clash Verge 订阅界面图标功能" />
 </div>
 
 
@@ -453,7 +453,7 @@ https://dash.cliproxy.com/cli/home
 
 如下图所示，购买图中红框内的静态住宅IP套餐即可：购买完成后，如下图所示点击红框中的长效静态选框，点击“去使用”，即可跳转到控制台页面，查看和获取节点信息。
 
-![购买静态住宅节点](figures/购买静态住宅节点.png)
+![购买静态住宅节点](Figures/购买静态住宅节点.png)
 
 
 
@@ -471,7 +471,7 @@ https://dash.cliproxy.com/cli/home
 
 **请记录这些信息**，后续配置需要用到。
 
-![使用静态住宅节点](figures/使用静态住宅节点.png)
+![使用静态住宅节点](Figures/使用静态住宅节点.png)
 
 
 ---

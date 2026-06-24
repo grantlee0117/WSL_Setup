@@ -8,7 +8,7 @@
 
 ## 一、获取纯净的 Windows 系统
 
-大多数人的电脑用久了都会积累各种问题（捆绑软件、系统垃圾、驱动冲突等）。开始配置开发环境前，建议先确保系统足够纯净。根据你的实际情况，选择对应的方案：
+大多数人的电脑用久了都会积累各种问题（捆绑软件、系统垃圾、驱动冲突等）。开始配置开发环境前，先确保系统足够纯净——旧机器常积累捆绑软件、系统垃圾、驱动冲突。根据你的实际情况，选择对应的方案：
 
 ### 情况一：新电脑 / 电脑本身没问题
 
@@ -72,7 +72,11 @@ start ms-cxh:localonly
 
 回车后会弹出本地账户创建界面。
 
-> **微软在不断封堵这些绕过法，按你的 Windows 版本可能要换招**：`ms-cxh:localonly` 在 24H2 及多数版本可用；更早的旧写法是 `OOBE\BYPASSNRO`（回车后自动重启，重走 OOBE 时选「我没有 Internet 连接」）。**25H2（2025-10）起这两者都可能失效**，改用注册表法——`Shift+F10` → 输入 `regedit` → 在 `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE` 下新建 DWORD 值 `BypassNRO` 设为 `1` → 关掉 regedit、断网、执行 `shutdown /r /t 0` 重启，重走 OOBE 时即可选「我没有 Internet 连接」。实在都不行，就先用微软账户走完 OOBE，进系统后再到 `设置 → 账户` 建一个本地管理员账户、改用它登录——结果一样是干净本地账户。
+> **微软在不断封堵这些绕过法，需要根据你的 Windows 版本选择不同的方案**，从上往下试：
+> - **`ms-cxh:localonly`（24H2 及多数版本）**：即上面那条，回车后直接弹出本地账户创建界面。
+> - **`OOBE\BYPASSNRO`（更早的旧版）**：在 `Shift+F10` 命令提示符里执行，回车后自动重启，重走 OOBE 时选「我没有 Internet 连接」。
+> - **注册表法（25H2 / 2025-10 起，上面两条可能都失效时）**：`Shift+F10` → 输入 `regedit` → 在 `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE` 下新建 DWORD 值 `BypassNRO` 设为 `1` → 关掉 regedit、断网、执行 `shutdown /r /t 0` 重启，重走 OOBE 时即可选「我没有 Internet 连接」。（这其实就是手动还原 `BYPASSNRO` 那条路径。）
+> - **兜底办法**：若以上都不行，就先用微软账户走完 OOBE，进系统后再到 `设置 → 账户` 建一个本地管理员账户、改用它登录——结果一样是干净本地账户。
 
 两种账户各有取舍：
 
@@ -183,7 +187,7 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 下载安装 [Google Chrome](https://www.google.com/chrome/)。
 
-> 有了代理之后就可以顺畅访问 Google 了。如果暂时没有代理，可以先用 Edge 浏览器下载。
+> 有了代理之后就可以顺畅访问 Google 了。暂时没有代理时用 Edge 下载——若直连打不开 `google.com`，可用 Edge 搜国内镜像下载 Chrome 安装包。
 
 ### 5.5 Git
 
@@ -199,7 +203,10 @@ git config --global user.email "你的邮箱"
 git config --global core.autocrlf input
 ```
 
-> **说明**：`user.name` 是提交记录里显示的作者名，可以用中文、韩文、日文或英文；`user.email` 建议填写 GitHub 账号使用的邮箱。`core.autocrlf=input` 确保提交代码时将 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
+> **说明**（对应上面三行）：
+> 1. `user.name`：提交记录里显示的作者名，可用中文/韩文/日文/英文。
+> 2. `user.email`：建议填写 GitHub 账号使用的邮箱。
+> 3. `core.autocrlf=input`：提交代码时把 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
 
 ### 5.6 配置 SSH Key
 
@@ -262,7 +269,10 @@ git config --global core.autocrlf input
 git config --global --list
 ```
 
-> `user.name` 是提交记录里显示的作者名，可用中文/韩文/日文/英文；`user.email` 建议填 GitHub 账号使用的邮箱。`core.autocrlf=input` 确保提交时把 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
+> **说明**（对应上面三行）：
+> 1. `user.name`：提交记录里显示的作者名，可用中文/韩文/日文/英文。
+> 2. `user.email`：建议填 GitHub 账号使用的邮箱。
+> 3. `core.autocrlf=input`：提交时把 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
 
 #### 5.7.2 配置 SSH Key
 
