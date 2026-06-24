@@ -1,16 +1,10 @@
 # WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-当前本机的网络方案是 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由表，所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，WSL 侧不需要任何代理或 DNS 配置，与 [3-network 总览](./README.md) 的描述一致。
+本机用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，流量自动经隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
 
-因此本文是备用手册：只有当你改回 Clash 等「需要在 WSL 内手动配代理」的工具时，才需要执行下面的步骤。Amnezia 方案下整篇都可以跳过。
+所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
 
 > 前置（仅手动配代理时）：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
-
-## 先自检：Amnezia 等全局 VPN 多半无需任何配置
-
-本机现状（Amnezia 全局 TUN）下，WSL 流量已被 Windows 侧在网络层接管，通常**不需要**配 `http_proxy`/`https_proxy`/`all_proxy`，也不需要 `/etc/apt/apt.conf.d/proxy.conf`。改用 WireGuard、OpenVPN、Tailscale Exit Node 这类全局 VPN / TUN 级接管的工具时同理。
-
-先用下面四条命令自检，只要都通过，就保持「无代理配置」状态，整章「一」直接跳过：
 
 ```bash
 getent hosts github.com
@@ -19,7 +13,7 @@ curl -I https://github.com
 sudo apt update
 ```
 
-四条都正常返回，说明 WSL 流量已走 Amnezia 隧道；此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。
+四条都正常 = WSL 流量已走全局隧道，此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。
 
 只有以下情况才需要继续往下配：
 
@@ -29,15 +23,13 @@ sudo apt update
 
 ## 一、WSL 侧代理与 DNS（仅手动代理工具需要）
 
-本节做两件事：配置代理（apt、curl、git SSH 等不会自动读系统代理的工具需单独配）和验证网络，末尾附 DNS 原理说明。使用 Amnezia 等网络层全局接管的工具时，本节整节跳过。
+本节做两件事：手动配代理 + 验证网络，末尾附 DNS 原理说明。
 
-### 代理配置（使用 Clash 等代理工具的用户）
+### 代理配置（仅"系统代理、未开全局 TUN"时需要）
 
-如果你不用代理，可以跳过这整个"代理配置"部分，直接看后面的"验证"。
+虽然 `.wslconfig` 配了 `autoProxy`，但 `apt`、`curl`、`git SSH` 等不会自动读系统代理，需手动配。
 
-虽然 `.wslconfig` 里配了 `autoProxy`，但很多 Linux 命令行工具并不会自动读取系统代理设置，需要手动配置。
-
-> **先确认你属于哪种**：若 Windows 侧已开**全局 TUN**（Amnezia，或 Clash 的 TUN 模式），网络层已经兜底接管整机所有流量，`apt`/`curl`/`git SSH` 全自动，**下面整块都不用做**。只有用**系统代理、没开 TUN** 时才需要按下面手动配。两者二选一，不是叠加。（Clash 用户若会频繁开关 TUN，也可顺手配上做备份，但非必需。）
+> **二选一，别叠加**：若已开**全局 TUN**（Amnezia，或 Clash 的 TUN 模式），网络层已兜底接管所有流量，本节整块跳过——这是本机主线。只有用**系统代理、没开 TUN** 时才往下配。（Clash 用户若常开关 TUN，可顺手配上做备份，但非必需。）
 
 **① apt 代理**
 
@@ -139,8 +131,6 @@ sudo apt update
 | `~/.ssh/config` 中的 ProxyCommand | `git clone git@...` 等 SSH 连接（如已配置） |
 
 配好以上后，后续安装的工具不需要再单独配代理。
-
-> **而如果你用的是全局 TUN（Amnezia，或 Clash 开了 TUN 模式）——这才是本机的主线方案**：网络层已经兜底接管整机所有流量，上面这一整节都不用做。**两条路是二选一，不存在"手动代理 + 全局兜底"的叠加。**
 
 ### DNS 原理说明（可跳过，排错时再看）
 
@@ -330,7 +320,7 @@ getent hosts github.com
 
 **解法**：修好 resolv.conf 即可（见上一个 Q）。DNS 修好后 SSH 直连 github.com 正常工作，不需要额外配置 SSH ProxyCommand。
 
-**误区**：以为需要给 SSH 配 ProxyCommand 走代理。实际测试发现：1) 很多代理（包括 Clash 的 autoProxy）不支持 CONNECT 到端口 22（SSH），会报 `Connection closed by UNKNOWN port 65535`；2) DNS 修好后直连就行，加 ProxyCommand 反而引入不必要的复杂度。ProxyCommand 只在直连 github.com:22 被网络阻断时才需要。一句话：**DNS 修好是根本解法，ProxyCommand 是绕路方案**。
+**误区**：以为要给 SSH 配 ProxyCommand 走代理。实际上 DNS 修好后直连就行；很多代理（含 Clash autoProxy）还不支持 CONNECT 到 22 端口（会报 `Connection closed by UNKNOWN port 65535`）。ProxyCommand 只在直连 github.com:22 被网络阻断时才需要——**DNS 修好是根本解法，ProxyCommand 是绕路。**
 
 ---
 
