@@ -135,7 +135,7 @@ sudo apt update
 | `/etc/apt/apt.conf.d/proxy.conf` | `apt` 命令 |
 | `~/.bashrc` 中的环境变量 | `curl`、`wget`、`pip`、`npm`、`docker pull` 等所有读取 `http_proxy` 的工具 |
 | `~/.ssh/config` 中的 ProxyCommand | `git clone git@...` 等 SSH 连接（如已配置） |
-| Windows 侧 TUN 模式（如开启） | 兜底拦截所有未被上述覆盖的流量 |
+| Windows 侧 TUN 模式（Clash TUN，或 Amnezia 等全局 VPN 同理） | 兜底拦截所有未被上述覆盖的流量 |
 
 至此代理已全部配好，后续安装的工具不需要再单独配代理。
 
