@@ -237,7 +237,7 @@ generateResolvConf=true
 | `metadata` | 让 Linux 在 `/mnt` 挂载的 Windows 文件上正确保存/识别权限位（`chmod` 生效），不致挂载后权限全是固定值 |
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
-| `generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值，写出来是为了和 2.1.2 的 `false` 对照）。镜像模式 + `dnsTunneling` 下它指向隧道 DNS `10.255.255.254`，通常开箱即用 |
+| `generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值，写出来是为了和 §2.1.2 的 `false` 对照） |
 
 退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
@@ -319,10 +319,10 @@ generateResolvConf=false
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y build-essential wget unzip
+sudo apt install -y build-essential wget unzip git
 ```
 
-> **说明**：`build-essential` 包含 gcc、g++、make 等编译工具链。`wget` 是下载工具，`unzip` 后续部分安装脚本会用到。`git`、`curl` 在 Ubuntu 24.04 中通常已预装。
+> **说明**：`build-essential` 包含 gcc、g++、make 等编译工具链。`wget` 是下载工具，`unzip` 后续部分安装脚本会用到，`git` 后续 §3.2/§3.4/§3.7 都要用（WSL 精简镜像不一定预装，这里一并装上）。`curl` 在 Ubuntu 24.04 通常已预装。
 
 **配置中文 locale**：
 
@@ -575,7 +575,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev
 ✂️ 以下三条命令必须**逐条复制粘贴执行**，不能一起粘贴。第一条装完 nvm 后，必须 `source ~/.bashrc` 加载 nvm，否则第三条会报 `nvm: command not found`。
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash
 ```
 
 ```bash
@@ -593,7 +593,7 @@ nvm install --lts
 
 > **为什么不用 `sudo apt install nodejs`**：Ubuntu 源里的 Node.js 版本通常偏老，且会装到系统目录和 nvm 冲突。用 nvm 管理是业界标准做法。
 >
-> **版本号**：上面的 `v0.40.4` 为写文档时的 nvm 版本，安装前可去 [nvm releases](https://github.com/nvm-sh/nvm/releases) 查看最新 tag 替换。
+> **版本号**：上面的 `v0.40.5` 为写文档时的 nvm 版本，安装前可去 [nvm releases](https://github.com/nvm-sh/nvm/releases) 查看最新 tag 替换。
 
 ### 3.10 Java 环境 🟡 低风险
 
@@ -660,7 +660,7 @@ source ~/.bashrc
 go version
 ```
 
-> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下，升级时下载新版本覆盖即可。`$HOME/go/bin` 是 `go install` 安装的工具的路径。（注：也可以 `sudo apt install golang-go` 图省事，但 apt 版通常落后官方一两个版本。）
+> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下；升级时官方要求先 `sudo rm -rf /usr/local/go` 再解压新版本（直接往旧目录上覆盖解压会损坏安装）。`$HOME/go/bin` 是 `go install` 安装的工具的路径。（注：也可以 `sudo apt install golang-go` 图省事，但 apt 版通常落后官方一两个版本。）
 >
 > **如果执行 `go version` 报 `Permission denied`**：检查 `/usr/local/go/bin/go` 的权限，正常应允许普通用户执行。如果异常变成 `-rwx------ root root`，执行 `sudo chmod 755 /usr/local/go/bin/go` 后重新验证。
 
@@ -716,7 +716,7 @@ sudo apt install -y texlive-full
 
 ### 3.16 Claude Code 安装
 
-> **来源**：[官方文档](https://claude.ai/docs/claude-code)
+> **来源**：[官方文档](https://docs.claude.com/en/docs/claude-code)
 >
 > 官方现以**原生安装器**为推荐方式（自动后台更新）；npm 安装（`npm install -g @anthropic-ai/claude-code`）仍可用，但已不再是默认推荐。下面用原生安装器。
 
@@ -784,8 +784,10 @@ npm i -g @google/gemini-cli
 > **说明**：`gemini --version` 能过不代表能用——首次实际运行需要配置认证（未配会报认证失败）。最简单的方式是去 [Google AI Studio](https://aistudio.google.com/apikey) 申请免费 API Key，然后设置环境变量：
 >
 > ```bash
-> echo 'export GOOGLE_API_KEY="你的API Key"' >> ~/.bashrc && source ~/.bashrc
+> echo 'export GEMINI_API_KEY="你的API Key"' >> ~/.bashrc && source ~/.bashrc
 > ```
+>
+> （AI Studio 申请的免费 key 对应环境变量 `GEMINI_API_KEY`；`GOOGLE_API_KEY` 是 Google Cloud 的 key，两者别混——同时设置时 `GOOGLE_API_KEY` 会优先、可能走错认证路径。）
 
 📋 验证：
 
