@@ -349,7 +349,9 @@ Test-Path "C:\Windows\System32\OpenSSH\ssh-keygen.exe"
 ```powershell
 $openSsh = "$env:WINDIR\System32\OpenSSH"
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-[Environment]::SetEnvironmentVariable("Path", "$userPath;$openSsh", "User")
+if ($userPath -notlike "*$openSsh*") {
+    [Environment]::SetEnvironmentVariable("Path", "$userPath;$openSsh", "User")
+}
 ```
 
 **关闭并重新打开 PowerShell**，执行 `Get-Command ssh-keygen` 能显示路径即成功。若上面输出 `False`（OpenSSH 不存在），试方案 B。
@@ -439,7 +441,7 @@ Deskflow 是一款开源的键鼠共享工具（Synergy/Barrier 的分支），�
 
 > **注意**：
 > - 如果公司换了路由器或网段变了（如从 `192.168.1.x` 变成 `192.168.0.x`），需要重新修改静态 IP
-> - 确保选的 IP 没有被其他同事占用，可以先 `ping 192.168.1.200` 确认无人使用（ping 不通说明没人用）
+> - 确保选的 IP 没有被其他同事占用：可以先 `ping 192.168.1.200`，ping 不通**通常**说明没人用，但不能 100% 确定（对方可能开了防火墙挡掉 ICMP）；最稳妥是设上去后看 Windows 有没有弹"IP 地址冲突"提示
 
 #### 第三步：服务端配置
 
