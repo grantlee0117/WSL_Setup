@@ -281,7 +281,7 @@ apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了
 
 ### Q：`git clone git@github.com:...` 超时或报 DNS 错误，但 `git clone https://...` 正常？
 
-先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「一、WSL 侧代理与 DNS · DNS 原理说明」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、WSL 侧代理与 DNS · ③ Git SSH 代理」）。`http_proxy` 只对 HTTPS 协议生效，SSH 不读这个变量。
+先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「一、WSL 侧代理与 DNS · DNS 原理说明」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、WSL 侧代理与 DNS · ③ Git SSH 代理」）。`http_proxy` 只对 HTTP/HTTPS 协议生效，SSH 不读这个变量。
 
 ---
 
