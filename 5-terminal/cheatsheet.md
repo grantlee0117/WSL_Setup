@@ -42,7 +42,7 @@ chmod +x setup.sh
 |--------|------|
 | `Ctrl+A Ctrl+S` | 保存 session |
 | `Ctrl+A Ctrl+R` | 恢复 session |
-| `Ctrl+A I` | 安装插件 (首次需要，TPM 硬编码大写无法更改) |
+| `Ctrl+A I` | 补装插件 (setup.sh 已自动装；仅装不全时兜底，大写 I 是 TPM 硬编码) |
 
 ## ta 快捷命令
 

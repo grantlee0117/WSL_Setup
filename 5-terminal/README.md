@@ -38,7 +38,7 @@ chmod +x setup.sh
 脚本会自动完成：
 1. 下载 JetBrainsMono Nerd Font 到 Windows 字体目录
 2. 部署 `tmux.conf` 到 `~/.tmux.conf`
-3. 安装 TPM（tmux 插件管理器）
+3. 安装 TPM（tmux 插件管理器），并自动装好 4 个 tmux 插件（tpm / sensible / resurrect / continuum）
 4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`
 5. 安装 `ta` 快捷命令到 `~/.local/bin/`
 
@@ -55,10 +55,10 @@ sudo cp /tmp/win32yank/win32yank.exe /usr/local/bin/
 ```
 
 3. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
-4. **安装 tmux 插件**：进入 tmux 后按 `Ctrl+A` 然后按大写 `I`（Install），等待插件安装完成
+4. **（一般不用做）补装 tmux 插件**：插件已由 `setup.sh` 自动安装；只有脚本结尾提示「插件自动安装失败」时，才需要手动补装——方法见下方 ⚠️ 框。
 
-> ⚠️ **常见问题：`Ctrl+A I` 只装上了一个插件**
-> 这个交互式快捷键依赖 TPM 被正确加载，有时只会装上 `tpm` 自身（或第一个插件），其余的 `tmux-sensible`、`tmux-resurrect`、`tmux-continuum` 不会被装上。**更可靠的做法是直接用命令行安装**，📋 在 WSL 终端（不必进 tmux）执行：
+> ⚠️ **若插件没装全（只装上 `tpm` 自身或一个插件）**
+> 交互式快捷键 `Ctrl+A` 然后大写 `I` 依赖 TPM 被正确加载，有时只会装上 `tpm` 自身（或第一个插件），其余的 `tmux-sensible`、`tmux-resurrect`、`tmux-continuum` 不会被装上。**最可靠的做法是直接用命令行安装**，📋 在 WSL 终端（不必进 tmux）执行：
 >
 > ```bash
 > ~/.tmux/plugins/tpm/bin/install_plugins

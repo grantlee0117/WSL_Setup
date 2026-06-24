@@ -670,8 +670,6 @@ usbipd --version
 
 ## 六、常见问题
 
----
-
 ### Q：`cmake -B build -G Ninja` 报错找不到编译器？
 
 检查 CubeMX 生成的 `CMakeLists.txt` 或工具链文件中引用的编译器路径。如果写了绝对路径（比如 CubeCLT 的路径），需要改成 `arm-none-eabi-gcc`（不带路径，让系统从 PATH 中查找）。
