@@ -35,7 +35,9 @@ sudo apt update
 
 如果你不用代理，可以跳过这整个"代理配置"部分，直接看后面的"验证"。
 
-虽然 `.wslconfig` 里配了 `autoProxy`，但很多 Linux 命令行工具并不会自动读取系统代理设置，需要手动配置。如果 Windows 侧 Clash 开了 **TUN 模式**，TUN 会在网络层兜底拦截所有流量，但下面的配置仍然建议做——这样即使关了 TUN 模式，工具也能正常走代理，形成双保险。
+虽然 `.wslconfig` 里配了 `autoProxy`，但很多 Linux 命令行工具并不会自动读取系统代理设置，需要手动配置。
+
+> **先确认你属于哪种**：若 Windows 侧已开**全局 TUN**（Amnezia，或 Clash 的 TUN 模式），网络层已经兜底接管整机所有流量，`apt`/`curl`/`git SSH` 全自动，**下面整块都不用做**。只有用**系统代理、没开 TUN** 时才需要按下面手动配。两者二选一，不是叠加。（Clash 用户若会频繁开关 TUN，也可顺手配上做备份，但非必需。）
 
 **① apt 代理**
 
@@ -128,16 +130,17 @@ sudo apt update
 
 **代理覆盖范围总结**：
 
-本文的代理配置思路很简单：`apt`、`curl`/`wget`、`git SSH` 这几个系统级工具不会自动读取系统代理，所以手动给它们单独配上；其余所有程序的流量，通过镜像模式（`networkingMode=mirrored`）走 Windows 网络栈，被 Windows 侧 Clash 的 TUN 模式在网络层统一拦截（前提是 Windows 侧开启了 Clash TUN 模式）。
+> 本节（手动配代理）只适用于一种情况：**Windows 侧用的是系统代理、没有全局 TUN**。此时 `apt`、`curl`/`wget`、`git SSH` 不会自动走代理，需按上面 ①②③ 手动配；没手动配的程序则走直连，**这种场景下没有"全局兜底"**。
 
 | 配置 | 覆盖范围 |
 |------|---------|
 | `/etc/apt/apt.conf.d/proxy.conf` | `apt` 命令 |
 | `~/.bashrc` 中的环境变量 | `curl`、`wget`、`pip`、`npm`、`docker pull` 等所有读取 `http_proxy` 的工具 |
 | `~/.ssh/config` 中的 ProxyCommand | `git clone git@...` 等 SSH 连接（如已配置） |
-| Windows 侧 TUN 模式（Clash TUN，或 Amnezia 等全局 VPN 同理） | 兜底拦截所有未被上述覆盖的流量 |
 
-至此代理已全部配好，后续安装的工具不需要再单独配代理。
+配好以上后，后续安装的工具不需要再单独配代理。
+
+> **而如果你用的是全局 TUN（Amnezia，或 Clash 开了 TUN 模式）——这才是本机的主线方案**：网络层已经兜底接管整机所有流量，上面这一整节都不用做。**两条路是二选一，不存在"手动代理 + 全局兜底"的叠加。**
 
 ### DNS 原理说明（可跳过，排错时再看）
 
