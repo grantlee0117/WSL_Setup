@@ -434,7 +434,7 @@ gh auth status
 
 ### 3.5 C/C++ 编译基础库 🟢 无风险
 
-这些全是 `-dev` 包，只提供头文件（`.h`）和静态库（`.a`），对应的运行时 `.so` 是 Ubuntu 预装的。不会修改任何系统行为，不会互相冲突，卸载干净。
+这些大多是 `-dev` 头文件包（外加 gfortran 编译器），不改系统行为、互不冲突、卸载干净。这里覆盖面铺得尽量广，让大部分项目的依赖都能直接从源码编译过。
 
 **为什么要装**：后续编译 Python C 扩展、Node.js 原生模块、任何开源项目时都需要这些头文件。
 
@@ -442,17 +442,13 @@ gh auth status
 
 ```bash
 sudo apt install -y \
-    libssl-dev \
-    libffi-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    liblzma-dev \
-    libreadline-dev \
-    libncurses-dev \
-    libsqlite3-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libcurl4-openssl-dev \
+    libssl-dev libffi-dev libcurl4-openssl-dev \
+    zlib1g-dev libbz2-dev liblzma-dev libzstd-dev liblz4-dev libb2-dev \
+    libreadline-dev libncurses-dev libpcre2-dev libyaml-dev libxml2-dev libxslt1-dev \
+    libsqlite3-dev libgdbm-dev libdb-dev libpq-dev default-libmysqlclient-dev unixodbc-dev \
+    libjpeg-dev libpng-dev libfreetype-dev libtiff-dev libwebp-dev \
+    libgmp-dev libmpfr-dev libpcap-dev uuid-dev tk-dev \
+    gfortran libopenblas-dev liblapack-dev \
     pkgconf
 ```
 
@@ -462,13 +458,23 @@ sudo apt install -y \
 |---|------|
 | `libssl-dev` | OpenSSL 头文件，编译任何涉及 TLS 的程序必需 |
 | `libffi-dev` | 外部函数接口，Python ctypes 依赖 |
-| `zlib1g-dev` | zlib 压缩，几乎所有编译都隐式依赖 |
-| `libbz2-dev` / `liblzma-dev` | bzip2 / xz 压缩库，编译 Python 必需 |
+| `libcurl4-openssl-dev` | curl 开发头文件 |
+| `zlib1g-dev` `libbz2-dev` `liblzma-dev` `libzstd-dev` `liblz4-dev` `libb2-dev` | zlib/bzip2/xz/zstd/lz4/blake2 压缩与哈希库，编译 Python 及大量项目依赖 |
 | `libreadline-dev` | 行编辑库，Python / Node REPL 需要 |
 | `libncurses-dev` | 终端 UI 库，htop / vim 等 TUI 的基础 |
-| `libsqlite3-dev` | Python 的 `import sqlite3` 需要 |
-| `libxml2-dev` / `libxslt1-dev` | XML 解析，lxml 等库编译时需要 |
-| `libcurl4-openssl-dev` | curl 的开发头文件 |
+| `libpcre2-dev` | PCRE2 正则库，很多程序编译依赖 |
+| `libyaml-dev` | YAML 解析，PyYAML 的 C 加速依赖 |
+| `libxml2-dev` `libxslt1-dev` | XML 解析，lxml 等库编译需要 |
+| `libsqlite3-dev` `libgdbm-dev` `libdb-dev` | SQLite / GDBM / Berkeley DB，Python `sqlite3`/`dbm` 等需要 |
+| `libpq-dev` | PostgreSQL 客户端头，编译 `psycopg2` 必需 |
+| `default-libmysqlclient-dev` | MySQL/MariaDB 客户端头，编译 `mysqlclient` 必需 |
+| `unixodbc-dev` | ODBC 头，`pyodbc` 等通用数据库连接需要 |
+| `libjpeg-dev` `libpng-dev` `libfreetype-dev` `libtiff-dev` `libwebp-dev` | 图像库头，Pillow 及图像处理库从源码编译必需 |
+| `libgmp-dev` `libmpfr-dev` | 高精度整数/浮点（gmpy2、密码学、数值计算） |
+| `libpcap-dev` | 抓包库头，scapy 等网络库编译需要 |
+| `uuid-dev` | libuuid 头，生成 UUID 的库需要 |
+| `tk-dev` | Tk 头（GUI，与 §3.8 的 `python3-tk` 配套） |
+| `gfortran` `libopenblas-dev` `liblapack-dev` | Fortran 编译器 + BLAS/LAPACK，从源码编译 numpy/scipy 需要 |
 | `pkgconf` | 库路径查找工具，编译时 `pkg-config --cflags/--libs` 需要 |
 
 ### 3.6 命令行工具 🟢 无风险
@@ -485,6 +491,7 @@ sudo apt install -y \
     pandoc \
     qpdf \
     graphviz \
+    librsvg2-bin \
     ffmpeg \
     jq tree zip unzip
 ```
@@ -495,6 +502,7 @@ sudo apt install -y \
 | `pandoc` | docx skill 用它做 markdown / docx / html / latex 格式互转 |
 | `qpdf` | pdf skill 用它合并、拆分、解密 PDF |
 | `graphviz` | 画流程图、架构图时需要 `dot` 命令 |
+| `librsvg2-bin` | `rsvg-convert`：把 SVG 转成 PNG/PDF，处理含矢量图的文档时用 |
 | `ffmpeg` | 多媒体处理（视频转码、音频处理、截图） |
 | `jq` | JSON 处理 |
 | `tree` / `zip` / `unzip` | 目录展示和压缩解压 |
@@ -504,18 +512,40 @@ sudo apt install -y \
 📋 整块复制粘贴执行：
 
 ```bash
-sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
+sudo apt install -y \
+    ripgrep fd-find fzf bat git-delta eza zoxide \
+    tmux htop ncdu dos2unix \
+    neovim httpie sqlite3 p7zip-full rsync pv rename
 ```
 
 | 包 | 说明 |
 |---|------|
-| `ripgrep` | 更快的 grep 替代品，Claude Code 内部也在用 |
-| `fd-find` | 更快的 find 替代品 |
+| `ripgrep` | 更快的 grep 替代品（命令 `rg`），Claude Code 内部也在用 |
+| `fd-find` | 更快的 find 替代品（命令 `fdfind`，见下方软链） |
 | `fzf` | 模糊搜索工具，配合 `Ctrl+R` 搜索命令历史 |
+| `bat` | 带语法高亮的 cat（命令 `batcat`，见下方软链） |
+| `git-delta` | 更好看的 git diff / 分页器（命令 `delta`） |
+| `eza` | 现代 ls 替代（图标、git 状态、树形） |
+| `zoxide` | 智能 cd，按访问频率跳目录 |
 | `tmux` | 终端复用器，可以在一个窗口里分屏、后台运行任务。运行 Claude Code 等长时间任务时，tmux 可以防止意外断开导致任务中断 |
 | `htop` | 交互式进程查看器，比 `top` 好用 |
 | `ncdu` | 磁盘空间分析工具 |
+| `neovim` | 现代化的 vim（nano 之外的进阶编辑器） |
+| `httpie` | 人性化 HTTP 客户端（`http GET ...`），调试 API 用 |
+| `sqlite3` | SQLite 命令行（配合 §3.5 的 `libsqlite3-dev`） |
+| `p7zip-full` | 7z 压缩/解压（比 zip 通用） |
+| `rsync` | 高效增量文件同步 / 拷贝 |
+| `pv` | 查看管道传输进度 |
+| `rename` | 用正则批量重命名文件 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
+
+> **命令名注意**：Debian/Ubuntu 为避免冲突给几个工具改了名——`fd-find` 的命令是 `fdfind`、`bat` 的命令是 `batcat`（`ripgrep`→`rg`、`git-delta`→`delta` 则是正常名）。想用惯用名 `fd`/`bat`，建个软链即可（`~/.local/bin` 已在 PATH）：
+>
+> ```bash
+> mkdir -p ~/.local/bin
+> ln -sf "$(command -v fdfind)" ~/.local/bin/fd
+> ln -sf "$(command -v batcat)" ~/.local/bin/bat
+> ```
 
 > **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。原生 tmux 的前缀键是 `Ctrl+B`——按 `Ctrl+B` 再按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。（装了下面 [4-terminal](../4-terminal/README.md) 的配置后，前缀键会改成 `Ctrl+A`。）那套完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存）也在 [4-terminal](../4-terminal/README.md)。
 
@@ -554,7 +584,7 @@ source ~/.bashrc
 📋 整块复制粘贴执行：
 
 ```bash
-sudo apt install -y python3 python3-pip python3-venv python3-dev
+sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk ipython3
 ```
 
 | 包 | 说明 |
@@ -563,6 +593,15 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev
 | `python3-pip` | pip 包管理器 |
 | `python3-venv` | 虚拟环境支持 |
 | `python3-dev` | Python.h 头文件，编译 C 扩展需要 |
+| `pipx` | 隔离安装 Python 命令行应用（24.04 的推荐方式，见下方） |
+| `python3-tk` | tkinter 运行模块（matplotlib 弹窗、GUI 脚本需要） |
+| `ipython3` | 增强版交互式 Python shell |
+
+> **Ubuntu 24.04 的 `pip install` 限制（重要）**：系统 Python 受 PEP 668 保护，直接 `pip3 install xxx` 会报 `error: externally-managed-environment`。正确做法二选一：
+> - 装**命令行工具**（ruff、httpie、awscli 等要全局用的）→ 用 `pipx install xxx`，自动隔离、不污染系统。
+> - 做**项目开发** → 进项目目录建虚拟环境：`python3 -m venv .venv && source .venv/bin/activate`，之后 `pip install` 一切照常。
+>
+> （实在要系统级强装可加 `pip3 install --break-system-packages xxx`，但不推荐。）
 
 ### 3.9 Node.js 环境 🟡 低风险
 
