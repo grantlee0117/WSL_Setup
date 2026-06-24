@@ -1,25 +1,23 @@
-# Clash Verge 配置（存档 / 备用）
+# Clash Verge 配置（备用）
 
-> 桌面端目前主用 [Amnezia](../amnezia/)，Clash 这套作为**存档 / 备用**保留。本页说明这个目录里都有什么、怎么用。
+当前桌面端主力是 [Amnezia](../amnezia/)，这套 Clash Verge 配置作为备用保留。
 
 ## 目录内容
 
-| 子目录 / 文件 | 是什么 |
-|------|--------|
-| [`docs/`](./docs/) | 配置教程与排错（见下方「配置指南」） |
-| `config/` | 现成的 Clash Verge 配置：`verge.yaml`、`config.yaml`、`clash-verge.yaml`、`dns_config.yaml`、订阅 profile（`profiles/`，含防 DNS 泄露 `Script.js`）、GeoIP 数据库（`Country.mmdb` / `geoip.dat` / `geosite.dat`） |
-| `releases/` | Clash Verge 各平台安装包（Win / macOS / Linux），可直接用；仅 WebView2 修复版（160+ MB）超 GitHub 上限未入库，见 [`releases/README.md`](./releases/) |
-
-## 配置指南（`docs/`）
-
-| 文档 | 内容 |
+| 子目录 / 文件 | 说明 |
 |------|------|
-| [静态住宅 IP 链式代理完整配置指南](./docs/静态住宅IP链式代理完整配置指南.md) | 链式代理（落地静态住宅 IP）的完整配置 |
-| [电脑迁移时遇到的问题](./docs/电脑迁移时遇到的问题.md) | 换电脑 / 迁移 Clash 配置时的常见问题 |
-| [网址](./docs/网址.md) | 常用网址 / 订阅相关 |
+| `config/` | Clash Verge 配置文件：`verge.yaml`、`config.yaml`、`clash-verge.yaml`、`dns_config.yaml`；订阅 profile 在 `profiles/`（含防 DNS 泄露的 `Script.js`）；GeoIP 数据库 `Country.mmdb`、`geoip.dat`、`geosite.dat` |
+| `docs/` | 配置教程与排错文档，配置界面截图在 `docs/Figures/` |
+| `releases/` | Clash Verge 各平台安装包（Windows / macOS / Linux）。WebView2 修复版超过 GitHub 100MB 上限，未入库，见 [`releases/README.md`](./releases/) |
 
-> 配置界面截图见 `docs/Figures/`。
+## docs/ 文档
 
-## 和 WSL 的关系
+| 文档 | 说明 |
+|------|------|
+| [静态住宅 IP 链式代理完整配置指南](./docs/静态住宅IP链式代理完整配置指南.md) | 链式代理落地静态住宅 IP 的完整配置 |
+| [电脑迁移时遇到的问题](./docs/电脑迁移时遇到的问题.md) | 迁移 Clash 配置到新机器时的常见问题 |
+| [网址](./docs/网址.md) | 常用网址与订阅信息 |
 
-Clash 装在 Windows 侧；WSL 里怎么接入它的代理（apt / 环境变量代理 / DNS / 排错），与具体用哪个梯子无关，统一见 [`../../wsl-network.md`](../../wsl-network.md)。
+## 与 WSL 的关系
+
+Clash 运行在 Windows 侧。WSL 接入代理的方式（apt 代理、环境变量、DNS、排错）与使用哪个代理工具无关，统一见 [`../../wsl-network.md`](../../wsl-network.md)。

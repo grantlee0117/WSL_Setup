@@ -1,16 +1,14 @@
-# WSL 侧网络接入（代理 · DNS · 排错）
+# WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-> 这块和你用哪个梯子（Clash / Amnezia）**无关**——讲的是 WSL 里怎么接入网络：代理环境变量、DNS、网络自检与故障排查。Windows 侧梯子软件的安装与配置见 [2-network 总览](./README.md) 的子目录导览。
+当前本机的网络方案是 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由表，所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，WSL 侧不需要任何代理或 DNS 配置，与 [2-network 总览](./README.md) 的描述一致。
 
-> **前置**：先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
+因此本文是备用手册：只有当你改回 Clash 等「需要在 WSL 内手动配代理」的工具时，才需要执行下面的步骤。Amnezia 方案下整篇都可以跳过。
 
-## 一、WSL 侧代理与 DNS
+> 前置（仅手动配代理时）：先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
 
-> **前置**：需先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装，并配好 §2.1 `wsl.conf`。
->
-> **好消息**：如果你按 [3-wsl §2.1](../3-wsl/README.md) 配了 `wsl.conf`（包含 boot command 和 `generateResolvConf=false`），DNS 的核心修复**已经完成了**。每次 WSL 启动时，boot command 会自动写入正确的 DNS 配置。
+## 一、WSL 侧代理与 DNS（仅手动代理工具需要）
 
-本节做两件事：**配置代理**（让各种工具都能科学上网）和**验证网络**。最后附有 DNS 原理说明供了解。
+本节做两件事：配置代理（apt、curl、git SSH 等不会自动读系统代理的工具需单独配）和验证网络，末尾附 DNS 原理说明。使用 Amnezia 等网络层全局接管的工具时，本节整节跳过。
 
 ### 代理配置（使用 Clash 等代理工具的用户）
 
@@ -121,7 +119,9 @@ sudo apt update
 
 ### DNS 原理说明（可跳过，排错时再看）
 
-> 这部分解释为什么 [3-wsl §2.1](../3-wsl/README.md) 的 boot command 是必要的。如果你的网络验证全部通过了，可以跳过本说明。
+> 这部分解释 [3-wsl §2.1](../3-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
+>
+> 本机现状：`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），DNS 仍正常——查询经共用网卡走 Amnezia 隧道解析。下面这套 boot command 是 Clash 时代的兜底方案，仅在镜像模式下 DNS 确实失效时才需要；下表中「不经过 Clash 通常不能」的判断也只适用于 Clash 场景。
 
 镜像模式下 WSL 的 DNS 可能不通（无论是否使用代理）。症状：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
