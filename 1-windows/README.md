@@ -33,7 +33,7 @@
 
 ### 重置后的首次开机设置（OOBE）
 
-系统重置/重装完成后会重启进入「开箱体验」（OOBE）。其中**地区、时区、语言/键盘**是三个个性化选择——没有标准答案（但地区推荐美区），下面把利弊讲清楚，你按自己的使用场景选（这几项进桌面后都能随时改）。
+系统重置/重装完成后会重启进入「开箱体验」（OOBE）。其中**地区、时区、语言/键盘**是三项个性化选择——没有标准答案（但地区推荐美区），下面把利弊讲清楚，你按自己的使用场景选（这几项进桌面后都能随时改）。
 
 **① 国家/地区**
 
@@ -42,14 +42,14 @@
 | 选择 | 利 | 弊 |
 |------|----|----|
 | 美国 | Store 应用最全、AI 功能开放最多、内容限制最少，对 AI 工具和软件最友好 | 无 |
-| 中国 |无 | 部分 Store 应用 / AI 功能受限 |
+| 中国 | 无 | 部分 Store 应用 / AI 功能受限 |
 
 **② 时区**
 
 决定系统时间对应哪个地区——**看你想要什么，并不是必须跟所在地时区一致**。系统时间会体现在日志时间戳、git 提交时间、计划任务、文件时间上。
 
-- **1. 选择实际所在地时区**（国内即 UTC+8）：本地看时间最直观。
-- **2. 选择远程服务器 / 协作团队 / VPN 出口地区时区**：与服务器统一时区，跨时区协作和对日志更省心。
+- **选择实际所在地时区**（国内即 UTC+8）：本地看时间最直观。
+- **选择远程服务器 / 协作团队 / VPN 出口地区时区**：与服务器统一时区，跨时区协作和对日志更省心。
 
 > 地区选美区**不会**强制时区，时区可独立设置、随时可改。
 
@@ -205,7 +205,6 @@ git config --global core.autocrlf input
 
 > **SSH Key 是什么？** 可以理解为一把"钥匙"（私钥，留在电脑上）和一把"锁"（公钥，放到 GitHub 上）。有了这对钥匙和锁，你的电脑就可以免密码和 GitHub 通信。每台电脑各生成一对，把公钥都加到 GitHub 即可。**私钥永远不要发给别人。**
 
-
 仍然在 Git Bash 中，生成密钥对：
 
 ```bash
@@ -237,11 +236,9 @@ ssh -T git@github.com
 
 首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。核对指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
 
-
-
 ### 5.7 附：改用 PowerShell 配置 Git/SSH（可选）
 
->上面 5.5 / 5.6 用的是 Git for Windows 自带的 **Git Bash**，它自带 `ssh-keygen` 和 `ssh`，开箱即用、最省心，**推荐新手走这条主线**。本节是给习惯用 PowerShell 的人备的，没需求可直接跳到第六节。与 Git Bash 唯一的实质区别：PowerShell 不一定能直接找到 `ssh-keygen` / `ssh`，所以多了"第一步：确认 ssh 可用"和一段排错；其余完全等价。两种方式**二选一**即可，因为 `C:\Users\你\.gitconfig` 和 `.ssh\` 密钥是全局共享的，已经用 Git Bash 配过就不必再走本节。
+> 上面 5.5 / 5.6 用的是 Git for Windows 自带的 **Git Bash**，它自带 `ssh-keygen` 和 `ssh`，开箱即用、最省心，**推荐新手走这条主线**。本节是给习惯用 PowerShell 的人备的，没需求可直接跳到第六节。与 Git Bash 唯一的实质区别：PowerShell 不一定能直接找到 `ssh-keygen` / `ssh`，所以多了"第一步：确认 ssh 可用"和一段排错；其余完全等价。两种方式**二选一**即可，因为 `C:\Users\你\.gitconfig` 和 `.ssh\` 密钥是全局共享的，已经用 Git Bash 配过就不必再走本节。
 
 #### 5.7.1 配置 Git 用户信息
 
@@ -276,7 +273,7 @@ Get-Command ssh-keygen
 ```
 
 - 输出了 `ssh-keygen.exe` 的路径 → 正常，继续第二步
-- 报"无法将 ssh-keygen 识别为 cmdlet" → 先做本节末尾的 **【ssh-keygen / ssh 找不到？】**，解决后再回到这里继续
+- 报"无法将 ssh-keygen 识别为 cmdlet" → 先做下面的 **5.7.3 ssh-keygen / ssh 找不到？**，解决后再回到这里继续
 
 **第二步：检查是否已有密钥**
 
@@ -292,6 +289,7 @@ Test-Path "$env:USERPROFILE\.ssh\id_ed25519.pub"
 ```powershell
 ssh-keygen -t ed25519 -C "你的邮箱"
 ```
+
 执行后会有两次提示：
 
 - 路径：直接回车（使用默认路径 `C:\Users\你的用户名\.ssh\id_ed25519`）
@@ -321,18 +319,17 @@ Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard
    - **Key**：粘贴刚才复制的公钥
 4. 点 **Add SSH key** 保存
 
-
 **第五步：验证连接**
 
 ```powershell
 ssh -T git@github.com
 ```
 
-首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。确认指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 再回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
+首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。核对指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
 
-- 若报"无法将 ssh 识别为 cmdlet" → 同样见本节末尾的 **【ssh-keygen / ssh 找不到？】**
+- 若报"无法将 ssh 识别为 cmdlet" → 同样见下面的 **5.7.3 ssh-keygen / ssh 找不到？**
 
-#### 【ssh-keygen / ssh 找不到？】
+#### 5.7.3 ssh-keygen / ssh 找不到？
 
 如果第一步或第五步报"无法将 ssh-keygen（或 ssh）识别为 cmdlet"，说明系统的 OpenSSH 没加到 PATH。下面 A、B 两种解法**从上往下依次尝试**。解决后回到上面 5.7.2 继续。
 
@@ -380,8 +377,8 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 | VSCode | 能正常打开，左下角能看到 WSL 扩展图标 |
 | 代理工具 | 能访问 Google |
 | Chrome | 能正常打开网页 |
-| Git | Git Bash 中执行 `git --version`，显示版本号 |
-| SSH Key | Git Bash 中执行 `ssh -T git@github.com`，显示认证成功 |
+| Git | 终端（Git Bash / PowerShell）中执行 `git --version`，显示版本号 |
+| SSH Key | 终端（Git Bash / PowerShell）中执行 `ssh -T git@github.com`，显示认证成功 |
 
 全部通过后，Windows 侧的基础配置就完成了。
 
@@ -534,5 +531,7 @@ New-NetFirewallRule -DisplayName "Deskflow" -Direction Inbound -Protocol TCP -Lo
 | 等待后切换 | 鼠标到边缘后延迟切换 | 误触多的话可以开启 |
 
 ---
+
 ## 八、WSL 配置说明
+
 接下来请参阅 [3-wsl](../3-wsl/README.md) 配置 WSL2 开发环境。
