@@ -60,7 +60,10 @@ notepad C:\Users\你的用户名\.wslconfig
 
 ```ini
 [wsl2]
-# 资源分配（根据你的实际内存和 CPU 调整，见下方建议）
+# 资源分配：下面三个值是 48GB+ 内存机型的示例，请按你的内存档位改（见下方建议表）：
+#   16GB 内存 → memory=8GB、processors=4-6
+#   32GB 内存 → memory=16GB、processors=8
+#   48GB+ 内存 → 即下面的默认值
 memory=24GB
 swap=8GB
 processors=12
@@ -84,7 +87,7 @@ autoProxy=true
 | `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
 | `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1.2 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
 | `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
-| `autoProxy=true` | 自动使用 Windows 的代理设置 |
+| `autoProxy=true` | 向 WSL 注入 Windows 的 HTTP(S) 代理设置；但很多命令行工具（`apt`/`curl`/`git`）并不读它、仍需手动配置，详见 [2-network](../2-network/wsl-network.md) |
 
 > **资源分配建议**：
 >
@@ -100,77 +103,60 @@ autoProxy=true
 
 ### 1.2 安装 WSL2
 
-PowerShell（**管理员**模式）中 📋 执行：
+**第一步：安装**
 
-```powershell
-wsl --install
-```
-
-> **这条命令做了什么**：
-> 1. 启用 WSL 功能和虚拟机平台
-> 2. 安装 WSL2 内核
-> 3. 默认安装一个 Ubuntu 发行版
-
-安装完成后按提示**重启电脑**（首次启用 WSL / 虚拟化平台时通常需要重启；若系统未提示重启，可直接继续下一步）。
-
-重启后，再次打开 PowerShell（管理员模式），📋 执行以下命令安装指定版本的 Ubuntu：
+以**管理员身份**打开 PowerShell，📋 执行：
 
 ```powershell
 wsl --install -d Ubuntu-24.04
 ```
 
-> **为什么要再执行一次？** 第一条 `wsl --install` 主要是启用 WSL 功能和安装内核，默认安装的 Ubuntu 版本不一定是你想要的。第二条命令明确指定安装 Ubuntu 24.04（当前的 LTS 长期支持版本），确保版本可控。
->
-> **版本选择**：建议安装最新的 LTS 版本。可以用 `wsl --list --online` 查看所有可安装的发行版。截至目前推荐 `Ubuntu-24.04`。
+> **这条命令做了什么**：
+> 1. 启用 WSL 功能和虚拟机平台
+> 2. 安装 WSL2 内核
+> 3. 安装 Ubuntu 24.04 发行版
 
-> **如果你的机器上 `wsl --install` 直接显示帮助文本**：这通常表示 WSL 入口已经存在，但还没有安装 Linux 发行版，或 WSL 版本/在线列表还没更新。先执行：
+**第二步：重启**
+
+按提示**重启电脑**（首次启用 WSL / 虚拟化平台需要重启；若系统未提示重启，可直接继续）。
+
+**第三步：初始化并验证**
+
+重启后会自动弹出 Ubuntu 窗口（若没弹出，从开始菜单打开 Ubuntu，或在 PowerShell 里运行 `wsl`），按提示**设置 Linux 用户名和密码**。进入 Linux 提示符后验证版本：
+
+```bash
+cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
+```
+
+> **设置用户名密码时注意**：
+> - 这是 Linux 系统的账号，和 Windows 账户无关
+> - 密码输入时屏幕不显示任何字符（包括星号），这是 Linux 的安全设计，不是卡住，输完回车即可
+> - 用户名用小写英文、不要空格
+
+正常情况到这里 WSL2 就装好了。下面两条**只在遇到对应情况时才看**：
+
+> **① `wsl --install` 只显示帮助文本，或卡在 `0.0%` / Microsoft Store 下载异常**：说明 WSL 入口已存在但还没装发行版，或 WSL 需要更新。依次尝试：
 >
 > ```powershell
-> wsl --list --online
+> wsl --list --online                            # 确认列表里有 Ubuntu-24.04
+> wsl --update --web-download                     # 列表里没有 24.04 时，先更新 WSL
+> wsl --install --web-download -d Ubuntu-24.04    # 卡在 0.0% / Store 异常时，绕开 Store 下载
 > ```
 >
-> 如果列表里有 `Ubuntu-24.04`，继续执行上面的 `wsl --install -d Ubuntu-24.04`。如果列表里暂时只有 `Ubuntu` 而没有 `Ubuntu-24.04`，先更新 WSL：
->
-> ```powershell
-> wsl --update --web-download
-> ```
->
-> 更新完成后重新打开 PowerShell，再执行 `wsl --list --online` 检查。如果安装过程卡在 `0.0%` 或 Microsoft Store 下载异常，改用：
->
-> ```powershell
-> wsl --install --web-download -d Ubuntu-24.04
-> ```
->
-> 如果更新后仍然没有 `Ubuntu-24.04`，可以先安装列表中的 `Ubuntu`，进入系统后用 `cat /etc/os-release` 确认实际版本；如果不是 24.04，再从 Microsoft Store 安装 `Ubuntu 24.04 LTS`。
+> 若更新后仍没有 `Ubuntu-24.04`，可先装列表里的 `Ubuntu`，进系统用 `cat /etc/os-release` 看版本；若不是 24.04，再从 Microsoft Store 安装 `Ubuntu 24.04 LTS`。
 
-安装完成后会自动弹出 Ubuntu 窗口，要求你设置 Linux 用户名和密码。
-
-> **注意**：
-> - 这个用户名密码是 Linux 系统的，和 Windows 账户无关
-> - 密码输入时屏幕不会显示任何字符（包括星号），这是 Linux 的安全设计，不是卡住了，直接输完回车即可
-> - 用户名建议用小写英文，不要有空格
-
-> **如果重启后自动弹出 Ubuntu 初始化窗口**：这是正常现象，说明 `wsl --install` 已经自动安装并启动了默认 Ubuntu。先在这个窗口里完成用户创建和密码设置，不要关闭窗口。进入 Linux 提示符后，执行 `cat /etc/os-release` 确认版本；如果显示 `VERSION_ID="24.04"`，就不需要再执行 `wsl --install -d Ubuntu-24.04`，直接进入第二节配置。
->
-> 如果显示的是更新版本（例如 `Welcome to Ubuntu 26.04 LTS` 或 `VERSION_ID="26.04"`），建议先不要继续配置。本文后续 Docker、第三方 apt 源和依赖验证都以 Ubuntu 24.04 为基准，刚初始化的新系统里还没有重要数据，最稳妥的做法是退出当前 Ubuntu，在 PowerShell 中安装 `Ubuntu-24.04`：
+> **② 进系统后版本不是 24.04（例如弹出的是 26.04）**：本文后续的 Docker、第三方 apt 源、依赖验证都以 Ubuntu 24.04 为基准，建议装回 24.04（刚初始化的系统没有重要数据，可放心重来）。退出当前发行版，在 PowerShell 重装并清理多余发行版：
 >
 > ```bash
 > exit
 > ```
 >
 > ```powershell
-> wsl --install -d Ubuntu-24.04
+> wsl --install -d Ubuntu-24.04        # 安装 24.04
+> wsl --list --verbose                 # 确认 24.04 已就绪，并看清多余发行版的名字
+> wsl --unregister Ubuntu              # 删掉多余的发行版（会清空其所有文件，确认无数据再删）
+> wsl --set-default Ubuntu-24.04       # 设为默认
 > ```
->
-> 等 `Ubuntu-24.04` 初始化完成并确认可用后，再删除默认安装的新版 `Ubuntu`，避免以后进错发行版：
->
-> ```powershell
-> wsl --list --verbose
-> wsl --unregister Ubuntu
-> wsl --set-default Ubuntu-24.04
-> ```
->
-> `wsl --unregister Ubuntu` 会删除默认 `Ubuntu` 发行版里的所有文件，只在确认没有需要保留的数据时执行。刚初始化、尚未配置的情况下可以安全删除。
 
 ---
 
@@ -179,7 +165,7 @@ wsl --install -d Ubuntu-24.04
 从这里开始，所有操作都在 WSL 终端里。打开方式有两种：
 
 - **方式一**：打开 PowerShell，输入 `wsl` 回车
-- **方式二**：在开始菜单中找到 Ubuntu 应用，点击打开
+- **方式二**：在开始菜单中找到 **Ubuntu 24.04** 应用，点击打开（别点通用的 Ubuntu 应用，否则可能多注册一个发行版，见 §六）
 
 ### nano 编辑器基础操作
 
@@ -194,7 +180,7 @@ wsl --install -d Ubuntu-24.04
 | 粘贴 | 鼠标右键 | 在终端中，右键等于粘贴（不是 Ctrl+V） |
 | 全选删除 | `Ctrl+6` → `Ctrl+End` → `Ctrl+K` | 标记起点 → 跳到文末全选 → 剪切删除 |
 
-> **提示**：编辑器底部会显示快捷键提示，`^O` 表示 `Ctrl+O`，`^X` 表示 `Ctrl+X`。
+> **提示**：编辑器底部会显示快捷键提示，`^O` 表示 `Ctrl+O`，`^X` 表示 `Ctrl+X`。若 `Ctrl+End` 在你的终端跳不到文件末尾，用 nano 原生的 `Alt+/`（按 `Esc` 再按 `/` 也等效）。
 
 ### 2.1 配置 wsl.conf
 
@@ -235,14 +221,20 @@ generateResolvConf=true
 
 3. **保存退出**：按 `Ctrl+O` 然后按回车保存，按 `Ctrl+X` 退出编辑器。
 
-> **关于 DNS**：部分教程会在这份配置里额外加一条写死公共 DNS 的 `[boot] command=...`，并把 `generateResolvConf` 设为 `false`。本基线保持默认（`generateResolvConf=true`，由 WSL 自动生成 `/etc/resolv.conf`）。在镜像模式 + `dnsTunneling=true`（§1.1）下，WSL 自动生成的 DNS 通常可用，此时再写死公共 DNS 会绕过隧道 DNS。是否需要手动接管，按下面 2.1.1 验证后再决定，仅在验证不通过时执行 2.1.2。
+> **关于 DNS——取决于你 Windows 侧的代理方案**：
+>
+> 上面这套基线（`generateResolvConf=true`、不写死 DNS）针对的是**全局 TUN 接管**的方案：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式时，会有一个虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1），WSL 的 DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析——**开箱即用，什么都不用额外配**。本机正是这种方案。此时别再画蛇添足写死公共 DNS，那会把 DNS 从隧道里拽出来。
+>
+> 反过来，如果你用的是**普通系统代理**（Clash Verge 只在 Windows 设了 HTTP/SOCKS 系统代理、没开 TUN），网络层没有全局接管，WSL 的隧道 DNS 多半不通——这才需要按 §2.1.2 手动接管：加一条 `[boot] command=...` 写死公共 DNS，并把 `generateResolvConf` 设成 `false`。
+>
+> 拿不准属于哪种？别猜，按下面 §2.1.1 跑一条命令验证：**通了就保持基线，不通再做 §2.1.2**。两者二选一，不叠加。
 
 **各项含义：**
 
 | 配置项 | 作用 |
 |--------|------|
 | `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
-| `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
+| `metadata` | 让 Linux 在 `/mnt` 挂载的 Windows 文件上正确保存/识别权限位（`chmod` 生效），不致挂载后权限全是固定值 |
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
 | `generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值，写出来是为了和 2.1.2 的 `false` 对照）。镜像模式 + `dnsTunneling` 下它指向隧道 DNS `10.255.255.254`，通常开箱即用 |
@@ -269,7 +261,7 @@ wsl
 getent hosts github.com
 ```
 
-- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置，进入第三节。本机即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
+- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置，进入第三节。镜像模式下正常配好的机器即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
 - 无输出或报错：DNS 不通，按 2.1.2 手动接管。
 
 #### 2.1.2 手动接管 DNS（仅 2.1.1 不通过时）
@@ -307,10 +299,11 @@ generateResolvConf=false
 
 修改后在 PowerShell 执行 `wsl --shutdown` 重启生效。DNS 的完整原理与排查见 [2-network/wsl-network.md](../2-network/wsl-network.md)。
 
-### 2.2 配置代理与 DNS
+### 2.2 配置代理与 DNS （非必要）
 
-> **本节内容已迁移**：代理（apt / 全局环境变量 / SSH ProxyCommand / Tailscale）、网络验证、DNS 原理说明，统一移到 👉 [2-network/wsl-network.md](../2-network/wsl-network.md)「一、WSL 侧代理与 DNS」。
-> 配好本章 §2.1 `wsl.conf` 后，按需前往配置。
+> **如果你是上文主线方案，本节直接跳过**：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式做全局接管时，WSL 镜像模式已经直接共享了 Windows 的网络与代理，`apt`/`curl`/`git` 等流量都被网络层 TUN 兜底拦截，**WSL 侧不需要任何额外的代理/DNS 配置**——配好 §2.1 的 `wsl.conf` 即可进入第三节。本机即是如此。
+>
+> **只有这种情况才需要往下看**：你用的是**普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）。此时 `apt`、`curl`/`wget`、`git SSH` 不会自动走系统代理，要手动配。完整步骤（apt 代理 / 全局环境变量 / SSH ProxyCommand / Tailscale / 网络验证 / DNS 原理）见 👉 [2-network/wsl-network.md](../2-network/wsl-network.md)「一、WSL 侧代理与 DNS」。
 
 ---
 
