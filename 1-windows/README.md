@@ -64,13 +64,15 @@
 
 **④ 账户：本地账户 vs 微软账户（按需选）**
 
-Windows 11 的 OOBE 默认强制联网并登录微软账户。如果你想要一个不绑微软账户的干净本地管理员账户，在「让我们为你连接网络」这一步按 `Shift + F10` 调出命令提示符，📋 执行：
+Windows 11 的 OOBE 默认强制联网并登录微软账户。如果你想要一个不绑微软账户的干净本地管理员账户，在「让我们为你连接网络」这一步按 `Shift + F10` 调出命令提示符，执行：
 
 ```
 start ms-cxh:localonly
 ```
 
-回车后会弹出本地账户创建界面。若该命令在你的版本无效，改用旧版写法 `OOBE\BYPASSNRO`（回车后机器自动重启，重走 OOBE 时选「我没有 Internet 连接」即可继续）。
+回车后会弹出本地账户创建界面。
+
+> **微软在不断封堵这些绕过法，按你的 Windows 版本可能要换招**：`ms-cxh:localonly` 在 24H2 及多数版本可用；更早的旧写法是 `OOBE\BYPASSNRO`（回车后自动重启，重走 OOBE 时选「我没有 Internet 连接」）。**25H2（2025-10）起这两者都可能失效**，改用注册表法——`Shift+F10` → 输入 `regedit` → 在 `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE` 下新建 DWORD 值 `BypassNRO` 设为 `1` → 关掉 regedit、断网、执行 `shutdown /r /t 0` 重启，重走 OOBE 时即可选「我没有 Internet 连接」。实在都不行，就先用微软账户走完 OOBE，进系统后再到 `设置 → 账户` 建一个本地管理员账户、改用它登录——结果一样是干净本地账户。
 
 两种账户各有取舍：
 
