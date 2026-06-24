@@ -87,7 +87,7 @@ chmod 600 ~/.ssh/config
 
 **④ Tailscale 用户（如果你装了 Tailscale）**
 
-Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 [3-wsl §2.1](../3-wsl/README.md) boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
+Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 [3-wsl §2.1.2](../3-wsl/README.md) boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
 
 ```bash
 sudo tailscale set --accept-dns=false
@@ -102,7 +102,8 @@ sudo tailscale set --accept-dns=false
 ```bash
 # 1. 检查 DNS 配置文件内容
 cat /etc/resolv.conf
-# 应该只有两行：nameserver 223.5.5.5 和 nameserver 8.8.8.8
+# 手动兜底模式：应为 nameserver 223.5.5.5 / 8.8.8.8 两行
+# 基线模式（Amnezia/镜像，未手动接管）：为 nameserver 10.255.255.254，同样正常
 ```
 
 ```bash
@@ -140,7 +141,7 @@ sudo apt update
 
 ### DNS 原理说明（可跳过，排错时再看）
 
-> 这部分解释 [3-wsl §2.1](../3-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
+> 这部分解释 [3-wsl §2.1.2](../3-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
 >
 > 本机现状：`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），DNS 仍正常——查询经共用网卡走 Amnezia 隧道解析。下面这套 boot command 是 Clash 时代的兜底方案，仅在镜像模式下 DNS 确实失效时才需要；下表中「不经过 Clash 通常不能」的判断也只适用于 Clash 场景。
 
@@ -161,7 +162,7 @@ sudo apt update
 - **WSL 重启**后 Tailscale 或 WSL 重新覆盖 `resolv.conf`
 - **Tailscale 更新或重启**后重新接管 DNS
 
-**[3-wsl §2.1](../3-wsl/README.md) 的 boot command 做了什么**：
+**[3-wsl §2.1.2](../3-wsl/README.md) 的 boot command 做了什么**：
 
 1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 `/run/systemd/resolve/stub-resolv.conf`）。**必须先断开 symlink**：如果直接 `printf > /etc/resolv.conf`，实际修改的是 symlink 的目标文件，systemd-resolved 重启后会覆盖回 `127.0.0.53`
 2. `printf 'nameserver 223.5.5.5\n...' > /etc/resolv.conf` — 写入正确的公共 DNS
@@ -176,68 +177,85 @@ sudo apt update
 DNS 和代理问题反复出现时，用以下命令一键定位。📋 整块复制粘贴到 WSL 终端执行：
 
 ```bash
-echo "=== WSL 网络健康检查 ===" && \
-echo "" && \
-echo "--- 1. /etc/resolv.conf ---" && \
-if [ -L /etc/resolv.conf ]; then \
-  echo "!! PROBLEM: /etc/resolv.conf 是 symlink → $(readlink -f /etc/resolv.conf)"; \
-  echo "   修复: sudo bash -c 'rm -f /etc/resolv.conf && printf \"nameserver 223.5.5.5\nnameserver 8.8.8.8\n\" > /etc/resolv.conf'"; \
-else \
-  echo "OK: 普通文件（非 symlink）"; \
-fi && \
-echo "" && \
-echo "--- 2. nameserver 内容 ---" && \
-NS=$(grep '^nameserver' /etc/resolv.conf 2>/dev/null | head -1 | awk '{print $2}') && \
-case "$NS" in \
-  223.5.5.5|8.8.8.8|8.8.4.4|1.1.1.1) echo "OK: $NS（公共 DNS）" ;; \
-  127.0.0.53) echo "!! PROBLEM: $NS（systemd-resolved stub）— boot command 未生效或缺少 rm -f" ;; \
-  100.100.100.100) echo "!! PROBLEM: $NS（Tailscale MagicDNS）— 运行 sudo tailscale set --accept-dns=false" ;; \
-  10.255.255.254) echo "!! PROBLEM: $NS（WSL 虚拟网关）— 检查 wsl.conf 中 generateResolvConf=false" ;; \
-  *) echo "?? UNKNOWN: $NS — 不在预期列表中" ;; \
-esac && \
-echo "" && \
-echo "--- 3. DNS 解析 ---" && \
-if getent hosts github.com >/dev/null 2>&1; then \
-  echo "OK: github.com → $(getent hosts github.com | awk '{print $1}')"; \
-else \
-  echo "!! PROBLEM: getent hosts github.com 失败"; \
-fi && \
-echo "" && \
-echo "--- 4. SSH 连接 ---" && \
-SSH_RESULT=$(ssh -T -o ConnectTimeout=5 git@github.com 2>&1) && true; \
-if echo "$SSH_RESULT" | grep -q "successfully authenticated"; then \
-  echo "OK: $SSH_RESULT"; \
-elif echo "$SSH_RESULT" | grep -q "name resolution"; then \
-  echo "!! PROBLEM: DNS 解析失败 — 先修 resolv.conf"; \
-elif echo "$SSH_RESULT" | grep -q "Connection timed out\|Connection refused"; then \
-  echo "!! PROBLEM: 连接超时/被拒 — 可能需要 SSH ProxyCommand"; \
-else \
-  echo "?? OTHER: $SSH_RESULT"; \
-fi && \
-echo "" && \
-echo "--- 5. HTTP 代理 ---" && \
-if [ -n "$http_proxy" ]; then \
-  echo "OK: http_proxy=$http_proxy"; \
-else \
-  echo "!! WARNING: http_proxy 未设置（如果你不用代理，这是正常的）"; \
-fi && \
-echo "" && \
-echo "--- 6. wsl.conf 关键配置 ---" && \
-if grep -q 'rm -f /etc/resolv.conf' /etc/wsl.conf 2>/dev/null; then \
-  echo "OK: boot command 包含 rm -f"; \
-else \
-  echo "!! PROBLEM: boot command 缺少 rm -f — symlink 重启后会恢复"; \
-fi && \
-if grep -q 'generateResolvConf=false' /etc/wsl.conf 2>/dev/null; then \
-  echo "OK: generateResolvConf=false"; \
-else \
-  echo "!! PROBLEM: generateResolvConf 未设为 false"; \
-fi && \
-echo "" && \
-echo "=== 检查完毕 ==="
+echo "=== WSL 网络健康检查 ==="
+echo ""
+
+# 总判定：DNS 能否解析（这才是健康与否的根本标准）
+if getent hosts github.com >/dev/null 2>&1; then DNS_OK=1; else DNS_OK=0; fi
+NS=$(grep '^nameserver' /etc/resolv.conf 2>/dev/null | head -1 | awk '{print $2}')
+
+echo "--- 1. DNS 解析（总判定）---"
+if [ "$DNS_OK" = 1 ]; then
+  echo "OK: github.com → $(getent hosts github.com | awk '{print $1}')"
+else
+  echo "!! PROBLEM: getent hosts github.com 失败 — 下面各项用于定位原因"
+fi
+echo ""
+
+echo "--- 2. /etc/resolv.conf 形态与 DNS 模式 ---"
+if [ -L /etc/resolv.conf ]; then
+  echo "INFO: symlink → $(readlink -f /etc/resolv.conf)；nameserver=$NS"
+else
+  echo "INFO: 普通文件；nameserver=$NS"
+fi
+case "$NS" in
+  10.255.255.254)
+    if [ "$DNS_OK" = 1 ]; then
+      echo "  → 基线模式：镜像+dnsTunneling 的隧道 DNS；解析正常即健康，无需 boot command、不要设 generateResolvConf=false"
+    else
+      echo "  → 隧道 DNS 没解析成功：按 3-wsl §2.1.2 手动接管（写 223.5.5.5/8.8.8.8 + generateResolvConf=false）"
+    fi ;;
+  223.5.5.5|8.8.8.8|8.8.4.4|1.1.1.1)
+    echo "  → 手动兜底模式（公共 DNS）" ;;
+  127.0.0.53)
+    if [ "$DNS_OK" = 1 ]; then echo "  → systemd-resolved stub，解析正常即可"; else echo "  → systemd-resolved stub 且解析失败：按 §2.1.2 手动接管 DNS"; fi ;;
+  100.100.100.100)
+    echo "  → Tailscale MagicDNS；如解析异常：sudo tailscale set --accept-dns=false" ;;
+  "")
+    echo "  → 未读到 nameserver" ;;
+  *)
+    echo "  → 非预期 DNS：$NS" ;;
+esac
+echo ""
+
+echo "--- 3. SSH 连接 ---"
+SSH_RESULT=$(ssh -T -o ConnectTimeout=5 git@github.com 2>&1)
+if echo "$SSH_RESULT" | grep -q "successfully authenticated"; then
+  echo "OK: $SSH_RESULT"
+elif echo "$SSH_RESULT" | grep -q "name resolution"; then
+  echo "!! PROBLEM: DNS 解析失败 — 先按第 1/2 项修 DNS"
+elif echo "$SSH_RESULT" | grep -q "Connection timed out\|Connection refused"; then
+  echo "!! PROBLEM: 连接超时/被拒 — 可能需要 SSH ProxyCommand"
+else
+  echo "?? OTHER: $SSH_RESULT"
+fi
+echo ""
+
+echo "--- 4. HTTP 代理（仅手动代理用户关心）---"
+if [ -n "$http_proxy" ]; then
+  echo "OK: http_proxy=$http_proxy"
+else
+  echo "INFO: http_proxy 未设置（Amnezia 全局 / 不用代理时这是正常的）"
+fi
+echo ""
+
+echo "--- 5. wsl.conf DNS 模式 ---"
+if grep -q 'generateResolvConf=false' /etc/wsl.conf 2>/dev/null; then
+  echo "INFO: 手动兜底模式（generateResolvConf=false）"
+  if grep -q 'rm -f /etc/resolv.conf' /etc/wsl.conf 2>/dev/null; then
+    echo "  OK: boot command 含 rm -f"
+  else
+    echo "  !! 注意: 设了 false 但 boot command 缺 rm -f，symlink 重启后可能恢复"
+  fi
+else
+  echo "INFO: 基线模式（generateResolvConf=true 或默认，由 WSL 自动生成 resolv.conf）"
+  echo "  → 基线模式无需 boot command；只要第 1 项解析 OK 即健康"
+fi
+echo ""
+echo "=== 检查完毕：以第 1 项「DNS 解析」为准；基线模式与手动兜底模式都算正常 ==="
 ```
 
-正常输出应该全是 `OK`。任何 `!! PROBLEM` 都附带了修复命令或指引。
+判定以第 1 项「DNS 解析」为准：显示 `OK` 即网络健康。第 2/5 项的 `INFO` 只是表明当前处于哪种 DNS 模式（基线 / 手动兜底），两种都正常。只有出现 `!! PROBLEM` 才需要按其后的指引处理。
 
 ---
 
