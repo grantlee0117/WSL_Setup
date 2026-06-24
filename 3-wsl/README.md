@@ -230,11 +230,12 @@ appendWindowsPath=true
 
 [network]
 generateHosts=true
+generateResolvConf=true
 ```
 
 3. **保存退出**：按 `Ctrl+O` 然后按回车保存，按 `Ctrl+X` 退出编辑器。
 
-> **关于 DNS**：部分教程会在这份配置里额外加一条写死公共 DNS 的 `[boot] command=...` 和 `generateResolvConf=false`，本基线不包含它。在镜像模式 + `dnsTunneling=true`（§1.1）下，WSL 通常会自动生成可用的 `/etc/resolv.conf`，此时再写死公共 DNS 会绕过隧道 DNS。是否需要手动接管，按下面 2.1.1 验证后再决定，仅在验证不通过时执行 2.1.2。
+> **关于 DNS**：部分教程会在这份配置里额外加一条写死公共 DNS 的 `[boot] command=...`，并把 `generateResolvConf` 设为 `false`。本基线保持默认（`generateResolvConf=true`，由 WSL 自动生成 `/etc/resolv.conf`）。在镜像模式 + `dnsTunneling=true`（§1.1）下，WSL 自动生成的 DNS 通常可用，此时再写死公共 DNS 会绕过隧道 DNS。是否需要手动接管，按下面 2.1.1 验证后再决定，仅在验证不通过时执行 2.1.2。
 
 **各项含义：**
 
@@ -244,6 +245,7 @@ generateHosts=true
 | `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
+| `generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值，写出来是为了和 2.1.2 的 `false` 对照）。镜像模式 + `dnsTunneling` 下它指向隧道 DNS `10.255.255.254`，通常开箱即用 |
 
 退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
