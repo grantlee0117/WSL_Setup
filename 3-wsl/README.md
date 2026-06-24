@@ -123,12 +123,54 @@ wsl --install -d Ubuntu-24.04
 >
 > **版本选择**：建议安装最新的 LTS 版本。可以用 `wsl --list --online` 查看所有可安装的发行版。截至目前推荐 `Ubuntu-24.04`。
 
+> **如果你的机器上 `wsl --install` 直接显示帮助文本**：这通常表示 WSL 入口已经存在，但还没有安装 Linux 发行版，或 WSL 版本/在线列表还没更新。先执行：
+>
+> ```powershell
+> wsl --list --online
+> ```
+>
+> 如果列表里有 `Ubuntu-24.04`，继续执行上面的 `wsl --install -d Ubuntu-24.04`。如果列表里暂时只有 `Ubuntu` 而没有 `Ubuntu-24.04`，先更新 WSL：
+>
+> ```powershell
+> wsl --update --web-download
+> ```
+>
+> 更新完成后重新打开 PowerShell，再执行 `wsl --list --online` 检查。如果安装过程卡在 `0.0%` 或 Microsoft Store 下载异常，改用：
+>
+> ```powershell
+> wsl --install --web-download -d Ubuntu-24.04
+> ```
+>
+> 如果更新后仍然没有 `Ubuntu-24.04`，可以先安装列表中的 `Ubuntu`，进入系统后用 `cat /etc/os-release` 确认实际版本；如果不是 24.04，再从 Microsoft Store 安装 `Ubuntu 24.04 LTS`。
+
 安装完成后会自动弹出 Ubuntu 窗口，要求你设置 Linux 用户名和密码。
 
 > **注意**：
 > - 这个用户名密码是 Linux 系统的，和 Windows 账户无关
 > - 密码输入时屏幕不会显示任何字符（包括星号），这是 Linux 的安全设计，不是卡住了，直接输完回车即可
 > - 用户名建议用小写英文，不要有空格
+
+> **如果重启后自动弹出 Ubuntu 初始化窗口**：这是正常现象，说明 `wsl --install` 已经自动安装并启动了默认 Ubuntu。先在这个窗口里完成用户创建和密码设置，不要关闭窗口。进入 Linux 提示符后，执行 `cat /etc/os-release` 确认版本；如果显示 `VERSION_ID="24.04"`，就不需要再执行 `wsl --install -d Ubuntu-24.04`，直接进入第二节配置。
+>
+> 如果显示的是更新版本（例如 `Welcome to Ubuntu 26.04 LTS` 或 `VERSION_ID="26.04"`），建议先不要继续配置。本文后续 Docker、第三方 apt 源和依赖验证都以 Ubuntu 24.04 为基准，刚初始化的新系统里还没有重要数据，最稳妥的做法是退出当前 Ubuntu，在 PowerShell 中安装 `Ubuntu-24.04`：
+>
+> ```bash
+> exit
+> ```
+>
+> ```powershell
+> wsl --install -d Ubuntu-24.04
+> ```
+>
+> 等 `Ubuntu-24.04` 初始化完成并确认可用后，再删除默认安装的新版 `Ubuntu`，避免以后进错发行版：
+>
+> ```powershell
+> wsl --list --verbose
+> wsl --unregister Ubuntu
+> wsl --set-default Ubuntu-24.04
+> ```
+>
+> `wsl --unregister Ubuntu` 会删除默认 `Ubuntu` 发行版里的所有文件，只在确认没有需要保留的数据时执行。刚初始化、尚未配置的情况下可以安全删除。
 
 ---
 
@@ -222,7 +264,7 @@ wsl
 
 ### 2.2 配置代理与 DNS
 
-> **本节内容已迁移**：代理（apt / 全局环境变量 / SSH ProxyCommand / Tailscale）、网络验证、DNS 原理说明，统一移到 👉 [2-network](../2-network/README.md)「二、WSL 侧代理与 DNS」。
+> **本节内容已迁移**：代理（apt / 全局环境变量 / SSH ProxyCommand / Tailscale）、网络验证、DNS 原理说明，统一移到 👉 [2-network/wsl-network.md](../2-network/wsl-network.md)「一、WSL 侧代理与 DNS」。
 > 配好本章 §2.1 `wsl.conf` 后，按需前往配置。
 
 ---
@@ -239,10 +281,10 @@ wsl
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y build-essential wget
+sudo apt install -y build-essential wget unzip
 ```
 
-> **说明**：`build-essential` 包含 gcc、g++、make 等编译工具链。`wget` 是下载工具。`git`、`curl`、`unzip` 在 Ubuntu 24.04 中已预装。
+> **说明**：`build-essential` 包含 gcc、g++、make 等编译工具链。`wget` 是下载工具，`unzip` 后续部分安装脚本会用到。`git`、`curl` 在 Ubuntu 24.04 中通常已预装。
 
 **配置中文 locale**：
 
@@ -281,7 +323,7 @@ git config --global credential.helper store
 git config --global core.quotepath false
 ```
 
-> 把 `你的名字` 和 `你的邮箱` 替换成你自己的即可。
+> 把 `你的名字` 和 `你的邮箱` 替换成你自己的。`user.name` 是提交记录里显示的作者名，中/英/日/韩文都可以；`user.email` 建议填 GitHub 账号使用的邮箱。
 
 ### 3.3 SSH Key 配置
 
@@ -571,6 +613,8 @@ go version
 > **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下，升级时下载新版本覆盖即可。`$HOME/go/bin` 是 `go install` 安装的工具的路径。
 >
 > **版本号**：上面的 `go1.24.1` 是示例版本号，安装前建议去 [Go 官网](https://go.dev/dl/) 查看最新版本号并替换。
+>
+> **如果执行 `go version` 报 `Permission denied`**：检查 `/usr/local/go/bin/go` 的权限，正常应允许普通用户执行。如果异常变成 `-rwx------ root root`，执行 `sudo chmod 755 /usr/local/go/bin/go` 后重新验证。
 
 ### 3.13 Tesseract OCR 🟡 低风险（可选）
 
@@ -671,6 +715,8 @@ npm i -g @openai/codex
 ```bash
 codex --version
 ```
+
+> **WSL 注意**：如果 `command -v codex` 显示的是 `/mnt/c/Program Files/WindowsApps/...`，那是 Windows 侧 Codex App 暴露进 WSL PATH 的入口，不是上面这条 npm 在 WSL 里装的版本。开发请以 WSL 原生安装的为准，必要时用 `npm ls -g @openai/codex` 确认。
 
 ### 3.18 Google Gemini CLI 安装
 
@@ -851,13 +897,13 @@ docker --version && docker compose version
 
 ## 五、网络健康检查（一键诊断）
 
-> **本节内容已迁移** 👉 [2-network](../2-network/README.md)「三、网络健康检查」。DNS / 代理反复出问题时，去那里一键诊断。
+> **本节内容已迁移** 👉 [2-network/wsl-network.md](../2-network/wsl-network.md)「二、网络健康检查」。DNS / 代理反复出问题时，去那里一键诊断。
 
 ---
 
 ## 六、常见问题
 
-> 网络 / 代理 / DNS 相关的故障排查已移到 👉 [2-network](../2-network/README.md)「四、网络故障排查 FAQ」。下面保留与网络无关的常见问题。
+> 网络 / 代理 / DNS 相关的故障排查已移到 👉 [2-network/wsl-network.md](../2-network/wsl-network.md)「三、网络故障排查 FAQ」。下面保留与网络无关的常见问题。
 
 ---
 
@@ -882,6 +928,32 @@ PowerShell 的 `curl` 是 `Invoke-WebRequest` 的别名，不是真正的 curl�
 ### Q：修改 `.wslconfig` 后没有生效？
 
 必须在 PowerShell 中执行 `wsl --shutdown` 完全关闭 WSL，再重新 `wsl` 进入才能生效。
+
+---
+
+### Q：PowerShell 中 `wsl` 正常，但开始菜单里的 Ubuntu 应用又显示 `Installing...`？
+
+开始菜单里的通用 **Ubuntu** 应用可能会注册一个名叫 `Ubuntu` 的新发行版；如果你已经按本文安装并设定了 `Ubuntu-24.04`，再点这个应用就容易多出一个重复环境。日常建议从 PowerShell / Windows Terminal 执行 `wsl`，或明确执行：
+
+```powershell
+wsl -d Ubuntu-24.04
+```
+
+如果不小心又生成了额外的 `Ubuntu`，先确认 `Ubuntu-24.04` 仍然存在并是默认项：
+
+```powershell
+wsl --list --verbose
+```
+
+确认无误后可以删除多出来的通用 `Ubuntu`：
+
+```powershell
+wsl --terminate Ubuntu
+wsl --unregister Ubuntu
+wsl --set-default Ubuntu-24.04
+```
+
+`wsl --unregister Ubuntu` 会删除这个额外发行版里的所有文件；只在确认里面没有需要保留的数据时执行。
 
 ---
 
