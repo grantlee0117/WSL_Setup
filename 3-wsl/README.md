@@ -326,17 +326,11 @@ sudo apt install -y build-essential wget unzip git
 
 **配置中文 locale**：
 
-WSL 默认 locale 是 `C.UTF-8`，中文内容复制粘贴容易乱码。✂️ 逐条执行：
+WSL 默认 locale 是 `C.UTF-8`，中文内容复制粘贴容易乱码。📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y locales
-```
-
-```bash
 sudo locale-gen zh_CN.UTF-8
-```
-
-```bash
 grep -qF 'export LANG=zh_CN.UTF-8' ~/.bashrc || echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -362,6 +356,8 @@ git config --global core.quotepath false
 ```
 
 > 把 `你的名字` 和 `你的邮箱` 替换成你自己的。`user.name` 是提交记录里显示的作者名，中/英/日/韩文都可以；`user.email` 建议填 GitHub 账号使用的邮箱。
+
+> `credential.helper store` 会把 HTTPS 凭据明文存到 `~/.git-credentials`。本文主用 SSH（§3.3）和 `gh`（§3.4），一般用不到它；介意明文的话可改用 `credential.helper cache`（只在内存里缓存、超时即清）。
 
 ### 3.3 SSH Key 配置
 
