@@ -81,9 +81,9 @@ autoProxy=true
 | `memory` | WSL2 虚拟机最大可用内存（不是硬盘空间） |
 | `swap` | 交换空间大小 |
 | `processors` | 分配的 CPU 核心数 |
-| `networkingMode=mirrored` | WSL 共享宿主机网络，Clash 等代理自动生效 |
-| `dnsTunneling=true` | DNS 请求通过 Windows 隧道，与 2.2 节的手动 DNS 修复形成双保险 |
-| `firewall=true` | 启用 Hyper-V 防火墙 |
+| `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
+| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
+| `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
 | `autoProxy=true` | 自动使用 Windows 的代理设置 |
 
 > **资源分配建议**：
@@ -96,7 +96,7 @@ autoProxy=true
 >
 > 原则是内存给一半，CPU 核心给一半到三分之二。如果你会同时运行 Claude Code 等 AI 工具和编译任务，建议给多一些，否则可能出现内存不足导致进程被杀。
 >
-> **多发行版注意**：`.wslconfig` 是全局配置（对所有 WSL 发行版生效），但后续 2.1 节的 `wsl.conf` 和 2.2 节的 DNS 修复是**每个发行版独立的**。如果你装了多个 WSL 发行版（如 Ubuntu + Debian），每个都需要单独配置。
+> **多发行版注意**：`.wslconfig` 是全局配置（对所有 WSL 发行版生效），但后续 §2.1 的 `wsl.conf`（含 DNS 相关配置）是**每个发行版独立的**。如果你装了多个 WSL 发行版（如 Ubuntu + Debian），每个都需要单独配置。
 
 ### 1.2 安装 WSL2
 
@@ -111,7 +111,7 @@ wsl --install
 > 2. 安装 WSL2 内核
 > 3. 默认安装一个 Ubuntu 发行版
 
-安装完成后**必须重启电脑**。
+安装完成后按提示**重启电脑**（首次启用 WSL / 虚拟化平台时通常需要重启；若系统未提示重启，可直接继续下一步）。
 
 重启后，再次打开 PowerShell（管理员模式），📋 执行以下命令安装指定版本的 Ubuntu：
 
@@ -241,10 +241,12 @@ generateResolvConf=false
 | 配置项 | 作用 |
 |--------|------|
 | `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
-| `command=rm -f ... && printf ...` | 每次 WSL 启动时先断开 symlink 再写入正确的 DNS 配置（详见 2.2 节） |
+| `command=rm -f ... && printf ...` | 每次 WSL 启动时先断开 symlink 再写入公共 DNS；原理与排错见 [2-network/wsl-network.md](../2-network/wsl-network.md)。仅在 DNS 失效时才需要（见下方说明） |
 | `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
 | `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
-| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管）。注意：这只阻止 WSL 写入，不会删除 Ubuntu 初装时就存在的 symlink（`/etc/resolv.conf → systemd-resolved stub`），所以 boot command 里的 `rm -f` 仍然是必要的 |
+| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管）。注意：这只阻止 WSL 写入，不会删除已存在的 symlink（`/etc/resolv.conf` 视 WSL 版本/网络模式可能指向 `/mnt/wsl/resolv.conf` 或 systemd-resolved stub），所以 boot command 里的 `rm -f` 仍然是必要的 |
+
+> **这套 DNS 接管不是每个人都需要**：镜像模式 + `dnsTunneling=true`（§1.1 已开）下，WSL 的 DNS 往往开箱即用——只要 `getent hosts github.com` 能返回 IP 就说明已经正常，上面写死 `223.5.5.5 / 8.8.8.8` 的 boot command 和 `generateResolvConf=false` 只是 DNS 失效时的兜底，二者会旁路掉 `dnsTunneling`（所以是二选一）。本机当前就处于「无需接管」状态。详细判断与排错见 [2-network/wsl-network.md](../2-network/wsl-network.md)。
 
 > **注意**：`[boot]` 段只能有一条 `command=`。如果你已经有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
 
@@ -299,7 +301,7 @@ sudo locale-gen zh_CN.UTF-8
 ```
 
 ```bash
-echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
+grep -qF 'export LANG=zh_CN.UTF-8' ~/.bashrc || echo 'export LANG=zh_CN.UTF-8' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -483,13 +485,22 @@ sudo apt install -y ripgrep fd-find fzf tmux htop ncdu dos2unix
 | `ncdu` | 磁盘空间分析工具 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
 
-> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。`Ctrl+A` 然后按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。如果你想要完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存），见 [4-terminal](../4-terminal/README.md)。
+> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。原生 tmux 的前缀键是 `Ctrl+B`——按 `Ctrl+B` 再按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。（装了下面 [4-terminal](../4-terminal/README.md) 的配置后，前缀键会改成 `Ctrl+A`。）那套完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存）也在 [4-terminal](../4-terminal/README.md)。
 
 **清理 Zone.Identifier 垃圾文件**：
 
 从 Windows 复制或下载的文件带到 WSL 时，Windows 会给每个文件附带一个 `Zone.Identifier` 标记文件（"此文件来自互联网"的安全标记）。这些文件在 WSL 里完全没用，还会污染 `git status` 和目录结构。WSL 用户几乎必然会碰到这个问题。
 
-本仓库 `3-wsl/scripts/` 提供了 `fuck-zone` 一键清理脚本。📋 安装（只需一次）：
+本仓库 `3-wsl/scripts/` 提供了 `fuck-zone` 一键清理脚本。
+
+> **前提：先把本仓库 clone 到 WSL 里**（任意目录，下面以 `~/projects/WSL_Setup` 为例；放别处就把后面命令里的路径换成你的实际位置）。SSH 已在 §3.3 / §3.4 配好：
+>
+> ```bash
+> mkdir -p ~/projects
+> git clone git@github.com:你的GitHub账号/WSL_Setup.git ~/projects/WSL_Setup
+> ```
+
+📋 安装（只需一次，路径按你实际 clone 位置调整）：
 
 ```bash
 bash ~/projects/WSL_Setup/3-wsl/scripts/install-fuck-zone.sh
@@ -498,7 +509,7 @@ source ~/.bashrc
 
 之后在任意目录执行 `fuck-zone` 即可扫描并清理当前目录下所有 `Zone.Identifier` 文件（会先列出找到的文件，按 Enter 确认删除）。
 
-> **说明**：脚本安装到 `~/.local/bin/`，不需要 sudo。如果已经在本章中配置过 `PATH="$HOME/.local/bin:$PATH"`（如 3.16 Claude Code 安装），则不需要重复添加 PATH。
+> **说明**：脚本安装到 `~/.local/bin/`，不需要 sudo。如果已经在本章中配置过 `PATH="$HOME/.local/bin:$PATH"`（如 3.16 Claude Code 安装），则不需要重复添加——安装脚本会自动判断 `~/.bashrc` 是否已写入，不会重复追加。
 
 **终端环境配置（WezTerm + tmux 主题化）**：
 
@@ -528,7 +539,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev
 ✂️ 以下三条命令必须**逐条复制粘贴执行**，不能一起粘贴。第一条装完 nvm 后，必须 `source ~/.bashrc` 加载 nvm，否则第三条会报 `nvm: command not found`。
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
 ```
 
 ```bash
@@ -545,6 +556,8 @@ nvm install --lts
 | `node` (via nvm) | 装在用户目录下，不影响系统 |
 
 > **为什么不用 `sudo apt install nodejs`**：Ubuntu 源里的 Node.js 版本通常偏老，且会装到系统目录和 nvm 冲突。用 nvm 管理是业界标准做法。
+>
+> **版本号**：上面的 `v0.40.4` 为写文档时的 nvm 版本，安装前可去 [nvm releases](https://github.com/nvm-sh/nvm/releases) 查看最新 tag 替换。
 
 ### 3.10 Java 环境 🟡 低风险
 
@@ -594,14 +607,15 @@ cargo --version
 
 **为什么要装**：很多云原生工具（如 Docker、Kubernetes 相关工具）和开发工具用 Go 编写。
 
-✂️ 以下命令**逐条复制粘贴执行**：
+✂️ 以下命令**逐条复制粘贴执行**。⚠️ **先去 [Go 官网下载页](https://go.dev/dl/) 看一眼当前最新版本号**，把下面命令里的 `go1.26.4` 换成它——版本号会过期，写了不存在的版本会直接 404：
 
 ```bash
-curl -fsSL https://go.dev/dl/go1.24.1.linux-amd64.tar.gz | sudo tar -C /usr/local -xzf -
+curl -fsSL https://go.dev/dl/go1.26.4.linux-amd64.tar.gz | sudo tar -C /usr/local -xzf -
 ```
 
 ```bash
-echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> ~/.bashrc && source ~/.bashrc
+grep -qF '/usr/local/go/bin' ~/.bashrc || echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 📋 验证：
@@ -610,9 +624,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> ~/.bashrc && source ~
 go version
 ```
 
-> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下，升级时下载新版本覆盖即可。`$HOME/go/bin` 是 `go install` 安装的工具的路径。
->
-> **版本号**：上面的 `go1.24.1` 是示例版本号，安装前建议去 [Go 官网](https://go.dev/dl/) 查看最新版本号并替换。
+> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下，升级时下载新版本覆盖即可。`$HOME/go/bin` 是 `go install` 安装的工具的路径。（注：也可以 `sudo apt install golang-go` 图省事，但 apt 版通常落后官方一两个版本。）
 >
 > **如果执行 `go version` 报 `Permission denied`**：检查 `/usr/local/go/bin/go` 的权限，正常应允许普通用户执行。如果异常变成 `-rwx------ root root`，执行 `sudo chmod 755 /usr/local/go/bin/go` 后重新验证。
 
@@ -670,7 +682,7 @@ sudo apt install -y texlive-full
 
 > **来源**：[官方文档](https://claude.ai/docs/claude-code)
 >
-> npm 安装方式（`npm install -g @anthropic-ai/claude-code`）已被官方弃用。以下是当前官方推荐的原生安装方式，会自动后台更新。
+> 官方现以**原生安装器**为推荐方式（自动后台更新）；npm 安装（`npm install -g @anthropic-ai/claude-code`）仍可用，但已不再是默认推荐。下面用原生安装器。
 
 ✂️ 以下命令**逐条复制粘贴执行**：
 
@@ -679,16 +691,19 @@ curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 ```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+grep -qF 'HOME/.local/bin' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-> **说明**：第二条是将安装路径加入 PATH。安装脚本把二进制文件放在 `~/.local/bin/claude`，但该路径默认不在 PATH 里，不加这步会报 `command not found`。
+> **说明**：第二步把安装路径加入 PATH——安装脚本把二进制放在 `~/.local/bin/claude`，该路径默认不在 PATH 里，不加会报 `command not found`。`grep ... ||` 的写法保证只在没写过时才追加：如果 §3.7 fuck-zone 已经写过这行 PATH，这里会自动跳过，不会让 `~/.bashrc` 出现重复行。
 
 📋 验证：
 
 ```bash
 claude --version
 ```
+
+> **首次登录**：第一次运行 `claude` 会要求登录——按提示在浏览器完成 OAuth 授权（Pro/Max 订阅）或填入 API Key 即可，之后才能正常使用。
 
 📋 安装沙盒依赖（Claude Code 使用 bubblewrap 实现 OS 级沙盒隔离）：
 
@@ -730,7 +745,7 @@ codex --version
 npm i -g @google/gemini-cli
 ```
 
-> **说明**：首次运行需要配置认证。最简单的方式是去 [Google AI Studio](https://aistudio.google.com/apikey) 申请免费 API Key，然后设置环境变量：
+> **说明**：`gemini --version` 能过不代表能用——首次实际运行需要配置认证（未配会报认证失败）。最简单的方式是去 [Google AI Studio](https://aistudio.google.com/apikey) 申请免费 API Key，然后设置环境变量：
 >
 > ```bash
 > echo 'export GOOGLE_API_KEY="你的API Key"' >> ~/.bashrc && source ~/.bashrc
@@ -889,9 +904,15 @@ gemini --version
 
 # 19. Docker
 docker --version && docker compose version
+
+# 20. 中文 locale
+echo $LANG   # 应为 zh_CN.UTF-8
+
+# 21. Tesseract OCR（仅当装了可选的 §3.13）
+tesseract --version
 ```
 
-全部通过即表示 WSL2 环境搭建完成。
+全部通过即表示 WSL2 环境搭建完成（第 21 项 Tesseract 若未装 §3.13 可忽略）。
 
 ---
 
