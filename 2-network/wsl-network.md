@@ -6,6 +6,27 @@
 
 > 前置（仅手动配代理时）：先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
 
+## 先自检：Amnezia 等全局 VPN 多半无需任何配置
+
+本机现状（Amnezia 全局 TUN）下，WSL 流量已被 Windows 侧在网络层接管，通常**不需要**配 `http_proxy`/`https_proxy`/`all_proxy`，也不需要 `/etc/apt/apt.conf.d/proxy.conf`。改用 WireGuard、OpenVPN、Tailscale Exit Node 这类全局 VPN / TUN 级接管的工具时同理。
+
+先用下面四条命令自检，只要都通过，就保持「无代理配置」状态，整章「一」直接跳过：
+
+```bash
+getent hosts github.com
+curl -I https://www.google.com
+curl -I https://github.com
+sudo apt update
+```
+
+四条都正常返回，说明 WSL 流量已走 Amnezia 隧道；此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。
+
+只有以下情况才需要继续往下配：
+
+- **`curl` / `apt` 直连失败，但 Windows 浏览器正常**：检查 Amnezia 是否启用了全局模式、是否把 WSL/Hyper-V/vEthernet 流量排除在隧道之外——这是 Amnezia 全局模式下 WSL 不通最常见的根因。
+- **Amnezia 提供了本地 HTTP/SOCKS 代理端口，且你明确想让命令行工具走它**：按它的实际端口，参照下面「一」配 `http_proxy` 和 apt 代理。
+- **`getent hosts github.com` 失败**：优先检查 [3-wsl §2.1](../3-wsl/README.md) 的 `wsl.conf` 和 `/etc/resolv.conf`，不要先配代理。
+
 ## 一、WSL 侧代理与 DNS（仅手动代理工具需要）
 
 本节做两件事：配置代理（apt、curl、git SSH 等不会自动读系统代理的工具需单独配）和验证网络，末尾附 DNS 原理说明。使用 Amnezia 等网络层全局接管的工具时，本节整节跳过。
