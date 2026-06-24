@@ -64,7 +64,7 @@ autoProxy=true
 | `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
 | `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1.2 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
 | `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
-| `autoProxy=true` | 向 WSL 注入 Windows 的 HTTP(S) 代理设置；但很多命令行工具（`apt`/`curl`/`git`）并不读它、仍需手动配置，详见 [3-network](../3-network/wsl-network.md) |
+| `autoProxy=true` | 向 WSL 注入 Windows 的 HTTP(S) 代理设置；但很多命令行工具（`apt`/`curl`/`git`）并不读它、仍需手动配置，详见 [3-network/wsl-network.md](../3-network/wsl-network.md) |
 
 > **资源分配建议**：
 >
@@ -272,7 +272,7 @@ generateResolvConf=false
 | `command=rm -f ... && printf ...` | 每次启动先断开 symlink 再写入公共 DNS |
 | `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以 `rm -f` 仍必要 |
 
-> **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
+> **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`。命令较复杂时，建议把它们写进一个脚本文件、让 `command=` 只调用该脚本，避免 `&&`/`>`/`;` 混排在某些 WSL 版本里被解析出错。
 
 修改后在 PowerShell 执行 `wsl --shutdown` 重启生效。DNS 的完整原理与排查见 [3-network/wsl-network.md](../3-network/wsl-network.md)。
 
@@ -343,12 +343,6 @@ wsl --set-default Ubuntu-24.04
 ```
 
 `wsl --unregister Ubuntu` 会删除这个额外发行版里的所有文件；只在确认里面没有需要保留的数据时执行。
-
----
-
-### Q：`docker` 命令报 `permission denied`？
-
-执行 `sudo usermod -aG docker $USER` 后需要重启 WSL（`exit` → `wsl --shutdown` → `wsl`）。
 
 ---
 
