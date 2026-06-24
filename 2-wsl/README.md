@@ -11,7 +11,7 @@
 
 **关于代码块的执行方式**：
 
-本文中每个代码块都会标注执行方式，一共三种情况：
+本文中主要操作的代码块都会标注执行方式，一共三种情况（条件性的排障 / FAQ 代码块按上下文判断）：
 
 - 📋 **整块复制粘贴执行**：从第一行到最后一行全选，一次性粘贴到终端回车即可。包括：单条命令、带 `\` 续行符的多行命令、`&&` 连接的命令、多条独立命令写在同一个代码块中。
 - ✂️ **逐条复制粘贴执行**：前一条命令会改变环境（如 `source ~/.bashrc`），后续命令依赖这个变更，所以必须一条一条来。文中会拆成**独立的代码块**，并明确标注"**逐条执行**"。
@@ -99,7 +99,7 @@ wsl --install -d Ubuntu-24.04
 
 **第三步：初始化并验证**
 
-重启后会自动弹出 Ubuntu 窗口（若没弹出，从开始菜单打开 Ubuntu，或在 PowerShell 里运行 `wsl`），按提示**设置 Linux 用户名和密码**。进入 Linux 提示符后验证版本：
+重启后会自动弹出 Ubuntu 窗口（若没弹出，从开始菜单打开 Ubuntu，或在 PowerShell 里运行 `wsl`），按提示**设置 Linux 用户名和密码**。进入 Linux 提示符后，📋 验证版本：
 
 ```bash
 cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
@@ -167,7 +167,7 @@ cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
 sudo nano /etc/wsl.conf
 ```
 
-> **提示**：`sudo` 会要求输入密码，就是 1.2 步设置的那个 Linux 密码。密码同样不会显示任何字符。
+> **提示**：`sudo` 会要求输入密码，就是 §1.2 设置的那个 Linux 密码。密码同样不会显示任何字符。
 
 **手把手操作步骤**：
 
@@ -245,7 +245,7 @@ getent hosts github.com
 
 典型症状：`getent hosts github.com` 无输出、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧网络正常。
 
-重新执行 `sudo nano /etc/wsl.conf`，在 `[boot]` 段增加一条 `command`，并在 `[network]` 段设置 `generateResolvConf=false`（其余不变）：
+重新执行 `sudo nano /etc/wsl.conf`，在 `[boot]` 段增加一条 `command`，并在 `[network]` 段设置 `generateResolvConf=false`（其余不变）。📝 完整内容如下（粘贴进 nano 编辑器）：
 
 ```ini
 [boot]
