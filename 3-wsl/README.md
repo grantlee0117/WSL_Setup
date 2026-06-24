@@ -82,7 +82,7 @@ autoProxy=true
 | `swap` | 交换空间大小 |
 | `processors` | 分配的 CPU 核心数 |
 | `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
-| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
+| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1.2 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
 | `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
 | `autoProxy=true` | 自动使用 Windows 的代理设置 |
 
@@ -219,6 +219,66 @@ sudo nano /etc/wsl.conf
 ```ini
 [boot]
 systemd=true
+
+[automount]
+enabled=true
+options="metadata,umask=22,fmask=11"
+
+[interop]
+enabled=true
+appendWindowsPath=true
+
+[network]
+generateHosts=true
+```
+
+3. **保存退出**：按 `Ctrl+O` 然后按回车保存，按 `Ctrl+X` 退出编辑器。
+
+> **关于 DNS**：部分教程会在这份配置里额外加一条写死公共 DNS 的 `[boot] command=...` 和 `generateResolvConf=false`，本基线不包含它。在镜像模式 + `dnsTunneling=true`（§1.1）下，WSL 通常会自动生成可用的 `/etc/resolv.conf`，此时再写死公共 DNS 会绕过隧道 DNS。是否需要手动接管，按下面 2.1.1 验证后再决定，仅在验证不通过时执行 2.1.2。
+
+**各项含义：**
+
+| 配置项 | 作用 |
+|--------|------|
+| `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
+| `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
+| `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
+| `generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
+
+退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
+
+```bash
+exit
+```
+
+```powershell
+wsl --shutdown
+```
+
+```powershell
+wsl
+```
+
+#### 2.1.1 验证 DNS
+
+重新进入 WSL 后，📋 执行：
+
+```bash
+getent hosts github.com
+```
+
+- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置，进入第三节。本机即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
+- 无输出或报错：DNS 不通，按 2.1.2 手动接管。
+
+#### 2.1.2 手动接管 DNS（仅 2.1.1 不通过时）
+
+典型症状：`getent hosts github.com` 无输出、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧网络正常。
+
+重新执行 `sudo nano /etc/wsl.conf`，在 `[boot]` 段增加一条 `command`，并在 `[network]` 段设置 `generateResolvConf=false`（其余不变）：
+
+```ini
+[boot]
+systemd=true
 command=rm -f /etc/resolv.conf && printf 'nameserver 223.5.5.5\nnameserver 8.8.8.8\n' > /etc/resolv.conf
 
 [automount]
@@ -234,35 +294,16 @@ generateHosts=true
 generateResolvConf=false
 ```
 
-3. **保存退出**：按 `Ctrl+O` 然后按回车保存，按 `Ctrl+X` 退出编辑器。
-
-**各项含义：**
+`command` 在每次启动时以 root 执行：先 `rm -f /etc/resolv.conf` 断开软链接，再写入两行公共 DNS（`223.5.5.5`、`8.8.8.8`，分别是阿里和 Google 的公共 DNS）。`generateResolvConf=false` 阻止 WSL 重新生成该文件。
 
 | 配置项 | 作用 |
 |--------|------|
-| `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
-| `command=rm -f ... && printf ...` | 每次 WSL 启动时先断开 symlink 再写入公共 DNS；原理与排错见 [2-network/wsl-network.md](../2-network/wsl-network.md)。仅在 DNS 失效时才需要（见下方说明） |
-| `metadata` | 让 Linux 正确处理 Windows 文件权限，SSH key 不会报权限错误 |
-| `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
-| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS 配置（由 boot command 接管）。注意：这只阻止 WSL 写入，不会删除已存在的 symlink（`/etc/resolv.conf` 视 WSL 版本/网络模式可能指向 `/mnt/wsl/resolv.conf` 或 systemd-resolved stub），所以 boot command 里的 `rm -f` 仍然是必要的 |
+| `command=rm -f ... && printf ...` | 每次启动先断开 symlink 再写入公共 DNS |
+| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以 `rm -f` 仍必要 |
 
-> **这套 DNS 接管不是每个人都需要**：镜像模式 + `dnsTunneling=true`（§1.1 已开）下，WSL 的 DNS 往往开箱即用——只要 `getent hosts github.com` 能返回 IP 就说明已经正常，上面写死 `223.5.5.5 / 8.8.8.8` 的 boot command 和 `generateResolvConf=false` 只是 DNS 失效时的兜底，二者会旁路掉 `dnsTunneling`（所以是二选一）。本机当前就处于「无需接管」状态。详细判断与排错见 [2-network/wsl-network.md](../2-network/wsl-network.md)。
+> **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
 
-> **注意**：`[boot]` 段只能有一条 `command=`。如果你已经有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`
-
-退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
-
-```bash
-exit
-```
-
-```powershell
-wsl --shutdown
-```
-
-```powershell
-wsl
-```
+修改后在 PowerShell 执行 `wsl --shutdown` 重启生效。DNS 的完整原理与排查见 [2-network/wsl-network.md](../2-network/wsl-network.md)。
 
 ### 2.2 配置代理与 DNS
 
