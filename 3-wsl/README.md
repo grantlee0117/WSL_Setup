@@ -746,10 +746,10 @@ go install github.com/go-delve/delve/cmd/dlv@latest  # dlv：delve 调试器
 📋 整块复制粘贴执行：
 
 ```bash
-sudo apt install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra
+sudo apt install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 ```
 
-> `chi-sim` 和 `chi-tra` 分别是简体和繁体中文的 OCR 训练模型，纯数据文件。
+> `eng`/`chi-sim`/`chi-tra` 分别是英文/简体/繁体中文训练模型，`osd` 是页面方向与脚本检测（识别扫描件是否旋转）——都是纯数据文件。需要其他语言再按需加，如 `tesseract-ocr-jpn`（日）、`tesseract-ocr-kor`（韩）。
 
 ### 3.14 LibreOffice 🟠 需注意
 
@@ -758,8 +758,10 @@ sudo apt install -y tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra
 📋 整块复制粘贴执行：
 
 ```bash
-sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libreoffice-calc
+sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libreoffice-calc fonts-noto-cjk fonts-noto-color-emoji
 ```
+
+> **中文文档必须装 CJK 字体**：`soffice` 把含中文的 docx/pptx 转 PDF 时，系统若没 CJK 字体，中文会渲染成方块（`□□□`）。`fonts-noto-cjk` 正是解决这个的；`fonts-noto-color-emoji` 让文档里的 emoji 也正常显示。这套字体对 §3.15 的 xelatex 中文排版同样有益。
 
 > **为什么标 🟠**：
 > - 依赖链约 300-500MB，会拉入 Java 运行时（OpenJDK）和 GTK 图形库
