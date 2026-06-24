@@ -432,7 +432,7 @@ gh auth status
 
 > **说明**：`gh` 通过 apt 管理，更新只需 `sudo apt upgrade`。认证信息存在 `~/.config/gh/` 下。
 
-### 3.5 C/C++ 编译基础库 🟢 无风险
+### 3.5 C/C++ 编译库与工具链 🟢 无风险
 
 这些大多是 `-dev` 头文件包（外加 gfortran 编译器），不改系统行为、互不冲突、卸载干净。这里覆盖面铺得尽量广，让大部分项目的依赖都能直接从源码编译过。
 
@@ -476,6 +476,29 @@ sudo apt install -y \
 | `tk-dev` | Tk 头（GUI，与 §3.8 的 `python3-tk` 配套） |
 | `gfortran` `libopenblas-dev` `liblapack-dev` | Fortran 编译器 + BLAS/LAPACK，从源码编译 numpy/scipy 需要 |
 | `pkgconf` | 库路径查找工具，编译时 `pkg-config --cflags/--libs` 需要 |
+
+**构建与调试工具**：覆盖 GCC / Clang 两套编译器、CMake / Ninja / Meson / Autotools 几种构建系统，以及调试、静态分析工具。📋 整块复制粘贴执行：
+
+```bash
+sudo apt install -y \
+    cmake ninja-build meson \
+    clang llvm lld lldb \
+    clang-format clang-tidy clang-tools \
+    gdb valgrind strace ltrace \
+    autoconf automake libtool m4 \
+    ccache bear
+```
+
+| 包 | 说明 |
+|---|------|
+| `cmake` `ninja-build` `meson` | 主流 C/C++ 构建系统（CMake 事实标准，Ninja/Meson 现代项目常用） |
+| `clang` `llvm` `lld` | LLVM/Clang 编译器与链接器（GCC 之外的另一套，不少项目指定用 clang） |
+| `clang-format` `clang-tidy` `clang-tools` | 格式化、静态检查、`clangd` 语言服务器（IDE 补全/跳转） |
+| `gdb` `lldb` `valgrind` | GNU/LLVM 调试器与内存检测 |
+| `strace` `ltrace` | 跟踪系统调用 / 库调用 |
+| `autoconf` `automake` `libtool` `m4` | autotools，编译 `./configure` 类老项目用 |
+| `ccache` | 编译缓存，重复编译大幅提速 |
+| `bear` | 生成 `compile_commands.json`，喂给 clangd/IDE |
 
 ### 3.6 命令行工具 🟢 无风险
 
@@ -584,7 +607,7 @@ source ~/.bashrc
 📋 整块复制粘贴执行：
 
 ```bash
-sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk ipython3
+sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk ipython3 python-is-python3
 ```
 
 | 包 | 说明 |
@@ -593,6 +616,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk
 | `python3-pip` | pip 包管理器 |
 | `python3-venv` | 虚拟环境支持 |
 | `python3-dev` | Python.h 头文件，编译 C 扩展需要 |
+| `python-is-python3` | 让 `python` 指向 `python3`（很多脚本/教程直接调 `python`，不装会 not found） |
 | `pipx` | 隔离安装 Python 命令行应用（24.04 的推荐方式，见下方） |
 | `python3-tk` | tkinter 运行模块（matplotlib 弹窗、GUI 脚本需要） |
 | `ipython3` | 增强版交互式 Python shell |
@@ -605,7 +629,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk
 
 ### 3.9 Node.js 环境 🟡 低风险
 
-**为什么要装**：Claude Code 本体不再需要 Node.js（已改为原生安装器），但 skill 中的 npm 包（pptxgenjs 做 PPT、docx-js 做 Word、pdf-lib 做 PDF）仍然需要 Node.js 运行。Codex CLI 和 Gemini CLI 也通过 npm 安装。
+**为什么要装**：Claude Code 本体不再需要 Node.js（已改为原生安装器），但 skill 中的 npm 包（pptxgenjs 做 PPT、docx 做 Word、pdf-lib 做 PDF）仍然需要 Node.js 运行。Codex CLI 和 Gemini CLI 也通过 npm 安装。
 
 ✂️ 以下三条命令必须**逐条复制粘贴执行**，不能一起粘贴。第一条装完 nvm 后，必须 `source ~/.bashrc` 加载 nvm，否则第三条会报 `nvm: command not found`。
 
@@ -632,12 +656,12 @@ nvm install --lts
 
 ### 3.10 Java 环境 🟡 低风险
 
-**为什么要装**：很多工具链（如 Gradle、Maven、部分 IDE 功能）依赖 JDK。LibreOffice 也会拉入 OpenJDK，但这里显式安装确保版本可控。
+**为什么要装**：Java 工具链（Maven、Gradle、部分 IDE 功能）依赖 JDK。这里显式装 JDK 和常用构建工具 Maven；LibreOffice 虽也会拉入 OpenJDK，但显式安装确保版本可控。
 
 📋 执行：
 
 ```bash
-sudo apt install -y default-jdk
+sudo apt install -y default-jdk maven
 ```
 
 📋 验证（整块粘贴执行）：
@@ -645,9 +669,12 @@ sudo apt install -y default-jdk
 ```bash
 java --version
 javac --version
+mvn -version
 ```
 
-> **说明**：`default-jdk` 在 Ubuntu 24.04 上安装 OpenJDK 21。如果需要其他版本（如 JDK 17），可以用 `sudo apt install openjdk-17-jdk`。
+> **说明**：`default-jdk` 在 Ubuntu 24.04 上安装 OpenJDK 21；需要其他版本（如 JDK 17）用 `sudo apt install openjdk-17-jdk`。`maven` 是常用的 Java 构建工具，apt 版（3.8.x）可用。
+>
+> **Gradle 不要用 apt 装**：apt 里的 Gradle 是 4.x（2017 年的老版本），跑不了现代项目。用项目自带的 `./gradlew`（wrapper，自动下载匹配版本），或用 [sdkman](https://sdkman.io/) 装最新：`sdk install gradle`。
 
 ### 3.11 Rust 环境 🟡 低风险
 
@@ -889,11 +916,17 @@ docker run --rm hello-world
 
 以下工具根据实际需要再装，这里只记录命令备用：
 
-**嵌入式交叉编译**（STM32 开发）🟡：
+**嵌入式交叉编译 / 烧录调试** 🟡：
 ```bash
+# ARM（STM32 等）：交叉工具链 + C/C++ 库 + 调试 + 烧录
 sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi \
-    libnewlib-arm-none-eabi openocd minicom picocom
-# 注意：WSL2 连 USB 设备需要 Windows 侧装 usbipd-win
+    libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib \
+    gdb-multiarch openocd stlink-tools dfu-util srecord
+# AVR（Arduino / ATmega 等）
+sudo apt install -y gcc-avr avr-libc avrdude
+# 串口终端 + USB 直通依赖
+sudo apt install -y minicom picocom screen libusb-1.0-0-dev
+# 注意：WSL2 连 USB/串口设备需要 Windows 侧装 usbipd-win，再 usbipd attach 透传进 WSL
 ```
 
 **网络调试工具** 🟡：
@@ -901,10 +934,7 @@ sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi \
 sudo apt install -y net-tools dnsutils nmap tcpdump socat netcat-openbsd mtr-tiny
 ```
 
-**编译调试** 🟡：
-```bash
-sudo apt install -y cmake ninja-build gdb valgrind strace ccache
-```
+> **通用 C/C++ 构建/调试工具**（cmake、ninja、meson、gdb、clang、autotools 等）已移到 §3.5 核心，跟主线走就装好了，不在此处重复。
 
 **明确不装的**：
 
