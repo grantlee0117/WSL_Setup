@@ -2,13 +2,17 @@
 # 清理当前工作目录下所有 Zone.Identifier 文件（递归）
 #   Enter   = 确认删除
 #   Ctrl+C  = 取消退出
+set -euo pipefail
 
 echo "正在扫描: $(pwd)"
 echo "----------------------------------------"
 
-mapfile -t files < <(find . -name "*Zone.Identifier")
+# 用 NUL 分隔读入数组，安全处理含空格/换行的文件名。
+# 只匹配真正的 ADS 标记文件（形如 <原文件名>:Zone.Identifier），
+# 不会误伤用户自己命名为 "...Zone.Identifier" 的合法文件。
+mapfile -d '' files < <(find . -type f -name '*:Zone.Identifier' -print0)
 
-if [ ${#files[@]} -eq 0 ]; then
+if [ "${#files[@]}" -eq 0 ]; then
     echo "干干净净，没有 Zone.Identifier 垃圾。"
     exit 0
 fi
@@ -20,7 +24,16 @@ done
 echo "----------------------------------------"
 echo "共发现 ${#files[@]} 个 Zone.Identifier 文件"
 echo ""
-read -p "按 Enter 确认删除，Ctrl+C 取消: "
 
-find . -name "*Zone.Identifier" -delete
+# 非交互环境（管道 / 无 TTY）下拒绝删除，避免在没人确认时误删
+if [ ! -t 0 ]; then
+    echo "非交互环境，已取消（未删除任何文件）。"
+    exit 1
+fi
+read -r -p "按 Enter 确认删除，Ctrl+C 取消: " _ || { echo "已取消。"; exit 1; }
+
+# 删除上面列出并确认过的同一批文件（不重新扫描，避免确认后目录变化导致删错）
+for f in "${files[@]}"; do
+    rm -f -- "$f"
+done
 echo "已清理 ${#files[@]} 个文件。"
