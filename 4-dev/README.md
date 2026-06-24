@@ -219,7 +219,7 @@ sudo apt install -y \
 |---|------|
 | `cmake` `ninja-build` `meson` | 主流 C/C++ 构建系统（CMake 事实标准，Ninja/Meson 现代项目常用） |
 | `clang` `llvm` `lld` | LLVM/Clang 编译器与链接器（GCC 之外的另一套，不少项目指定用 clang） |
-| `clang-format` `clang-tidy` `clangd` | 格式化、静态检查、`clangd` 语言服务器（IDE 补全/跳转；该包与 `clang-tools` 冲突，二选一，这里取 clangd） |
+| `clang-format` `clang-tidy` `clangd` | 格式化、静态检查、`clangd` 语言服务器（IDE 补全/跳转）。`clangd` 在 24.04 是独立包，装它即可；`clang-tools` 是另一个包（提供 scan-build/clang-check 等，不含 clangd），二者可共存、互不冲突 |
 | `gdb` `lldb` `valgrind` | GNU/LLVM 调试器与内存检测 |
 | `strace` `ltrace` | 跟踪系统调用 / 库调用 |
 | `autoconf` `automake` `libtool` `m4` | autotools，编译 `./configure` 类老项目用 |
