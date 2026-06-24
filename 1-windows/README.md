@@ -189,7 +189,7 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 > 嫌官网下载慢或想看图文步骤，本目录附带了一份离线安装教程：[`git安装教程.pdf`](./git安装教程.pdf)。
 
-安装完成后打开 **Git Bash**（不是 PowerShell），配置用户信息：
+安装完成后打开 **Git Bash**（不是 PowerShell），配置用户信息，下面 3 行请**逐行执行**：
 
 ```bash
 git config --global user.name "你的名字"
@@ -197,9 +197,12 @@ git config --global user.email "你的邮箱"
 git config --global core.autocrlf input
 ```
 
-> **说明**：`core.autocrlf=input` 确保提交代码时将 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
+> **说明**：`user.name` 是提交记录里显示的作者名，可以用中文、韩文、日文或英文；`user.email` 建议填写 GitHub 账号使用的邮箱。`core.autocrlf=input` 确保提交代码时将 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
 
 ### 5.6 配置 SSH Key
+
+> **SSH Key 是什么？** 可以理解为一把"钥匙"（私钥，留在电脑上）和一把"锁"（公钥，放到 GitHub 上）。有了这对钥匙和锁，你的电脑就可以免密码和 GitHub 通信。每台电脑各生成一对，把公钥都加到 GitHub 即可。**私钥永远不要发给别人。**
+
 
 仍然在 Git Bash 中，生成密钥对：
 
@@ -230,9 +233,136 @@ cat ~/.ssh/id_ed25519.pub
 ssh -T git@github.com
 ```
 
-首次连接会提示 `Are you sure you want to continue connecting`，输入 **yes** 回车。看到 `Hi xxx! You've successfully authenticated` 即成功。
+首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。核对指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
 
-> **SSH Key 是什么**：可以理解为一把"钥匙"（私钥，留在电脑上）和一把"锁"（公钥，放到 GitHub 上）。有了这对钥匙和锁，你的电脑就可以免密码和 GitHub 通信。每台电脑各生成一对，把公钥都加到 GitHub 即可。**私钥永远不要发给别人。**
+
+
+### 5.7 附：改用 PowerShell 配置 Git/SSH（可选）
+
+>上面 5.5 / 5.6 用的是 Git for Windows 自带的 **Git Bash**，它自带 `ssh-keygen` 和 `ssh`，开箱即用、最省心，**推荐新手走这条主线**。本节是给习惯用 PowerShell 的人备的，没需求可直接跳到第六节。与 Git Bash 唯一的实质区别：PowerShell 不一定能直接找到 `ssh-keygen` / `ssh`，所以多了"第一步：确认 ssh 可用"和一段排错；其余完全等价。两种方式**二选一**即可，因为 `C:\Users\你\.gitconfig` 和 `.ssh\` 密钥是全局共享的，已经用 Git Bash 配过就不必再走本节。
+
+#### 5.7.1 配置 Git 用户信息
+
+打开 **PowerShell**，先确认 Git 可用（5.5 装好后应能显示版本号）：
+
+```powershell
+git --version
+```
+
+配置用户信息，下面 3 行请**逐行执行**（每复制一行按一次回车）：
+
+```powershell
+git config --global user.name "你的名字"
+git config --global user.email "你的邮箱"
+git config --global core.autocrlf input
+```
+
+配置完检查：
+
+```powershell
+git config --global --list
+```
+
+> `user.name` 是提交记录里显示的作者名，可用中文/韩文/日文/英文；`user.email` 建议填 GitHub 账号使用的邮箱。`core.autocrlf=input` 确保提交时把 Windows 的 CRLF 换行符转换为 LF，避免跨平台换行符问题。
+
+#### 5.7.2 配置 SSH Key
+
+**第一步：确认 ssh-keygen 可用**
+
+```powershell
+Get-Command ssh-keygen
+```
+
+- 输出了 `ssh-keygen.exe` 的路径 → 正常，继续第二步
+- 报"无法将 ssh-keygen 识别为 cmdlet" → 先做本节末尾的 **【ssh-keygen / ssh 找不到？】**，解决后再回到这里继续
+
+**第二步：检查是否已有密钥**
+
+```powershell
+Test-Path "$env:USERPROFILE\.ssh\id_ed25519.pub"
+```
+
+- 输出 `True` → 已有密钥，跳过第三步，直接去第四步复制公钥
+- 输出 `False` → 还没有，继续第三步生成
+
+**第三步：生成密钥对**
+
+```powershell
+ssh-keygen -t ed25519 -C "你的邮箱"
+```
+执行后会有两次提示：
+
+- 路径：直接回车（使用默认路径 `C:\Users\你的用户名\.ssh\id_ed25519`）
+- 密码：直接回车（不设密码），或设一个自己记得住的
+
+**第四步：复制公钥并添加到 GitHub**
+
+先查看公钥。下面两种方式任选其一：
+
+```powershell
+# 方式一：显示在终端里，手动复制
+Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub"
+
+# 方式二：直接复制到剪贴板（推荐）
+Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard
+```
+
+输出类似 `ssh-ed25519 AAAA......` 的一长串字符串，**完整复制**。
+
+然后去 GitHub 添加公钥：
+
+1. 打开 GitHub → 右上角头像 → **Settings**
+2. 左侧栏点 **SSH and GPG keys** → 点 **New SSH key**
+3. 填写：
+   - **Title**：填一个能区分的名字，如 `Windows-我的电脑`
+   - **Key type**：选 `Authentication Key`
+   - **Key**：粘贴刚才复制的公钥
+4. 点 **Add SSH key** 保存
+
+
+**第五步：验证连接**
+
+```powershell
+ssh -T git@github.com
+```
+
+首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。确认指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 再回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
+
+- 若报"无法将 ssh 识别为 cmdlet" → 同样见本节末尾的 **【ssh-keygen / ssh 找不到？】**
+
+#### 【ssh-keygen / ssh 找不到？】
+
+如果第一步或第五步报"无法将 ssh-keygen（或 ssh）识别为 cmdlet"，说明系统的 OpenSSH 没加到 PATH。下面 A、B 两种解法**从上往下依次尝试**。解决后回到上面 5.7.2 继续。
+
+**方案 A：把系统自带的 OpenSSH 加到 PATH（最常见）**
+
+Windows 11 通常已自带 OpenSSH，只是没加到 PATH。先确认它存在：
+
+```powershell
+Test-Path "C:\Windows\System32\OpenSSH\ssh-keygen.exe"
+```
+
+输出 `True` 的话，**逐行执行**下面 3 行，把它加进当前用户的 PATH：
+
+```powershell
+$openSsh = "$env:WINDIR\System32\OpenSSH"
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+[Environment]::SetEnvironmentVariable("Path", "$userPath;$openSsh", "User")
+```
+
+**关闭并重新打开 PowerShell**，执行 `Get-Command ssh-keygen` 能显示路径即成功。若上面输出 `False`（OpenSSH 不存在），试方案 B。
+
+**方案 B：安装 Windows OpenSSH Client**
+
+`设置 → 系统 → 可选功能 → 添加可选功能 → 查看功能`，搜索 **OpenSSH Client** 勾选安装；或在**管理员 PowerShell** 执行：
+
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+```
+
+装完**重开 PowerShell**，`Get-Command ssh-keygen` 确认能显示路径即成功。
+
+> **注意**：可选功能页面下方的搜索框只搜索"已安装功能"。如果 OpenSSH Client 未安装，搜索不到是正常的，要点上方**添加可选功能 → 查看功能**后再搜。
 
 ---
 
