@@ -5,7 +5,7 @@
 ## 目录结构
 
 ```
-2-network/
+3-network/
 ├── wsl-network.md       # WSL 接入网络：apt 代理、环境变量、DNS、自检、排错
 ├── desktop/             # 桌面端
 │   ├── amnezia/         # 当前主力，Amnezia VPN，整机全局接管（网络层）

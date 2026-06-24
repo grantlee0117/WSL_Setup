@@ -177,7 +177,7 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 > **重要**：后续很多开发工具的下载和使用都依赖网络畅通。如果你的网络环境需要代理，务必先装好代理工具。安装包和订阅链接可以通过微信从手机传过来。
 >
-> **安装之后的配置**（订阅、节点、TUN 模式、配置文件、网络排错）统一见 [2-network](../2-network/README.md)。本节只负责把软件装上。
+> **安装之后的配置**（订阅、节点、TUN 模式、配置文件、网络排错）统一见 [3-network](../3-network/README.md)。本节只负责把软件装上。
 
 ### 5.4 浏览器
 
@@ -534,4 +534,4 @@ New-NetFirewallRule -DisplayName "Deskflow" -Direction Inbound -Protocol TCP -Lo
 
 ## 八、WSL 配置说明
 
-接下来请参阅 [3-wsl](../3-wsl/README.md) 配置 WSL2 开发环境。
+接下来请参阅 [2-wsl](../2-wsl/README.md) 配置 WSL2 开发环境。

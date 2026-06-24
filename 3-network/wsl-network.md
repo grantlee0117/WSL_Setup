@@ -1,10 +1,10 @@
 # WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-当前本机的网络方案是 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由表，所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，WSL 侧不需要任何代理或 DNS 配置，与 [2-network 总览](./README.md) 的描述一致。
+当前本机的网络方案是 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由表，所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，WSL 侧不需要任何代理或 DNS 配置，与 [3-network 总览](./README.md) 的描述一致。
 
 因此本文是备用手册：只有当你改回 Clash 等「需要在 WSL 内手动配代理」的工具时，才需要执行下面的步骤。Amnezia 方案下整篇都可以跳过。
 
-> 前置（仅手动配代理时）：先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
+> 前置（仅手动配代理时）：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
 
 ## 先自检：Amnezia 等全局 VPN 多半无需任何配置
 
@@ -25,7 +25,7 @@ sudo apt update
 
 - **`curl` / `apt` 直连失败，但 Windows 浏览器正常**：检查 Amnezia 是否启用了全局模式、是否把 WSL/Hyper-V/vEthernet 流量排除在隧道之外——这是 Amnezia 全局模式下 WSL 不通最常见的根因。
 - **Amnezia 提供了本地 HTTP/SOCKS 代理端口，且你明确想让命令行工具走它**：按它的实际端口，参照下面「一」配 `http_proxy` 和 apt 代理。
-- **`getent hosts github.com` 失败**：优先检查 [3-wsl §2.1](../3-wsl/README.md) 的 `wsl.conf` 和 `/etc/resolv.conf`，不要先配代理。
+- **`getent hosts github.com` 失败**：优先检查 [2-wsl §2.1](../2-wsl/README.md) 的 `wsl.conf` 和 `/etc/resolv.conf`，不要先配代理。
 
 ## 一、WSL 侧代理与 DNS（仅手动代理工具需要）
 
@@ -87,7 +87,7 @@ chmod 600 ~/.ssh/config
 
 **④ Tailscale 用户（如果你装了 Tailscale）**
 
-Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 [3-wsl §2.1.2](../3-wsl/README.md) boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
+Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 [2-wsl §2.1.2](../2-wsl/README.md) boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
 
 ```bash
 sudo tailscale set --accept-dns=false
@@ -141,7 +141,7 @@ sudo apt update
 
 ### DNS 原理说明（可跳过，排错时再看）
 
-> 这部分解释 [3-wsl §2.1.2](../3-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
+> 这部分解释 [2-wsl §2.1.2](../2-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
 >
 > 本机现状：`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），DNS 仍正常——查询经共用网卡走 Amnezia 隧道解析。下面这套 boot command 是 Clash 时代的兜底方案，仅在镜像模式下 DNS 确实失效时才需要；下表中「不经过 Clash 通常不能」的判断也只适用于 Clash 场景。
 
@@ -162,7 +162,7 @@ sudo apt update
 - **WSL 重启**后 Tailscale 或 WSL 重新覆盖 `resolv.conf`
 - **Tailscale 更新或重启**后重新接管 DNS
 
-**[3-wsl §2.1.2](../3-wsl/README.md) 的 boot command 做了什么**：
+**[2-wsl §2.1.2](../2-wsl/README.md) 的 boot command 做了什么**：
 
 1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 `/run/systemd/resolve/stub-resolv.conf`）。**必须先断开 symlink**：如果直接 `printf > /etc/resolv.conf`，实际修改的是 symlink 的目标文件，systemd-resolved 重启后会覆盖回 `127.0.0.53`
 2. `printf 'nameserver 223.5.5.5\n...' > /etc/resolv.conf` — 写入正确的公共 DNS
@@ -203,7 +203,7 @@ case "$NS" in
     if [ "$DNS_OK" = 1 ]; then
       echo "  → 基线模式：镜像+dnsTunneling 的隧道 DNS；解析正常即健康，无需 boot command、不要设 generateResolvConf=false"
     else
-      echo "  → 隧道 DNS 没解析成功：按 3-wsl §2.1.2 手动接管（写 223.5.5.5/8.8.8.8 + generateResolvConf=false）"
+      echo "  → 隧道 DNS 没解析成功：按 2-wsl §2.1.2 手动接管（写 223.5.5.5/8.8.8.8 + generateResolvConf=false）"
     fi ;;
   223.5.5.5|8.8.8.8|8.8.4.4|1.1.1.1)
     echo "  → 手动兜底模式（公共 DNS）" ;;
@@ -293,12 +293,12 @@ apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了
 
 ### Q：DNS 突然不通了（之前一直好好的）？
 
-终极排查流程：
+终极排查流程（下面针对**手动兜底模式**；若你是**基线模式**——`resolv.conf` 为指向 `10.255.255.254` 的软链、平时靠隧道解析——突然不通多半是 Windows 侧 VPN / Clash 状态变了，先 `wsl --shutdown` 重启或查 Windows 侧网络，**不要**改成公共 DNS）：
 
 ```bash
 # 1. 检查 resolv.conf 有没有被覆盖
 cat /etc/resolv.conf
-# 正确内容应该只有两行：nameserver 223.5.5.5 和 nameserver 8.8.8.8
+# 手动兜底模式：应为 nameserver 223.5.5.5 / 8.8.8.8 两行（基线模式是 10.255.255.254，也正常）
 
 # 2. 如果内容被改了，手动修复
 sudo bash -c 'rm -f /etc/resolv.conf && printf "nameserver 223.5.5.5\nnameserver 8.8.8.8\n" > /etc/resolv.conf'

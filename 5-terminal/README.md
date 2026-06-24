@@ -2,11 +2,11 @@
 
 > **本域作用**：把 WSL 终端配成统一的 **Catppuccin Mocha** 深色主题 + Nerd Font 图标 + tmux 会话保存/恢复 + 一键分屏布局（含 Agent Team 布局）。
 >
-> **前置**：先完成 [3-wsl](../3-wsl/README.md) 的 WSL2 安装与基础工具（§3.7 已装好 tmux）。
+> **前置**：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装，并在 [4-dev](../4-dev/README.md) §1.7 装好 tmux。
 >
 > 这一步是**可选**的美化和效率提升，不影响任何开发工具的功能。但配置后体验会好很多——统一主题、Nerd Font 图标、tmux 会话保存/恢复、一键分屏布局。
 
-本目录（`4-terminal/`）提供了完整的配置文件和一键部署脚本：
+本目录（`5-terminal/`）提供了完整的配置文件和一键部署脚本：
 
 | 文件 | 作用 |
 |------|------|
@@ -27,7 +27,7 @@ winget install wez.wezterm
 ✂️ 逐条执行：
 
 ```bash
-cd ~/projects/WSL_Setup/4-terminal
+cd ~/projects/WSL_Setup/5-terminal
 chmod +x setup.sh
 ```
 

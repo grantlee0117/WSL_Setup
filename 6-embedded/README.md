@@ -3,7 +3,7 @@
 > **适用场景**：已完成 WSL2 开发环境搭建，需要在此基础上配置 STM32 嵌入式开发工具链。
 > 目标是搭建一套 **AI 原生友好** 的开发环境——项目结构全文本化、构建全命令行化，AI 可以直接读写源码和构建配置、执行编译、解析报错并修复。
 >
-> **前置条件**：请先完成 [3-wsl](../3-wsl/README.md) 中的全部配置。
+> **前置条件**：请先完成 [2-wsl](../2-wsl/README.md)（WSL2 安装与配置）与 [4-dev](../4-dev/README.md)（开发环境）。
 
 **这份文档做什么**：
 
@@ -36,14 +36,14 @@ Keil 的项目配置（`.uvprojx`）、编译器（armcc/armclang）、构建过
 | 三（验证开发工作流） | 10-15 分钟 | 取决于项目 |
 | 四（配通烧录链路） | 5-10 分钟 | — |
 
-**风险等级说明**（同 3-wsl 文档）：
+**风险等级说明**（同 4-dev 文档）：
 
 | 等级 | 含义 |
 |:---:|------|
 | 🟢 | **无风险**：纯库/工具，不改系统配置，卸载干净 |
 | 🟡 | **低风险**：会拉少量依赖，但都是成熟稳定包 |
 
-**关于代码块的执行方式**（同 3-wsl 文档）：
+**关于代码块的执行方式**（同 4-dev 文档）：
 
 - 📋 **整块复制粘贴执行**
 - ✂️ **逐条复制粘贴执行**（前一条会改变环境，后续依赖变更）
@@ -99,7 +99,7 @@ sudo apt install -y cmake ninja-build
 cmake --version && ninja --version
 ```
 
-> **说明**：`make` 已在 3-wsl 文档的 `build-essential` 中安装，可作为 Ninja 的备用执行器。默认使用 Ninja，因为它的输出更干净（单行进度条 + 错误信息），AI 解析编译结果更容易。
+> **说明**：`make` 已在 [4-dev](../4-dev/README.md) 的 `build-essential` 中安装，可作为 Ninja 的备用执行器。默认使用 Ninja，因为它的输出更干净（单行进度条 + 错误信息），AI 解析编译结果更容易。
 
 ### 1.3 GDB 多架构调试器 🟢 无风险
 
@@ -285,7 +285,7 @@ cd ~/projects/blink
 > rm -rf ~/projects/blink && cp -r /mnt/c/STM32Projects/blink ~/projects/blink
 > ```
 
-> **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（脚本见 [3-wsl/scripts/](../3-wsl/scripts/)，安装方式见 [3-wsl](../3-wsl/README.md) 3.7 节）。
+> **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（脚本见 [4-dev/scripts/](../4-dev/scripts/)，安装方式见 [4-dev](../4-dev/README.md) §1.7）。
 
 ### 3.3 修复编译器路径（首次必做）
 
