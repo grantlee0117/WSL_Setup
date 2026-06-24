@@ -432,7 +432,7 @@ gh auth status
 
 > **说明**：`gh` 通过 apt 管理，更新只需 `sudo apt upgrade`。认证信息存在 `~/.config/gh/` 下。
 
-### 3.5 C/C++ 编译库与工具链 🟢 无风险
+### 3.5 通用 C/C++ 编译库与工具链 🟢 无风险
 
 这些大多是 `-dev` 头文件包（外加 gfortran 编译器），不改系统行为、互不冲突、卸载干净。这里覆盖面铺得尽量广，让大部分项目的依赖都能直接从源码编译过。
 
@@ -705,14 +705,16 @@ cargo --version
 
 **为什么要装**：很多云原生工具（如 Docker、Kubernetes 相关工具）和开发工具用 Go 编写。
 
-✂️ 以下命令**逐条复制粘贴执行**。⚠️ **先去 [Go 官网下载页](https://go.dev/dl/) 看一眼当前最新版本号**，把下面命令里的 `go1.26.4` 换成它——版本号会过期，写了不存在的版本会直接 404：
+✂️ 以下命令**逐条复制粘贴执行**。⚠️ **先去 [Go 官网下载页](https://go.dev/dl/) 看一眼当前最新版本号**，把下面命令里的 `go1.26.4` 换成它——版本号会过期，写了不存在的版本会直接 404；ARM64 的 Windows/WSL 还要把 `linux-amd64` 换成 `linux-arm64`：
 
 ```bash
-curl -fsSL https://go.dev/dl/go1.26.4.linux-amd64.tar.gz | sudo tar -C /usr/local -xzf -
+curl -fL# https://go.dev/dl/go1.26.4.linux-amd64.tar.gz | sudo tar -C /usr/local -xzf -
 ```
 
+> 这个包约 150MB+，命令里的 `-#` 会显示进度条；慢网 / 走隧道时下载较久，**进度条走完才算完成**（别因为屏幕没动静就以为卡死）。
+
 ```bash
-grep -qF '/usr/local/go/bin' ~/.bashrc || echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> ~/.bashrc
+grep -qF '/usr/local/go/bin' ~/.bashrc || echo 'export PATH=/usr/local/go/bin:$HOME/go/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -722,9 +724,20 @@ source ~/.bashrc
 go version
 ```
 
-> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下；升级时官方要求先 `sudo rm -rf /usr/local/go` 再解压新版本（直接往旧目录上覆盖解压会损坏安装）。`$HOME/go/bin` 是 `go install` 安装的工具的路径。（注：也可以 `sudo apt install golang-go` 图省事，但 apt 版通常落后官方一两个版本。）
+> **说明**：Go 官方推荐的安装方式。所有文件在 `/usr/local/go/` 下；升级时官方要求先 `sudo rm -rf /usr/local/go` 再解压新版本（直接往旧目录上覆盖解压会损坏安装）。`$HOME/go/bin` 是 `go install` 安装的工具的路径。
 >
 > **如果执行 `go version` 报 `Permission denied`**：检查 `/usr/local/go/bin/go` 的权限，正常应允许普通用户执行。如果异常变成 `-rwx------ root root`，执行 `sudo chmod 755 /usr/local/go/bin/go` 后重新验证。
+>
+> **不建议用 apt 的 `golang-go`**：它落后官方好几个版本（如本文写时 apt 是 1.22、官方已 1.26），还会把 `go` 放到 `/usr/bin/go` 抢占（即便上面 PATH 已前置也是徒增混乱）。要用官方版就别装它；若之前装过，先 `sudo apt remove golang-go` 再按本节走。
+
+**（可选）装常用 Go 开发工具**（语言服务器 + 调试器，装进 `$HOME/go/bin`）。📋 整块复制粘贴执行：
+
+```bash
+go install golang.org/x/tools/gopls@latest          # gopls：语言服务器，IDE 补全/跳转/诊断
+go install github.com/go-delve/delve/cmd/dlv@latest  # dlv：delve 调试器
+```
+
+> 这俩会用 `go install` 静默拉一堆依赖（和上面下载 Go 一样走隧道、无进度），等一两分钟很正常，别以为卡住。
 
 ### 3.13 Tesseract OCR 🟡 低风险（可选）
 
@@ -934,7 +947,6 @@ sudo apt install -y minicom picocom screen libusb-1.0-0-dev
 sudo apt install -y net-tools dnsutils nmap tcpdump socat netcat-openbsd mtr-tiny
 ```
 
-> **通用 C/C++ 构建/调试工具**（cmake、ninja、meson、gdb、clang、autotools 等）已移到 §3.5 核心，跟主线走就装好了，不在此处重复。
 
 **明确不装的**：
 
