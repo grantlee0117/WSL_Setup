@@ -62,7 +62,7 @@ autoProxy=true
 | `swap` | 交换空间大小 |
 | `processors` | 分配的 CPU 核心数 |
 | `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
-| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；失效时才改用写死公共 DNS 的 boot command 兜底（非基线情形，详见 §2.2，二选一、不叠加） |
+| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；失效时才改用写死公共 DNS 的 boot command 兜底（非基线情形，详见 [3-network/wsl-network.md](../3-network/wsl-network.md)「手动接管 DNS」，二选一、不叠加） |
 | `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
 | `autoProxy=true` | 向 WSL 注入 Windows 的 HTTP(S) 代理设置；但很多命令行工具（`apt`/`curl`/`git`）并不读它、仍需手动配置，详见 [3-network/wsl-network.md](../3-network/wsl-network.md) |
 
@@ -209,7 +209,7 @@ generateResolvConf=true
 | `[interop] enabled=true` | 允许在 WSL 内运行 Windows 可执行文件（`.exe`），是下面 `appendWindowsPath` 生效的前提 |
 | `[interop] appendWindowsPath=true` | 把 Windows 的 PATH 追加进 WSL，于是能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
 | `[network] generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
-| `[network] generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值；手动接管 DNS 时改为 `false`，见 §2.2） |
+| `[network] generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值；手动接管 DNS 时改为 `false`，见 [3-network/wsl-network.md](../3-network/wsl-network.md)「手动接管 DNS」） |
 
 退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
@@ -225,26 +225,17 @@ wsl --shutdown
 wsl
 ```
 
-### 2.2 网络自检与按需配置（DNS / 代理）
+### 2.2 WSL 网络配置
 
 WSL 侧是否需要额外配置网络（DNS、代理），取决于你 Windows 侧的代理方案。一般存在以下两种情形：
 
-- **A. 全局 TUN 接管**（Windows 侧跑 Amnezia，或 Clash Verge 开了 TUN 模式）：一块虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1）——DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析，`apt`/`curl`/`git` 流量也都被网络层兜底，**WSL 侧什么都不用额外配**。本机正是这种方案，因此无需额外再对 WSL 侧进行相关网络配置。
+- **A. 全局 TUN 接管**（Windows 侧跑 Amnezia，或 Clash Verge 开了 TUN 模式）：一块虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1）——DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析，`apt`/`curl`/`git` 流量也都被网络层兜底，**WSL 侧什么都不用额外配**。本机正是这种方案。此状态下 `/etc/resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`。**该情况下不能将其修改成公共 DNS**，只会把 DNS 从隧道里拽出来。
 - **B. 普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）：网络层没有全局接管，于是 DNS 多半不通、`apt`/`curl`/`git SSH` 也不会自动走代理——**DNS 和代理两样都得手动配**。
 
-**自检**：重新进入 WSL 后（§2.1 已重启过），📋 执行一条命令辅助判定：
+下一步：
 
-```bash
-getent hosts github.com
-```
-
-- **返回 IP**（如 `20.27.177.113  github.com`）：DNS 正常，基本就是 A 类——到此 WSL 网络就绪，开发环境搭建见 [4-dev](../4-dev/README.md)。此状态下 `/etc/resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`，**别画蛇添足改成公共 DNS**，那会把 DNS 从隧道里拽出来。
-- **无输出或报错**：DNS 不通，则为 B 类。
-
-WSL 内部配置到此结束，下一步是网络：WSL 侧代理/DNS、Windows 侧代理、诊断与排错都在 [3-network](../3-network/README.md)。
-
-- **A 类**：WSL 侧不用配，过去把自检跑一遍确认没问题，就可以进 [4-dev](../4-dev/README.md) 了。
-- **B 类**：去 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」配 DNS 和代理。
+- **A 类**：WSL 侧不用配，直接进 [4-dev](../4-dev/README.md) 搭开发环境。（想确认网络确实通畅，可去 [3-network/wsl-network.md](../3-network/wsl-network.md)「二、网络健康检查」跑一键诊断。）
+- **B 类**：去 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」配好 DNS 和代理，再进 [4-dev](../4-dev/README.md)。
 
 ---
 

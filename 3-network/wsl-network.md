@@ -130,7 +130,7 @@ sudo apt update
 
 ### 手动接管 DNS（仅基线 DNS 失效时）
 
-> 这一节是「非基线」回退方案：仅当 [2-wsl §2.2](../2-wsl/README.md) 的 `getent hosts github.com` **不通过**时才需要。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**。
+> 这一节是「非基线」回退方案：仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**。
 
 **典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
