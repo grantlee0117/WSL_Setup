@@ -79,7 +79,7 @@ chmod 600 ~/.ssh/config
 
 **④ Tailscale 用户（如果你装了 Tailscale）**
 
-Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致 [2-wsl §2.1.2](../2-wsl/README.md) boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
+Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致下面「手动接管 DNS」的 boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
 
 ```bash
 sudo tailscale set --accept-dns=false
@@ -128,15 +128,50 @@ sudo apt update
 
 配好以上后，后续安装的工具不需要再单独配代理。
 
-### DNS 原理说明（可跳过，排错时再看）
+### 手动接管 DNS（仅基线 DNS 失效时）
 
-> 这部分解释 [2-wsl §2.1.2](../2-wsl/README.md) 的 boot command 的解决思路和原理。如果你的网络验证全部通过，可以跳过。
->
-> 本机现状：`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），DNS 仍正常——查询经共用网卡走 Amnezia 隧道解析。下面这套 boot command 是 Clash 时代的兜底方案，仅在镜像模式下 DNS 确实失效时才需要；下表中「不经过 Clash 通常不能」的判断也只适用于 Clash 场景。
+> 这一节是「非基线」回退方案：仅当 [2-wsl §2.2](../2-wsl/README.md) 的 `getent hosts github.com` **不通过**时才需要。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**。
 
-镜像模式下 WSL 的 DNS 可能不通（无论是否使用代理）。症状：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
+**典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
-**根因**：`/etc/resolv.conf` 这个文件决定了 WSL 里的程序去问谁解析域名。问题是有多个"写手"会争抢这个文件：
+**操作**：📋 编辑 `/etc/wsl.conf`：
+
+```bash
+sudo nano /etc/wsl.conf
+```
+
+在 `[boot]` 段增加一条 `command`、把 `[network]` 段的 `generateResolvConf` 改成 `false`（其余保持 [2-wsl §2.1](../2-wsl/README.md) 的基线内容）。📝 完整内容如下（粘贴进 nano 编辑器）：
+
+```ini
+[boot]
+systemd=true
+command=rm -f /etc/resolv.conf && printf 'nameserver 223.5.5.5\nnameserver 8.8.8.8\n' > /etc/resolv.conf
+
+[automount]
+enabled=true
+options="metadata,umask=22,fmask=11"
+
+[interop]
+enabled=true
+appendWindowsPath=true
+
+[network]
+generateHosts=true
+generateResolvConf=false
+```
+
+保存退出后，在 PowerShell 执行 `wsl --shutdown` 重启生效。
+
+| 配置项 | 作用 |
+|--------|------|
+| `command=rm -f ... && printf ...` | 每次启动先断开 symlink 再写入两行公共 DNS（`223.5.5.5`、`8.8.8.8`，分别是阿里和 Google 的公共 DNS） |
+| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以 `rm -f` 仍必要 |
+
+> **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`。命令较复杂时，建议把它们写进一个脚本文件、让 `command=` 只调用该脚本，避免 `&&`/`>`/`;` 混排在某些 WSL 版本里被解析出错。
+
+#### 原理（可跳过，排错时再看）
+
+镜像模式下 WSL 的 DNS 为什么可能不通（无论是否使用代理）？**根因**：`/etc/resolv.conf` 决定了 WSL 里的程序去问谁解析域名，而有多个"写手"会争抢这个文件：
 
 | 写手 | 写入内容 | 能不能解析 |
 |------|---------|-----------|
@@ -145,13 +180,15 @@ sudo apt update
 | Tailscale | `nameserver 100.100.100.100`（MagicDNS） | 不经过 Clash，通常不能 |
 | boot command 手动写 | `nameserver 223.5.5.5`（公共 DNS） | 经过 Windows 网络栈 → 正常 |
 
+> 上表「不经过 Clash 通常不能」只适用于 Clash 这类系统代理场景；全局 TUN（Amnezia）下 `10.255.255.254` 反而正常——这正是本机基线状态。
+
 **常见触发场景**（配好后突然又坏了）：
 
 - **在 Windows 侧切换 Clash 模式**（规则模式 ↔ 全局模式）：改变 Clash 对 DNS 的拦截方式，可能导致 WSL 内 DNS 路径断裂
 - **WSL 重启**后 Tailscale 或 WSL 重新覆盖 `resolv.conf`
 - **Tailscale 更新或重启**后重新接管 DNS
 
-**[2-wsl §2.1.2](../2-wsl/README.md) 的 boot command 做了什么**：
+**上面的 boot command 做了什么**：
 
 1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 `/run/systemd/resolve/stub-resolv.conf`）。**必须先断开 symlink**：如果直接 `printf > /etc/resolv.conf`，实际修改的是 symlink 的目标文件，systemd-resolved 重启后会覆盖回 `127.0.0.53`
 2. `printf 'nameserver 223.5.5.5\n...' > /etc/resolv.conf` — 写入正确的公共 DNS
@@ -192,12 +229,12 @@ case "$NS" in
     if [ "$DNS_OK" = 1 ]; then
       echo "  → 基线模式：镜像+dnsTunneling 的隧道 DNS；解析正常即健康，无需 boot command、不要设 generateResolvConf=false"
     else
-      echo "  → 隧道 DNS 没解析成功：按 2-wsl §2.1.2 手动接管（写 223.5.5.5/8.8.8.8 + generateResolvConf=false）"
+      echo "  → 隧道 DNS 没解析成功：按本文「手动接管 DNS」（写 223.5.5.5/8.8.8.8 + generateResolvConf=false）"
     fi ;;
   223.5.5.5|8.8.8.8|8.8.4.4|1.1.1.1)
     echo "  → 手动兜底模式（公共 DNS）" ;;
   127.0.0.53)
-    if [ "$DNS_OK" = 1 ]; then echo "  → systemd-resolved stub，解析正常即可"; else echo "  → systemd-resolved stub 且解析失败：按 §2.1.2 手动接管 DNS"; fi ;;
+    if [ "$DNS_OK" = 1 ]; then echo "  → systemd-resolved stub，解析正常即可"; else echo "  → systemd-resolved stub 且解析失败：按本文「手动接管 DNS」"; fi ;;
   100.100.100.100)
     echo "  → Tailscale MagicDNS；如解析异常：sudo tailscale set --accept-dns=false" ;;
   "")
@@ -270,7 +307,7 @@ apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了
 
 ### Q：`git clone git@github.com:...` 超时或报 DNS 错误，但 `git clone https://...` 正常？
 
-先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「一、WSL 侧代理与 DNS · DNS 原理说明」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、WSL 侧代理与 DNS · ③ Git SSH 代理」）。`http_proxy` 只对 HTTP/HTTPS 协议生效，SSH 不读这个变量。
+先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「一、WSL 侧代理与 DNS · 手动接管 DNS」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、WSL 侧代理与 DNS · ③ Git SSH 代理」）。`http_proxy` 只对 HTTP/HTTPS 协议生效，SSH 不读这个变量。
 
 ---
 

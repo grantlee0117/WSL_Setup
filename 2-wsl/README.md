@@ -62,7 +62,7 @@ autoProxy=true
 | `swap` | 交换空间大小 |
 | `processors` | 分配的 CPU 核心数 |
 | `networkingMode=mirrored` | WSL 复用宿主机网络栈，宿主机上工作在网络层的代理（Amnezia / Clash 的 TUN 模式等）自动对 WSL 生效 |
-| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；§2.1.2 写死公共 DNS 的 boot command 只是它失效时的兜底（二选一，不是叠加保险） |
+| `dnsTunneling=true` | DNS 请求通过 Windows 隧道解析。镜像模式下这通常已让 WSL 的 DNS 开箱即用；失效时才改用写死公共 DNS 的 boot command 兜底（非基线情形，详见 §2.2，二选一、不叠加） |
 | `firewall=true` | 让 Windows 防火墙规则（含 Hyper-V 流量专用规则）对 WSL 网络流量生效 |
 | `autoProxy=true` | 向 WSL 注入 Windows 的 HTTP(S) 代理设置；但很多命令行工具（`apt`/`curl`/`git`）并不读它、仍需手动配置，详见 [3-network/wsl-network.md](../3-network/wsl-network.md) |
 
@@ -110,7 +110,7 @@ cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
 > - 密码输入时屏幕不显示任何字符（包括星号），这是 Linux 的安全设计，不是卡住，输完回车即可
 > - 用户名用小写英文、不要空格
 
-正常情况到这里 WSL2 就装好了。下面两条为**两种特殊情况**：
+正常情况下，到这里 WSL2 就装好了。下面两条分别对应**两种特殊情况**：
 
 > **① `wsl --install` 只显示帮助文本，或卡在 `0.0%` / Microsoft Store 下载异常**：说明 WSL 入口已存在但还没装发行版，或 WSL 需要更新。依次尝试：
 >
@@ -198,23 +198,18 @@ generateResolvConf=true
 
 3. **保存退出**：按 `Ctrl+O` 然后按回车保存，按 `Ctrl+X` 退出编辑器。
 
-> **关于 DNS——取决于你 Windows 侧的代理方案**：
->
-> 上面这套基线（`generateResolvConf=true`、不写死 DNS）针对的是**全局 TUN 接管**的方案：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式时，会有一个虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1），WSL 的 DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析——**开箱即用，什么都不用额外配**。本机正是这种方案。此时别再画蛇添足写死公共 DNS，那会把 DNS 从隧道里拽出来。
->
-> 反过来，如果你用的是**普通系统代理**（Clash Verge 只在 Windows 设了 HTTP/SOCKS 系统代理、没开 TUN），网络层没有全局接管，WSL 的隧道 DNS 多半不通——这才需要按 §2.1.2 手动接管：加一条 `[boot] command=...` 写死公共 DNS，并把 `generateResolvConf` 设成 `false`。
->
-> 拿不准属于哪种？别猜，按下面 §2.1.1 跑一条命令验证：**通了就保持基线，不通再做 §2.1.2**。两者二选一，不叠加。
-
 **各项含义：**
 
 | 配置项 | 作用 |
 |--------|------|
-| `systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
-| `metadata` | 让 Linux 在 `/mnt` 挂载的 Windows 文件上正确保存/识别权限位（`chmod` 生效），不致挂载后权限全是固定值 |
-| `appendWindowsPath=true` | WSL 里能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
-| `generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
-| `generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值，写出来是为了和 §2.1.2 的 `false` 对照） |
+| `[boot] systemd=true` | 启用 systemd 服务管理器，Docker 等服务需要它 |
+| `[automount] enabled=true` | 自动把 Windows 盘符挂到 WSL 的 `/mnt`（`C:` → `/mnt/c`），便于在 WSL 里读写 Windows 文件 |
+| `options` 里的 `metadata` | 让 Linux 在 `/mnt` 的 Windows 文件上正确保存/识别权限位（`chmod` 生效），不致挂载后权限全是固定值 |
+| `options` 里的 `umask=22,fmask=11` | 没单独 `chmod` 过的文件/目录在 `/mnt` 下的默认权限掩码（目录约 `755`、文件去掉多余执行位），免得挂载后一律 `777` |
+| `[interop] enabled=true` | 允许在 WSL 内运行 Windows 可执行文件（`.exe`），是下面 `appendWindowsPath` 生效的前提 |
+| `[interop] appendWindowsPath=true` | 把 Windows 的 PATH 追加进 WSL，于是能直接调用 Windows 程序（如 `code .` 打开 VSCode） |
+| `[network] generateHosts=true` | 让 WSL 自动生成 `/etc/hosts` |
+| `[network] generateResolvConf=true` | 让 WSL 自动生成 `/etc/resolv.conf`（默认值；手动接管 DNS 时改为 `false`，见 §2.2） |
 
 退出并重启 WSL 使配置生效。以下三条命令 ✂️ **逐条执行**（先退出 WSL，再在 PowerShell 中关闭，最后重新进入）：
 
@@ -230,57 +225,26 @@ wsl --shutdown
 wsl
 ```
 
-#### 2.1.1 验证 DNS
+### 2.2 网络自检与按需配置（DNS / 代理）
 
-重新进入 WSL 后，📋 执行：
+WSL 侧是否需要额外配置网络（DNS、代理），取决于你 Windows 侧的代理方案。一般存在以下两种情形：
+
+- **A. 全局 TUN 接管**（Windows 侧跑 Amnezia，或 Clash Verge 开了 TUN 模式）：一块虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1）——DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析，`apt`/`curl`/`git` 流量也都被网络层兜底，**WSL 侧什么都不用额外配**。本机正是这种方案，因此无需额外再对 WSL 侧进行相关网络配置。
+- **B. 普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）：网络层没有全局接管，于是 DNS 多半不通、`apt`/`curl`/`git SSH` 也不会自动走代理——**DNS 和代理两样都得手动配**。
+
+**自检**：重新进入 WSL 后（§2.1 已重启过），📋 执行一条命令辅助判定：
 
 ```bash
 getent hosts github.com
 ```
 
-- 返回 IP（如 `20.27.177.113  github.com`）：DNS 正常，无需额外配置；开发环境搭建见 [4-dev](../4-dev/README.md)。镜像模式下正常配好的机器即为此状态——`/etc/resolv.conf` 指向 WSL 自动生成的文件，内容为 `nameserver 10.255.255.254`。
-- 无输出或报错：DNS 不通，按 2.1.2 手动接管。
+- **返回 IP**（如 `20.27.177.113  github.com`）：DNS 正常，基本就是 A 类——到此 WSL 网络就绪，开发环境搭建见 [4-dev](../4-dev/README.md)。此状态下 `/etc/resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`，**别画蛇添足改成公共 DNS**，那会把 DNS 从隧道里拽出来。
+- **无输出或报错**：DNS 不通，则为 B 类。
 
-#### 2.1.2 手动接管 DNS（仅 2.1.1 不通过时）
+WSL 内部配置到此结束，下一步是网络：WSL 侧代理/DNS、Windows 侧代理、诊断与排错都在 [3-network](../3-network/README.md)。
 
-典型症状：`getent hosts github.com` 无输出、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧网络正常。
-
-重新执行 `sudo nano /etc/wsl.conf`，在 `[boot]` 段增加一条 `command`，并在 `[network]` 段设置 `generateResolvConf=false`（其余不变）。📝 完整内容如下（粘贴进 nano 编辑器）：
-
-```ini
-[boot]
-systemd=true
-command=rm -f /etc/resolv.conf && printf 'nameserver 223.5.5.5\nnameserver 8.8.8.8\n' > /etc/resolv.conf
-
-[automount]
-enabled=true
-options="metadata,umask=22,fmask=11"
-
-[interop]
-enabled=true
-appendWindowsPath=true
-
-[network]
-generateHosts=true
-generateResolvConf=false
-```
-
-`command` 在每次启动时以 root 执行：先 `rm -f /etc/resolv.conf` 断开软链接，再写入两行公共 DNS（`223.5.5.5`、`8.8.8.8`，分别是阿里和 Google 的公共 DNS）。`generateResolvConf=false` 阻止 WSL 重新生成该文件。
-
-| 配置项 | 作用 |
-|--------|------|
-| `command=rm -f ... && printf ...` | 每次启动先断开 symlink 再写入公共 DNS |
-| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以 `rm -f` 仍必要 |
-
-> **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`。命令较复杂时，建议把它们写进一个脚本文件、让 `command=` 只调用该脚本，避免 `&&`/`>`/`;` 混排在某些 WSL 版本里被解析出错。
-
-修改后在 PowerShell 执行 `wsl --shutdown` 重启生效。DNS 的完整原理与排查见 [3-network/wsl-network.md](../3-network/wsl-network.md)。
-
-### 2.2 配置代理与 DNS （非必要）
-
-> **如果你是上文主线方案，本节直接跳过**：Windows 侧跑 Amnezia、或 Clash Verge 开了 TUN 模式做全局接管时，WSL 镜像模式已经直接共享了 Windows 的网络与代理，`apt`/`curl`/`git` 等流量都被网络层 TUN 兜底拦截，**WSL 侧不需要任何额外的代理/DNS 配置**——配好 §2.1 的 `wsl.conf` 即可；开发环境搭建见 [4-dev](../4-dev/README.md)。本机即是如此。
->
-> **只有这种情况才需要往下看**：你用的是**普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）。此时 `apt`、`curl`/`wget`、`git SSH` 不会自动走系统代理，要手动配。完整步骤（apt 代理 / 全局环境变量 / SSH ProxyCommand / Tailscale / 网络验证 / DNS 原理）见 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」。
+- **A 类**：WSL 侧不用配，过去把自检跑一遍确认没问题，就可以进 [4-dev](../4-dev/README.md) 了。
+- **B 类**：去 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」配 DNS 和代理。
 
 ---
 
