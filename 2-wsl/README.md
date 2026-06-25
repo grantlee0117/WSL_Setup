@@ -142,7 +142,7 @@ cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
 从这里开始，所有操作都在 WSL 终端里。打开方式有两种：
 
 - **方式一**：打开 PowerShell，输入 `wsl` 回车
-- **方式二**：在开始菜单中找到 **Ubuntu 24.04** 应用，点击打开（别点通用的 Ubuntu 应用，否则可能多注册一个发行版，见 §四）
+- **方式二**：在开始菜单中找到 **Ubuntu 24.04** 应用，点击打开（别点通用的 Ubuntu 应用，否则可能多注册一个发行版，见 §三）
 
 ### nano 编辑器基础操作
 
@@ -284,15 +284,9 @@ generateResolvConf=false
 
 ---
 
-## 三、网络健康检查（一键诊断）
+## 三、常见问题
 
-> **本节内容已迁移** 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)「二、网络健康检查」。DNS / 代理反复出问题时，去那里一键诊断。
-
----
-
-## 四、常见问题
-
-> 网络 / 代理 / DNS 相关的故障排查已移到 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)「三、网络故障排查 FAQ」。下面保留与网络无关的常见问题。
+> 网络健康检查（一键诊断）与网络 / 代理 / DNS 故障排查都已移到 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)（分别见其「二、网络健康检查」与「三、网络故障排查 FAQ」）。DNS / 代理反复出问题时去那里一键诊断；下面只保留与网络无关的常见问题。
 
 ---
 
