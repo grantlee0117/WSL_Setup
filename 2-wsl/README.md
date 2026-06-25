@@ -234,14 +234,14 @@ WSL 侧是否需要额外配置网络（DNS、代理），取决于你 Windows �
 
 下一步：
 
-- **A 类**：WSL 侧不用配，直接进 [4-dev](../4-dev/README.md) 搭开发环境。（想确认网络确实通畅，可去 [3-network/wsl-network.md](../3-network/wsl-network.md)「二、网络健康检查」跑一键诊断。）
-- **B 类**：去 [3-network/wsl-network.md](../3-network/wsl-network.md)「一、WSL 侧代理与 DNS」配好 DNS 和代理，再进 [4-dev](../4-dev/README.md)。
+- **A 类**：WSL 侧不用配，直接进 [4-dev](../4-dev/README.md) 搭开发环境。（想确认网络确实通畅，可去 [3-network/wsl-network.md](../3-network/wsl-network.md)「三、网络健康检查」跑一键诊断。）
+- **B 类**：按照 [3-network/wsl-network.md](../3-network/wsl-network.md) 文档描述配好代理和 DNS， 再进 [4-dev](../4-dev/README.md)。
 
 ---
 
 ## 三、常见问题
 
-> 网络健康检查（一键诊断）与网络 / 代理 / DNS 故障排查都已移到 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)（分别见其「二、网络健康检查」与「三、网络故障排查 FAQ」）。DNS / 代理反复出问题时去那里一键诊断；下面只保留与网络无关的常见问题。
+> 网络健康检查（一键诊断）与网络 / 代理 / DNS 故障排查都已移到 👉 [3-network/wsl-network.md](../3-network/wsl-network.md)（分别见其「三、网络健康检查」与「四、网络故障排查 FAQ」）。DNS / 代理反复出问题时去那里一键诊断；下面只保留与网络无关的常见问题。
 
 ---
 

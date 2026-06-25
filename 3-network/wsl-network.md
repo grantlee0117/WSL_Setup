@@ -2,9 +2,9 @@
 
 本机用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
 
-所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
+所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具、或基线 DNS 失效时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
 
-> 前置（仅手动配代理时）：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
+> 前置（仅手动配置时）：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装与 §2.1 `wsl.conf`。
 >
 > **执行图例**（与 [2-wsl](../2-wsl/README.md) / [4-dev](../4-dev/README.md) 一致）：📋 整块复制粘贴执行；✂️ 逐条执行（前一条会改变环境、后续依赖它，须一条条来）；📝 粘贴到编辑器中的文件内容（不是终端命令）。
 
@@ -15,15 +15,13 @@ curl -I https://github.com
 sudo apt update
 ```
 
-四条都正常，就说明 WSL 流量已走全局隧道——此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。只有遇到下面的具体故障，才需要继续往下配：
+四条都正常，就说明 WSL 流量已走全局隧道——此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。只有遇到下面的具体故障，才按症状跳到对应一节——**两节相互独立，按症状取用，不必从头做到尾**：
 
 - **`curl` / `apt` 直连失败，但 Windows 浏览器正常**：检查 Amnezia 是否启用了全局模式、是否把 WSL/Hyper-V/vEthernet 流量排除在隧道之外——这是 Amnezia 全局模式下 WSL 不通最常见的根因。
-- **Amnezia 提供了本地 HTTP/SOCKS 代理端口，且你明确想让命令行工具走它**：按它的实际端口，参照下面「一」配 `http_proxy` 和 apt 代理。
-- **`getent hosts github.com` 失败**：优先检查 [2-wsl §2.1](../2-wsl/README.md) 的 `wsl.conf` 和 `/etc/resolv.conf`，不要先配代理。
+- **想让命令行工具走某个本地代理端口**（用的是 Clash 这类系统代理、没开 TUN，或 Amnezia 暴露了本地 HTTP/SOCKS 端口且你想让 CLI 走它）：见下方「一、手动配 WSL 代理」，按实际端口配。
+- **`getent hosts github.com` 失败**（DNS 不通，Windows 侧却一切正常）：见下方「二、手动接管 DNS」，先别配代理。
 
-## 一、WSL 侧代理与 DNS（仅手动代理工具需要）
-
-### 代理配置（仅"系统代理、未开全局 TUN"时需要）
+## 一、手动配 WSL 代理（仅「系统代理 / 没开 TUN」时）
 
 虽然 `.wslconfig` 配了 `autoProxy`，但 `apt`、`curl`、`git SSH` 等不会自动读系统代理，需手动配。
 
@@ -75,50 +73,20 @@ EOF
 chmod 600 ~/.ssh/config
 ```
 
-> **大多数情况下不需要这步**。DNS 修好后直连就行，只有直连 github.com:22 被网络阻断时才需要。**注意**：如果你用的是**全局 TUN 模式**的梯子（流量已在网络层被接管），这条 ProxyCommand 反而会把 SSH 强行塞进可能不存在的本地代理端口，导致连接失败——这种情况**不要配**，直连即可。
+> **大多数情况下不需要这步**：DNS 修好后直连就行，详见下方「四、FAQ」里 `git push` 报 DNS 的那条。**全局 TUN 模式的梯子尤其不要配**——流量已在网络层被接管，这条 ProxyCommand 反而会把 SSH 强行塞进可能不存在的本地代理端口，导致连接失败。
 
-**④ Tailscale 用户（如果你装了 Tailscale）**
+### 验证代理
 
-Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`，把 DNS 指向 `100.100.100.100`，导致下面「手动接管 DNS」的 boot command 写入的正确 DNS 被改掉。必须禁止它。📋 执行：
-
-```bash
-sudo tailscale set --accept-dns=false
-```
-
-> 没装 Tailscale 的跳过这步。
-
-### 验证网络
-
-代理和 DNS 全部配置完毕，现在集中验证。以下命令**逐条执行**：
+配完后逐条执行，两条都通即代理生效：
 
 ```bash
-# 1. 检查 DNS 配置文件内容
-cat /etc/resolv.conf
-# 手动兜底模式：应为 nameserver 223.5.5.5 / 8.8.8.8 两行
-# 基线模式（Amnezia/镜像，未手动接管）：为 nameserver 10.255.255.254，同样正常
+curl -I https://www.google.com   # 看到 HTTP/2 200 即成功
+sudo apt update                  # 能正常获取软件包列表、无超时即成功
 ```
 
-```bash
-# 2. 检查 DNS 解析是否正常
-getent hosts github.com
-# 应返回 IP 地址
-```
+> 不通先在 PowerShell `wsl --shutdown` 重启再试；完整诊断见「三、网络健康检查」，疑难见「四、FAQ」。
 
-```bash
-# 3. 检查代理是否生效（需要代理的用户）
-curl -I https://www.google.com
-# 看到 HTTP/2 200 即成功
-```
-
-```bash
-# 4. 检查 apt 是否能正常更新
-sudo apt update
-# 应该能正常获取软件包列表，没有超时报错
-```
-
-> **如果验证不通过**：先在 PowerShell 中 `wsl --shutdown` 重启（让 boot command 重新执行），再检查。详见下方「二、网络健康检查」和「三、网络故障排查 FAQ」。
-
-**代理覆盖范围总结**：手动代理是「逐个工具配」，没配到的程序一律直连——不像全局 TUN 在网络层兜底。下表是各项配置实际覆盖的范围：
+**代理覆盖范围**：手动代理是「逐个工具配」，没配到的程序一律直连——不像全局 TUN 在网络层兜底。下表是各项配置实际覆盖的范围：
 
 | 配置 | 覆盖范围 |
 |------|---------|
@@ -128,11 +96,13 @@ sudo apt update
 
 配好以上后，后续安装的工具不需要再单独配代理。
 
-### 手动接管 DNS（仅基线 DNS 失效时）
+## 二、手动接管 DNS（仅「基线 DNS 失效」时）
 
-> 这一节是「非基线」回退方案：仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**。
+仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要这一节。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**，只会把 DNS 从隧道里拽出来。
 
 **典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
+
+> **装了 Tailscale 的先做这步**：Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`、把 DNS 指向 `100.100.100.100`，把下面 boot command 写入的 DNS 改掉。先禁用它：📋 `sudo tailscale set --accept-dns=false`（没装 Tailscale 的跳过）。
 
 **操作**：📋 编辑 `/etc/wsl.conf`：
 
@@ -164,8 +134,8 @@ generateResolvConf=false
 
 | 配置项 | 作用 |
 |--------|------|
-| `command=rm -f ... && printf ...` | 每次启动先断开 symlink 再写入两行公共 DNS（`223.5.5.5`、`8.8.8.8`，分别是阿里和 Google 的公共 DNS） |
-| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以 `rm -f` 仍必要 |
+| `command=rm -f ... && printf ...` | 每次启动先 `rm -f` 断开 symlink、再写入两行公共 DNS（`223.5.5.5`、`8.8.8.8`，分别是阿里和 Google 的公共 DNS）。**必须先断 symlink**：否则 `printf >` 改的是 symlink 指向的目标文件，systemd-resolved 重启后会把它覆盖回 `127.0.0.53` |
+| `generateResolvConf=false` | 禁止 WSL 自动生成 DNS（改由 boot command 接管）。注意：这只阻止 WSL 写入，不会删已有的 symlink（`/etc/resolv.conf` 视版本可能指向 `/mnt/wsl/resolv.conf` 或 systemd stub），所以上面的 `rm -f` 仍必要 |
 
 > **注意**：`[boot]` 段只能有一条 `command=`。如已有其他 boot command，用分号合并，例如：`command=rm -f /etc/resolv.conf && printf '...' > /etc/resolv.conf; /path/to/other-script`。命令较复杂时，建议把它们写进一个脚本文件、让 `command=` 只调用该脚本，避免 `&&`/`>`/`;` 混排在某些 WSL 版本里被解析出错。
 
@@ -188,17 +158,9 @@ generateResolvConf=false
 - **WSL 重启**后 Tailscale 或 WSL 重新覆盖 `resolv.conf`
 - **Tailscale 更新或重启**后重新接管 DNS
 
-**上面的 boot command 做了什么**：
-
-1. `rm -f /etc/resolv.conf` — 断开可能存在的 symlink（指向 `/run/systemd/resolve/stub-resolv.conf`）。**必须先断开 symlink**：如果直接 `printf > /etc/resolv.conf`，实际修改的是 symlink 的目标文件，systemd-resolved 重启后会覆盖回 `127.0.0.53`
-2. `printf 'nameserver 223.5.5.5\n...' > /etc/resolv.conf` — 写入正确的公共 DNS
-3. 配合 `generateResolvConf=false` — 阻止 WSL 覆盖
-
-这三者协同工作，确保每次 WSL 启动后 DNS 都指向正确的地址。
-
 ---
 
-## 二、网络健康检查（一键诊断）
+## 三、网络健康检查（一键诊断）
 
 DNS 和代理问题反复出现时，用以下命令一键定位。📋 整块复制粘贴到 WSL 终端执行：
 
@@ -285,7 +247,7 @@ echo "=== 检查完毕：以第 1 项「DNS 解析」为准；基线模式与手
 
 ---
 
-## 三、网络故障排查 FAQ
+## 四、网络故障排查 FAQ
 
 ### Q：启动 WSL 时提示"检测到 localhost 代理配置，但未镜像到 WSL"
 
@@ -307,7 +269,7 @@ apt 没走代理。检查 `/etc/apt/apt.conf.d/proxy.conf` 是否正确配置了
 
 ### Q：`git clone git@github.com:...` 超时或报 DNS 错误，但 `git clone https://...` 正常？
 
-先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「一、WSL 侧代理与 DNS · 手动接管 DNS」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、WSL 侧代理与 DNS · ③ Git SSH 代理」）。`http_proxy` 只对 HTTP/HTTPS 协议生效，SSH 不读这个变量。
+先区分是 DNS 问题还是连通性问题。如果报 `Temporary failure in name resolution`，是 DNS 坏了（见上方「二、手动接管 DNS」）。如果 DNS 正常但连接超时，说明直连 github.com:22 被阻断，需要在 `~/.ssh/config` 里配 ProxyCommand（见上方「一、手动配 WSL 代理 · ③ Git SSH 代理」）。`http_proxy` 只对 HTTP/HTTPS 协议生效，SSH 不读这个变量。
 
 ---
 
@@ -335,10 +297,10 @@ getent hosts github.com
 
 如果 resolv.conf 内容正确但 DNS 仍然不通，在 PowerShell 中 `wsl --shutdown` 重启 WSL。boot command 会在启动时自动写回正确的 DNS 配置。
 
-常见的覆盖者（根据 resolv.conf 内容判断）：
-- `generated by tailscale` + `100.100.100.100` → 运行 `sudo tailscale set --accept-dns=false`
-- `10.255.255.254` → 检查 `/etc/wsl.conf` 中 `generateResolvConf=false`
-- `127.0.0.53` → `/etc/resolv.conf` 是 symlink，boot command 里缺少 `rm -f`
+常见的覆盖者及对策（先 `cat /etc/resolv.conf` 看 nameserver，认它是谁见上方「二、手动接管 DNS · 原理」的写手表）：
+- `100.100.100.100`（Tailscale MagicDNS）→ `sudo tailscale set --accept-dns=false`
+- `10.255.255.254`（WSL 自动生成）→ 检查 `/etc/wsl.conf` 里 `generateResolvConf=false` 是否生效
+- `127.0.0.53`（systemd-resolved stub）→ `/etc/resolv.conf` 仍是 symlink，boot command 里缺 `rm -f`，补上
 
 ---
 
