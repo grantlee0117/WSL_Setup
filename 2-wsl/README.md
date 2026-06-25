@@ -229,7 +229,7 @@ wsl
 
 WSL 侧是否需要额外配置网络（DNS、代理），取决于你 Windows 侧的代理方案。一般存在以下两种情形：
 
-- **A. 全局 TUN 接管**（Windows 侧跑 Amnezia，或 Clash Verge 开了 TUN 模式）：一块虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1）——DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析，`apt`/`curl`/`git` 流量也都被网络层兜底，**WSL 侧什么都不用额外配**。本机正是这种方案。此状态下 `/etc/resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`。**该情况下不能将其修改成公共 DNS**，只会把 DNS 从隧道里拽出来。
+- **A. 全局 TUN 接管**（Windows 侧跑 Amnezia，或 Clash Verge 开了 TUN 模式）：一块虚拟网卡在网络层接管所有出网流量（含 DNS）；WSL 镜像模式直接共享 Windows 这套网络栈，再配合 `dnsTunneling=true`（§1.1）——DNS 经隧道地址 `10.255.255.254` 交给 Windows 解析，`apt`/`curl`/`git` 流量也都被网络层兜底，**WSL 侧什么都不用额外配**。本仓库作者正是用这种方案。此状态下 `/etc/resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`。**该情况下不能将其修改成公共 DNS**，只会把 DNS 从隧道里拽出来。
 - **B. 普通系统代理**（Clash Verge 只设了 HTTP/SOCKS 系统代理、没开 TUN）：网络层没有全局接管，于是 DNS 多半不通、`apt`/`curl`/`git SSH` 也不会自动走代理——**DNS 和代理两样都得手动配**。
 
 下一步：

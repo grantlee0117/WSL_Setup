@@ -1,6 +1,6 @@
 # WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-本机用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
+本仓库作者用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
 
 所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具、或基线 DNS 失效时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
 
@@ -25,7 +25,7 @@ sudo apt update
 
 虽然 `.wslconfig` 配了 `autoProxy`，但 `apt`、`curl`、`git SSH` 等不会自动读系统代理，需手动配。
 
-> **二选一，别叠加**：若已开**全局 TUN**（Amnezia，或 Clash 的 TUN 模式），网络层已兜底接管所有流量，本节整块跳过——这是本机主线。只有用**系统代理、没开 TUN** 时才往下配。（Clash 用户若常开关 TUN，可顺手配上做备份，但非必需。）
+> **二选一，别叠加**：若已开**全局 TUN**（Amnezia，或 Clash 的 TUN 模式），网络层已兜底接管所有流量，本节整块跳过——这是本仓库的主线方案。只有用**系统代理、没开 TUN** 时才往下配。（Clash 用户若常开关 TUN，可顺手配上做备份，但非必需。）
 
 **① apt 代理**
 
@@ -98,7 +98,7 @@ sudo apt update                  # 能正常获取软件包列表、无超时即
 
 ## 二、手动接管 DNS（仅「基线 DNS 失效」时）
 
-仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要这一节。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，本机即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**，只会把 DNS 从隧道里拽出来。
+仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要这一节。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，作者的环境即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**，只会把 DNS 从隧道里拽出来。
 
 **典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
@@ -143,14 +143,12 @@ generateResolvConf=false
 
 镜像模式下 WSL 的 DNS 为什么可能不通（无论是否使用代理）？**根因**：`/etc/resolv.conf` 决定了 WSL 里的程序去问谁解析域名，而有多个"写手"会争抢这个文件：
 
-| 写手 | 写入内容 | 能不能解析 |
+| 写手 | 写入的 nameserver | 能否解析（取决于你 Windows 侧的代理方式） |
 |------|---------|-----------|
-| systemd-resolved | `nameserver 127.0.0.53`（本地 stub） | 镜像模式下通常不能 |
-| WSL 自动生成 | `nameserver 10.255.255.254`（虚拟网关） | 不经过 Clash，通常不能 |
-| Tailscale | `nameserver 100.100.100.100`（MagicDNS） | 不经过 Clash，通常不能 |
-| boot command 手动写 | `nameserver 223.5.5.5`（公共 DNS） | 经过 Windows 网络栈 → 正常 |
-
-> 上表「不经过 Clash 通常不能」只适用于 Clash 这类系统代理场景；全局 TUN（Amnezia）下 `10.255.255.254` 反而正常——这正是本机基线状态。
+| systemd-resolved | `127.0.0.53`（本地 stub） | 镜像模式下通常不能 |
+| WSL 自动生成 | `10.255.255.254`（虚拟网关，借 Windows 网络栈出网） | **全局 TUN（Amnezia）下正常**——查询随网络栈进隧道；只挂系统代理、没开 TUN 时通常不能 |
+| Tailscale | `100.100.100.100`（MagicDNS） | 仅 Tailscale 正常运行时能；它擅自覆盖时反而打断原本可用的 DNS |
+| boot command 手动写 | `223.5.5.5`（公共 DNS） | 经 Windows 网络栈直接问公共 DNS，通常正常 |
 
 **常见触发场景**（配好后突然又坏了）：
 
