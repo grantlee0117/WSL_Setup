@@ -98,9 +98,10 @@ mkdir -p "$HOME/.local/bin"
 cp "${SCRIPT_DIR}/ta" "$HOME/.local/bin/ta"
 chmod +x "$HOME/.local/bin/ta"
 
-if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
-    SHELL_RC="$HOME/.bashrc"
-    [[ -f "$HOME/.zshrc" ]] && SHELL_RC="$HOME/.zshrc"
+SHELL_RC="$HOME/.bashrc"
+[[ -f "$HOME/.zshrc" ]] && SHELL_RC="$HOME/.zshrc"
+# 以 rc 文件内容判断（而非当前 $PATH），与 install-fuck-zone.sh 一致，避免重复追加
+if ! grep -qF 'HOME/.local/bin' "$SHELL_RC" 2>/dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${SHELL_RC}"
     warn "已将 ~/.local/bin 加入 PATH (重启终端生效)"
 fi
