@@ -221,6 +221,8 @@ https://example.com/api/v1/client/subscribe?token=xxxxx
 
 ![Clash Verge 首页界面](Figures/Clash%20Verge%20首页.png)
 
+![Clash Verge 代理界面](Figures/Clash%20Verge%20代理.png)
+
 ### 4.3 模式与基础设置
 
 正式启用前，先了解 Clash 的三种主要代理模式，选最适合日常使用的一种：
