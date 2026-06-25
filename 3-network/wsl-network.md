@@ -15,7 +15,7 @@ curl -I https://github.com
 sudo apt update
 ```
 
-四条都正常，就说明 WSL 流量已走全局隧道——此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。只有遇到下面的具体故障，才按症状跳到对应一节——**两节相互独立，按症状取用，不必从头做到尾**：
+四条都正常，就说明 WSL 流量已走全局隧道——此时再去配 Clash 风格的 `127.0.0.1:7897` 反而会引入错误。只有遇到下面的具体故障才按症状处理（第一条在 Windows 侧解决，后两条各对应下面一节）——**两节相互独立，按需取用，不必从头做到尾**：
 
 - **`curl` / `apt` 直连失败，但 Windows 浏览器正常**：检查 Amnezia 是否启用了全局模式、是否把 WSL/Hyper-V/vEthernet 流量排除在隧道之外——这是 Amnezia 全局模式下 WSL 不通最常见的根因。
 - **想让命令行工具走某个本地代理端口**（用的是 Clash 这类系统代理、没开 TUN，或 Amnezia 暴露了本地 HTTP/SOCKS 端口且你想让 CLI 走它）：见下方「一、手动配 WSL 代理」，按实际端口配。
@@ -98,7 +98,9 @@ sudo apt update                  # 能正常获取软件包列表、无超时即
 
 ## 二、手动接管 DNS（仅「基线 DNS 失效」时）
 
-仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要这一节。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，作者的环境即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析，**这种状态别画蛇添足改成公共 DNS**，只会把 DNS 从隧道里拽出来。
+仅当本文开头四条自检里 `getent hosts github.com` **不通过**时才需要这一节。基线（Amnezia / Clash 全局 TUN + 镜像模式）下 DNS 开箱即用，作者的环境即是如此——`generateResolvConf=true`、`resolv.conf` 为 WSL 自动生成的 `nameserver 10.255.255.254`（虚拟网关），查询经共用网卡走隧道解析。
+
+> **反之，基线状态下别画蛇添足把 `10.255.255.254` 改成公共 DNS**——那只会把 DNS 从隧道里拽出来。
 
 **典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
@@ -297,7 +299,7 @@ getent hosts github.com
 
 常见的覆盖者及对策（先 `cat /etc/resolv.conf` 看 nameserver，认它是谁见上方「二、手动接管 DNS · 原理」的写手表）：
 - `100.100.100.100`（Tailscale MagicDNS）→ `sudo tailscale set --accept-dns=false`
-- `10.255.255.254`（WSL 自动生成）→ 检查 `/etc/wsl.conf` 里 `generateResolvConf=false` 是否生效
+- `10.255.255.254`（WSL 自动生成）→ **仅手动兜底模式下才算异常**：检查 `/etc/wsl.conf` 里 `generateResolvConf=false` 是否生效。（基线 / 全局 TUN 模式下它本就正常，别动它）
 - `127.0.0.53`（systemd-resolved stub）→ `/etc/resolv.conf` 仍是 symlink，boot command 里缺 `rm -f`，补上
 
 ---
@@ -319,7 +321,7 @@ getent hosts github.com
 
 ### Q：在 Windows 里切换了 Clash 的代理模式后，WSL 的 DNS 突然不通了？
 
-`wsl --shutdown` 重启即可恢复（boot command 会重新写入正确 DNS）。
+与上面「DNS 突然不通了」同因（切换模式改变了 Clash 对 DNS 的拦截路径）：`wsl --shutdown` 重启即可恢复，boot command 会在启动时重新写回正确 DNS。
 
 ---
 
