@@ -19,7 +19,7 @@
 **前提**：Windows 侧已安装 WezTerm。如果还没装，在 PowerShell 中 📋 执行：
 
 ```powershell
-winget install wez.wezterm
+winget install wez.wezterm --source winget
 ```
 
 **部署配置**（在 WSL 中执行）：

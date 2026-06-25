@@ -14,7 +14,7 @@
 
 Claude Code 的 skill（docx、pptx、xlsx、pdf、latex 等）在生成文件时会调用系统工具。比如 docx skill 需要 `soffice --headless` 做格式转换，pdf skill 需要 `poppler-utils` 提取文本，latex skill 需要 `xelatex` 编译。这些工具在 WSL 里默认都没有，不提前装好 skill 就会报错。
 
-**预估耗时和空间**：依赖 + 工具约 30–60 分钟、占用 ~8–10 GB（其中 texlive-full 约 10–20 分钟、~5 GB）。
+**预估耗时和空间**：依赖 + 工具约 60–90 分钟、占用 ~8–10 GB（其中 texlive-full 约 10–20 分钟、~5 GB）。
 
 **风险等级说明**：
 
@@ -33,7 +33,7 @@ Claude Code 的 skill（docx、pptx、xlsx、pdf、latex 等）在生成文件�
 - 📝 **粘贴到编辑器中的配置内容**：不是在终端执行的命令，而是要粘贴到 nano、notepad 等编辑器中的文件内容。
 
 ---
-## 一、开发环境搭建
+## 一、安装步骤
 
 > **安装顺序说明**：以下按依赖关系和风险从低到高排列。每一步标注了风险等级，先装最安全的，有争议的放到最后"按需再加"。
 >
@@ -641,7 +641,7 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 sudo usermod -aG docker $USER
 ```
 
-> **注意**：执行后需要**重启 WSL** 才能生效。方法：输入 `exit` 退出，然后在 PowerShell 里执行 `wsl --shutdown`，再重新 `wsl` 进入。不重启的话 `docker` 命令仍然需要加 `sudo`。
+> **注意**：执行后需要**重启 WSL** 才能生效。方法：输入 `exit` 退出，然后在 PowerShell 里执行 `wsl --shutdown`，再重新 `wsl` 进入。不重启的话 `docker` 命令仍会报 **`permission denied`**（`Got permission denied while trying to connect to the Docker daemon socket`），需要加 `sudo` 才能用。
 
 📋 验证（整块粘贴执行）：
 

@@ -491,7 +491,7 @@ lsusb | grep -i st-link
 
 **日常使用**：
 - 每次拔插 ST-Link 后需要重新执行 `usbipd attach --wsl --busid <ID>`
-- 可以加 `--auto-attach` 参数实现自动重新映射：`usbipd attach --wsl --busid 1-2 --auto-attach`（需要 usbipd-win 4.1+）
+- 可以加 `--auto-attach` 参数实现自动重新映射：`usbipd attach --wsl --busid 1-2 --auto-attach`（需要 usbipd-win 4.0+；这套 `attach --wsl` 写法自 4.0.0 起）
 - 用完后可以 `usbipd detach --busid 1-2`，或者直接拔掉 USB 线
 
 > **lsusb 未找到**：如果 `lsusb` 命令不存在，📋 安装：`sudo apt install -y usbutils`
