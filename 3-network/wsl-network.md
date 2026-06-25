@@ -1,6 +1,6 @@
 # WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-本机用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，流量自动经隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
+本机用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
 
 所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
 
