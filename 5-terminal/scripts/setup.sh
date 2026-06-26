@@ -165,6 +165,72 @@ else
     ok "source 行已在 ~/.bashrc（跳过）"
 fi
 
+# ─── 8. zsh + oh-my-zsh（日常交互用 zsh；脚本仍走 bash）────
+# 默认登录 shell 换成 zsh，只影响交互式会话。脚本由自身 shebang 决定解释器
+# （本仓脚本均带 bash shebang），与登录 shell 无关——所以 ./xxx.sh 照旧走 bash。
+info "配置 zsh + oh-my-zsh..."
+# 8a. zsh 本体
+if command -v zsh &>/dev/null; then
+    ok "zsh 已安装: $(zsh --version)"
+else
+    info "安装 zsh..."
+    sudo apt update -qq && sudo apt install -y zsh
+    ok "zsh 安装完成: $(zsh --version)"
+fi
+# 8b. oh-my-zsh（无人值守：不自动 chsh / 不自动启动 zsh / 不动 .zshrc——这三件我们自己来）
+# 以「装完后 ~/.oh-my-zsh 是否存在」判断成败，而非装脚本的退出码：curl 拉取失败时
+# $(...) 为空、sh -c "" 仍退出 0，会假报成功，所以查实际产物更可靠。
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    ok "oh-my-zsh 已存在"
+else
+    info "安装 oh-my-zsh..."
+    KEEP_ZSHRC=yes RUNZSH=no CHSH=no sh -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null 2>&1 || true
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+        ok "oh-my-zsh 安装完成"
+    else
+        warn "oh-my-zsh 安装失败（多半是网络），可后续手动装；zsh 配置仍会部署"
+    fi
+fi
+# 8c. 两个外部插件：autosuggestions（灰字补全）+ syntax-highlighting（命令高亮）
+ZSH_CUSTOM_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+clone_zsh_plugin() {   # $1=仓库地址  $2=目录名
+    local dest="${ZSH_CUSTOM_DIR}/plugins/$2"
+    if [[ -d "$dest" ]]; then
+        ok "zsh 插件已存在: $2"
+    elif git clone --depth=1 "$1" "$dest" >/dev/null 2>&1; then
+        ok "zsh 插件: $2"
+    else
+        warn "zsh 插件 $2 克隆失败（对应的灰字补全/命令高亮暂不可用）"
+    fi
+}
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    mkdir -p "${ZSH_CUSTOM_DIR}/plugins"
+    clone_zsh_plugin https://github.com/zsh-users/zsh-autosuggestions zsh-autosuggestions
+    clone_zsh_plugin https://github.com/zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting
+fi
+# 8d. 部署 shell.zsh 与 .zshrc
+mkdir -p "$HOME/.config/wsl-setup"
+cp "${CONFIG_DIR}/shell/shell.zsh" "$HOME/.config/wsl-setup/shell.zsh"
+ok "zsh 接线层 → ~/.config/wsl-setup/shell.zsh"
+if [[ -f "$HOME/.zshrc" ]]; then
+    cp "$HOME/.zshrc" "$HOME/.zshrc.bak"
+    warn "原 .zshrc 已备份到 ~/.zshrc.bak"
+fi
+cp "${CONFIG_DIR}/shell/zshrc" "$HOME/.zshrc"
+ok ".zshrc → ~/.zshrc"
+# 8e. 默认登录 shell 换成 zsh（sudo 改，免输 user 密码；重开终端生效）
+ZSH_BIN="$(command -v zsh)"
+if [[ -z "$ZSH_BIN" ]]; then
+    warn "找不到 zsh，跳过切换默认 shell"
+elif [[ "$(getent passwd "$USER" | cut -d: -f7)" == "$ZSH_BIN" ]]; then
+    ok "默认 shell 已是 zsh"
+elif sudo chsh -s "$ZSH_BIN" "$USER" 2>/dev/null; then
+    ok "默认 shell → zsh（重开终端生效）"
+else
+    warn "chsh 失败，可手动执行: chsh -s $ZSH_BIN"
+fi
+
 # ─── 完成 ─────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -177,9 +243,11 @@ echo "  1. 安装字体 (如果刚才下载了):"
 echo "     打开 ${FONT_DIR}"
 echo "     全选 .ttf → 右键 → 为所有用户安装"
 echo ""
-echo "  2. 关闭 WezTerm，重新打开 → 自动进入 WSL"
+echo "  2. 关闭 WezTerm，重新打开 → 自动进入 WSL，且默认 shell 已是 zsh"
+echo "     → 灰字补全（按 → 接受）、命令绿/红高亮、starship 提示符"
+echo "     （脚本仍走 bash：本仓脚本都有 bash shebang，与登录 shell 无关）"
 echo ""
-echo "  3. source ~/.bashrc（或重开终端）让 shell 层生效"
+echo "  3. 想先在当前 bash 会话试 shell 层：source ~/.bashrc"
 echo "     → starship 提示符、z 跳目录、Ctrl+R 模糊搜历史、ll/eza 别名"
 echo ""
 echo "  4. 试试:"

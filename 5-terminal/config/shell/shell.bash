@@ -38,11 +38,12 @@ if command -v fzf >/dev/null 2>&1; then
             source /usr/share/bash-completion/completions/fzf
     fi
     # Catppuccin Mocha 配色，和 WezTerm/tmux 一致
+    # 不放 selected-bg：那是 fzf 0.45+ 才认的键，Ubuntu 24.04 的 0.44 一遇到它就整条报错退出，
+    # 会连累 Ctrl+R / Ctrl+T / Alt+C 全打不开。等 fzf 升到 0.45+ 再加不迟。
     export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
 --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
 --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
---color=selected-bg:#45475a \
 --height 40% --layout=reverse --border"
 fi
 

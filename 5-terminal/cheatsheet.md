@@ -12,9 +12,10 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 
 # 3. 安装字体 (脚本会提示路径，全选 .ttf → 右键 → 为所有用户安装)
-# 4. 关闭 WezTerm 重新打开
-# 5. source ~/.bashrc（或重开终端）让 shell 层生效（starship/z/Ctrl+R/别名）
-#    tmux 插件、win32yank、starship 均由 setup.sh 自动装，无需手动
+# 4. 关闭 WezTerm 重新打开 → 默认进 zsh，灰字补全/命令高亮/starship 即生效
+#    （想先在当前 bash 窗口试：source ~/.bashrc）
+#    zsh/oh-my-zsh、tmux 插件、win32yank、starship 均由 setup.sh 自动装，无需手动
+#    脚本仍走 bash：本仓脚本都带 bash shebang，与登录 shell 无关
 ```
 
 ## tmux 快捷键 (前缀: Ctrl+A)
@@ -70,6 +71,22 @@ ta kill-all     # 关闭所有
 | `fd 模式` | 更快的 find |
 
 > 历史已放大到 10 万条，并在多个 tmux pane / 终端间实时共享。
+
+## zsh 专属（重开终端默认就进 zsh）
+
+上面那套（z / Ctrl+R / 别名 / starship）在 zsh 里同样有；下面是 zsh 才多出来的：
+
+| 快捷键 / 命令 | 功能 |
+|--------------|------|
+| `→` / `End` | 接受整条灰字补全（autosuggestions） |
+| `Alt+F` | 只接受灰字补全的一个词 |
+| 命令绿/红 | syntax-highlighting：合法绿、拼错红，回车前就看出来 |
+| `Esc` `Esc` | 给当前/上条命令前面补 `sudo`（sudo 插件） |
+| `extract 包名` | 解任意压缩包（.tar.gz/.zip/.7z…），不用记参数 |
+| `gst` / `gco` / `gp` | oh-my-zsh git 别名（`alias \| grep git` 看全部） |
+
+> 提示符仍是 starship（`ZSH_THEME` 留空），bash/zsh 同款。脚本照旧走 bash——本仓脚本都带 bash shebang，与登录 shell 无关。
+> 想退回 bash 当默认：`chsh -s $(command -v bash)` 后重开终端。
 
 ## 挂长任务的典型用法
 
