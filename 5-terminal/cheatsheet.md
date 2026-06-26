@@ -2,20 +2,27 @@
 
 ## 安装步骤
 
+三层各自独立、各带安装脚本，按需配；要整套就三层都跑（顺序 §1→§2→§3）。
+
 ```bash
-# 1. Windows 端安装 WezTerm (如果还没装)
-winget install wez.wezterm --source winget
+# 1. 终端模拟器（WezTerm）
+winget install wez.wezterm --source winget          # 在 Windows 的 PowerShell 里装
+cd ~/projects/WSL_Setup/5-terminal/terminal-emulator # 再回 WSL 跑本层脚本
+chmod +x setup.sh && ./setup.sh                      # 下载字体 + 部署 ~/.wezterm.lua
+#    → 装字体：全选 Windows 字体目录里的 .ttf → 右键 → 为所有用户安装
+#      （只下载不算装上；图标显示成方框 □ 就是这步没做）
 
-# 2. WSL 里运行配置脚本
-cd ~/projects/WSL_Setup/5-terminal
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+# 2. 复用器（tmux）：tmux 兜底 + 配置 + 插件 + ta + win32yank
+cd ~/projects/WSL_Setup/5-terminal/multiplexer
+chmod +x setup.sh && ./setup.sh
 
-# 3. 安装字体 (脚本会提示路径，全选 .ttf → 右键 → 为所有用户安装)
-#    图标显示成方框 □ = 这步没装成功，回来重装字体（只下载不算装上）
+# 3. shell：zsh + oh-my-zsh + starship + 接线
+cd ~/projects/WSL_Setup/5-terminal/shell
+chmod +x setup.sh && ./setup.sh
+
 # 4. 关闭 WezTerm 重新打开 → 默认进 zsh，灰字补全/命令高亮/starship 即生效
 #    （想先在当前 bash 窗口试：source ~/.bashrc）
-#    zsh/oh-my-zsh、tmux 插件、win32yank、starship 均由 setup.sh 自动装，无需手动
+#    zsh/oh-my-zsh、tmux 插件、win32yank、starship 均由各层脚本自动装，无需手动
 #    脚本仍走 bash：本仓脚本都带 bash shebang，与登录 shell 无关
 ```
 
@@ -29,6 +36,7 @@ chmod +x scripts/setup.sh
 | `Ctrl+A h/j/k/l` | Vim 风格切换 pane |
 | `Alt+h/j/k/l` | 调整 pane 大小 (不需要前缀) |
 | `Ctrl+A d` | 后台挂起 (detach) |
+| `Ctrl+A s` | 选择会话 |
 | `Ctrl+A c` | 新窗口 |
 | `Ctrl+A 1-9` | 切换窗口 |
 | `Ctrl+A r` | 重载配置 |
@@ -55,6 +63,7 @@ ta nn           # 创建或 attach 到 "nn" 会话（nn 只是会话名）
 ta nn 3         # 创建 "nn" 会话 + 3 个 pane
 ta kill nn      # 关闭 "nn" 会话
 ta kill-all     # 关闭所有
+ta help         # 完整速查卡
 ```
 
 ## shell 层（`source ~/.bashrc` 后生效）
