@@ -70,12 +70,12 @@ show_help() {
     echo -e "  ${G}Alt+1-5${N}         切换 Tab"
     echo -e "  ${G}右键${N}             粘贴"
     echo ""
-    echo -e "${B}${C}━━━ Night-Night 典型流程 ━━━${N}"
+    echo -e "${B}${C}━━━ 挂长任务的典型流程 ━━━${N}"
     echo ""
-    echo -e "  ${B}ta nn${N}           开会话"
-    echo -e "  ${B}nn 15 60${N}        跑 Night-Night"
-    echo -e "  ${G}Ctrl+A d${N}        去睡觉"
-    echo -e "  ${B}ta nn${N}           第二天回来看"
+    echo -e "  ${B}ta nn${N}           开一个专属会话（nn 只是会话名，随便起）"
+    echo -e "  ${B}<你的长命令>${N}    跑起来（作者用 Night-Night: ${D}nn 15 60${N}，该工具非本仓提供）"
+    echo -e "  ${G}Ctrl+A d${N}        断开去睡觉"
+    echo -e "  ${B}ta nn${N}           回来 attach 看结果"
     echo ""
 }
 

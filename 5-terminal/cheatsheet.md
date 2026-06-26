@@ -13,7 +13,8 @@ chmod +x scripts/setup.sh
 
 # 3. 安装字体 (脚本会提示路径，全选 .ttf → 右键 → 为所有用户安装)
 # 4. 关闭 WezTerm 重新打开
-# 5. 首次进入 tmux 后按 Ctrl+A I 安装插件
+# 5. source ~/.bashrc（或重开终端）让 shell 层生效（starship/z/Ctrl+R/别名）
+#    tmux 插件、win32yank、starship 均由 setup.sh 自动装，无需手动
 ```
 
 ## tmux 快捷键 (前缀: Ctrl+A)
@@ -48,19 +49,35 @@ chmod +x scripts/setup.sh
 
 ```bash
 ta              # 列出/attach 会话
-ta nn           # 创建或 attach 到 "nn" 会话
+ta nn           # 创建或 attach 到 "nn" 会话（nn 只是会话名）
 ta nn 3         # 创建 "nn" 会话 + 3 个 pane
 ta kill nn      # 关闭 "nn" 会话
 ta kill-all     # 关闭所有
 ```
 
-## Night-Night 典型用法
+## shell 层（`source ~/.bashrc` 后生效）
+
+把 4-dev §1.7 装的工具接进 bash，并换上 starship 提示符。
+
+| 快捷键 / 命令 | 功能 |
+|--------------|------|
+| `Ctrl+R` | fzf 模糊搜命令历史 |
+| `Ctrl+T` | fzf 选当前目录文件，插入命令行 |
+| `Alt+C` | fzf 选子目录并 cd 进去 |
+| `z 关键字` | zoxide 跳到最常去的匹配目录 |
+| `ll` / `la` / `lt` | eza：详情(带 git) / 含隐藏 / 树形 |
+| `bat 文件` | 带语法高亮的 cat |
+| `fd 模式` | 更快的 find |
+
+> 历史已放大到 10 万条，并在多个 tmux pane / 终端间实时共享。
+
+## 挂长任务的典型用法
 
 ```bash
-ta nn           # 开一个专属会话
-nn 15 60        # 跑 Night-Night
+ta nn           # 开一个专属会话（nn 只是会话名，随便起）
+<你的长命令>     # 跑起来（作者用 Night-Night: nn 15 60，该工具非本仓提供）
 # Ctrl+A d      # 断开去睡觉
-ta nn           # 第二天回来看结果
+ta nn           # 回来 attach 看结果
 ```
 
 ## Agent Team 监控

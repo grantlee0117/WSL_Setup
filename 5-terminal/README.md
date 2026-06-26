@@ -1,20 +1,31 @@
 # 终端环境配置（WezTerm + tmux + Nerd Font）
 
-> **本域作用**：把 WSL 终端配成统一的 **Catppuccin Mocha** 深色主题 + Nerd Font 图标 + tmux 会话保存/恢复 + 一键分屏布局（含 Agent Team 布局）。
+> **本域作用**：把 WSL 终端配成统一的 **Catppuccin Mocha** 深色主题 + Nerd Font 图标 + starship 提示符 + tmux 会话保存/恢复 + 一键分屏布局（含 Agent Team 布局），并把 [4-dev](../4-dev/README.md) §1.7 装的现代 CLI 工具（zoxide / fzf / eza / bat）真正接进 shell。
 >
-> **前置**：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装，并在 [4-dev](../4-dev/README.md) §1.7 装好 tmux。
+> **前置**：先完成 [2-wsl](../2-wsl/README.md) 的 WSL2 安装，并在 [4-dev](../4-dev/README.md) §1.7 装好 tmux 及 CLI 工具（zoxide/fzf/eza/bat——shell 层会接它们；缺了也不报错，只是少接几样）。
 >
 > 这一步是**可选**的美化和效率提升，不影响任何开发工具的功能。但配置后体验会好很多——统一主题、Nerd Font 图标、tmux 会话保存/恢复、一键分屏布局。
 
-本目录（`5-terminal/`）提供了完整的配置文件和一键部署脚本：
+本目录（`5-terminal/`）按「配置 / 脚本」分层，配置再按**角色**（而非具体工具）归类：
 
-| 文件 | 作用 |
-|------|------|
-| `wezterm.lua` | WezTerm 配置：Catppuccin Mocha 主题、JetBrainsMono Nerd Font、默认启动 WSL、GPU 加速、快捷键 |
-| `tmux.conf` | tmux 配置：Vim 风格 pane 切换、Catppuccin 状态栏、Agent Team 快捷布局、会话自动保存/恢复 |
-| `ta` | tmux 快捷命令：快速创建/连接/关闭会话，自动分屏 |
-| `setup.sh` | 一键部署脚本：部署上述所有配置 + 下载 Nerd Font + 安装 TPM 插件管理器 |
-| `cheatsheet.md` | 快捷键速查卡 |
+```
+5-terminal/
+├── README.md                  本文档
+├── cheatsheet.md              快捷键 / 命令速查卡
+├── config/                    配置（被各工具读取的静态文件，按角色归类）
+│   ├── terminal-emulator/     终端模拟器
+│   │   └── wezterm.lua        Catppuccin Mocha 主题、Nerd Font、默认启动 WSL、GPU 加速、快捷键
+│   ├── multiplexer/           复用器
+│   │   └── tmux.conf          Vim 风格 pane 切换、Catppuccin 状态栏、Agent Team 布局、会话保存/恢复
+│   └── shell/                 shell
+│       ├── shell.bash         把 4-dev §1.7 的 zoxide/fzf/eza/bat 接进 bash + 大历史/多 pane 共享
+│       └── starship.toml      starship 提示符（Catppuccin Mocha：git 分支状态、语言版本、命令耗时）
+└── scripts/                   脚本（你来跑的可执行文件）
+    ├── setup.sh               一键部署：上述配置 + Nerd Font + TPM 插件 + starship/win32yank + 接好 shell 层
+    └── ta                     tmux 快捷命令：创建/连接/关闭会话，自动分屏
+```
+
+> 类目用**角色名**（terminal-emulator / multiplexer / shell）而非工具名（wezterm / tmux），因为 tmux 只是复用器的一种实现——换成 zellij/screen 时目录语义不变。文件名仍带工具名，因为它就是那个工具的配置。
 
 **前提**：Windows 侧已安装 WezTerm。如果还没装，在 PowerShell 中 📋 执行：
 
@@ -39,23 +50,28 @@ chmod +x scripts/setup.sh
 1. 下载 JetBrainsMono Nerd Font 到 Windows 字体目录
 2. 部署 `tmux.conf` 到 `~/.tmux.conf`
 3. 安装 TPM（tmux 插件管理器），并自动装好 4 个 tmux 插件（tpm / sensible / resurrect / continuum）
-4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`
+4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`（原有配置自动备份为 `.bak`）
 5. 安装 `ta` 快捷命令到 `~/.local/bin/`
+6. 安装 `win32yank` 到 `/usr/local/bin/`（tmux 复制绑定依赖它，修复中文乱码）
+7. 安装 `starship`，部署 `shell.bash` → `~/.config/wsl-setup/`、`starship.toml` → `~/.config/`，并在 `~/.bashrc` 末尾接好 shell 层
 
 **部署后还需要**：
 
 1. **安装字体**：在 Windows 资源管理器地址栏输入 `C:\Users\你的用户名\AppData\Local\Microsoft\Windows\Fonts`，全选所有 `.ttf` 文件 → 右键 → **为所有用户安装**
 
-2. **安装 win32yank**（修复 tmux 复制中文乱码）：WSL 默认的 `clip.exe` 不支持 UTF-8，复制中文会乱码。📋 整块执行：
-
-```bash
-curl -fsSL -o /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip
-unzip -o /tmp/win32yank.zip -d /tmp/win32yank
-sudo cp /tmp/win32yank/win32yank.exe /usr/local/bin/
-```
+2. **让 shell 层生效**：📋 执行 `source ~/.bashrc`（或直接重开终端）。之后即有 starship 提示符、`z` 跳目录、`Ctrl+R` 模糊搜历史、`ll`/`eza` 别名（详见下方「shell 层做了什么」）。
 
 3. **关闭并重新打开 WezTerm**：重启后应自动进入 WSL Ubuntu
+
 4. **（一般不用做）补装 tmux 插件**：插件已由 `setup.sh` 自动安装；只有脚本结尾提示「插件自动安装失败」时，才需要手动补装——方法见下方 ⚠️ 框。
+
+> **win32yank 已自动装**：tmux 复制中文用的 `win32yank` 由 `setup.sh` 自动装好（WSL 默认 `clip.exe` 不支持 UTF-8，复制中文会乱码）。若脚本提示「win32yank 下载失败」，再手动补装：
+>
+> ```bash
+> curl -fsSL -o /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip
+> unzip -o /tmp/win32yank.zip -d /tmp/win32yank
+> sudo cp /tmp/win32yank/win32yank.exe /usr/local/bin/
+> ```
 
 > ⚠️ **若插件没装全（只装上 `tpm` 自身或一个插件）**
 > 交互式快捷键 `Ctrl+A` 然后大写 `I` 依赖 TPM 被正确加载，有时只会装上 `tpm` 自身（或第一个插件），其余的 `tmux-sensible`、`tmux-resurrect`、`tmux-continuum` 不会被装上。**最可靠的做法是直接用命令行安装**，📋 在 WSL 终端（不必进 tmux）执行：
@@ -77,6 +93,16 @@ ta test
 ```
 
 > 应创建一个名为 `test` 的 tmux 会话并自动连接。`Ctrl+A` 然后按 `D` 退出，`ta kill test` 关闭会话。
+
+**shell 层做了什么**（`source ~/.bashrc` 后生效）：
+
+4-dev §1.7 把 zoxide / fzf / eza / bat 装进了系统，但 Ubuntu 出厂的 bash 不会自动接它们——装了等于不用。`shell.bash` 补上这层胶水：
+
+- **starship 提示符**：显示当前目录、git 分支与状态、项目语言版本、命令耗时，配色与 WezTerm/tmux 同为 Catppuccin Mocha。
+- **zoxide**：`z 关键字` 按访问频率跳到最常去的目录，不用再敲长路径。
+- **fzf 键位**：`Ctrl+R` 模糊搜命令历史、`Ctrl+T` 选文件、`Alt+C` 跳子目录（Ubuntu 的 fzf 默认不挂键位，这里显式接上）。
+- **现代别名**：`ls`/`ll`/`la`/`lt` 走 eza（图标、git 状态、树形），`bat` = 带高亮的 cat，`fd` = 更快的 find。
+- **历史**：放大到 10 万条，并在多个 tmux pane / 终端间实时共享（一个 pane 敲的命令，另一个按 `↑` 就能翻到）。
 
 **常用操作速查**：
 

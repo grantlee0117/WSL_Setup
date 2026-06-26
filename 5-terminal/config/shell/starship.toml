@@ -1,0 +1,106 @@
+# ============================================================
+#  starship 提示符 — Catppuccin Mocha
+#  部署到 ~/.config/starship.toml（由 5-terminal/setup.sh 自动部署）
+#  图标依赖 Nerd Font（5-terminal 已装 JetBrainsMono Nerd Font），
+#  否则箭头/图标会显示成方块。
+# ============================================================
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+palette = 'catppuccin_mocha'
+
+# 单行：目录 → git → 语言版本(按项目自动出现) → 容器 → 耗时，换行后再出输入符
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs$python$rust$golang$java$c\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+[directory]
+style = "bold blue"
+truncation_length = 3
+truncate_to_repo = true
+format = "[ $path ]($style)"
+read_only = " "
+
+[git_branch]
+symbol = " "
+style = "bold mauve"
+format = "[$symbol$branch ]($style)"
+
+[git_status]
+style = "red"
+format = '([$all_status$ahead_behind]($style) )'
+
+[cmd_duration]
+min_time = 2000          # 只在命令跑超过 2s 时显示
+style = "yellow"
+format = "[ $duration ]($style)"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+
+[nodejs]
+symbol = " "
+style = "green"
+format = "[$symbol($version) ]($style)"
+[python]
+symbol = " "
+style = "yellow"
+format = "[$symbol($version) ]($style)"
+[rust]
+symbol = " "
+style = "peach"
+format = "[$symbol($version) ]($style)"
+[golang]
+symbol = " "
+style = "sky"
+format = "[$symbol($version) ]($style)"
+[java]
+symbol = " "
+style = "red"
+format = "[$symbol($version) ]($style)"
+[c]
+symbol = " "
+style = "blue"
+format = "[$symbol($version) ]($style)"
+[docker_context]
+symbol = " "
+style = "blue"
+format = "[$symbol$context ]($style)"
+
+# ─── Catppuccin Mocha 调色板 ──────────────────────────────
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo  = "#f2cdcd"
+pink      = "#f5c2e7"
+mauve     = "#cba6f7"
+red       = "#f38ba8"
+maroon    = "#eba0ac"
+peach     = "#fab387"
+yellow    = "#f9e2af"
+green     = "#a6e3a1"
+teal      = "#94e2d5"
+sky       = "#89dceb"
+sapphire  = "#74c7ec"
+blue      = "#89b4fa"
+lavender  = "#b4befe"
+text      = "#cdd6f4"
+subtext1  = "#bac2de"
+subtext0  = "#a6adc8"
+overlay2  = "#9399b2"
+overlay1  = "#7f849c"
+overlay0  = "#6c7086"
+surface2  = "#585b70"
+surface1  = "#45475a"
+surface0  = "#313244"
+base      = "#1e1e2e"
+mantle    = "#181825"
+crust     = "#11111b"
