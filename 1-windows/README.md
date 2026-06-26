@@ -4,6 +4,8 @@
 >
 > **预估耗时**：30-60 分钟（取决于下载速度）。
 
+**代码块标记**：📋 整块复制粘贴执行 · ✂️ 逐条执行（前一条会改环境、后续依赖它）· 📝 贴进编辑器的文件内容。
+
 ---
 
 ## 一、获取纯净的 Windows 系统
@@ -64,7 +66,7 @@
 
 **④ 账户：本地账户 vs 微软账户（按需选）**
 
-Windows 11 的 OOBE 默认强制联网并登录微软账户。如果你想要一个不绑微软账户的干净本地管理员账户，在「让我们为你连接网络」这一步按 `Shift + F10` 调出命令提示符，执行：
+Windows 11 的 OOBE 默认强制联网并登录微软账户。如果你想要一个不绑微软账户的干净本地管理员账户，在「让我们为你连接网络」这一步按 `Shift + F10` 调出命令提示符，📋 整块复制粘贴执行：
 
 ```
 start ms-cxh:localonly
@@ -195,7 +197,7 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 > 嫌官网下载慢或想看图文步骤，本目录附带了一份离线安装教程：[`git安装教程.pdf`](./git安装教程.pdf)。
 
-安装完成后打开 **Git Bash**（不是 PowerShell），配置用户信息，下面 3 行请**逐行执行**：
+安装完成后打开 **Git Bash**（不是 PowerShell），配置用户信息，下面 3 行请 ✂️ **逐行执行**（各自替换占位符后再回车）：
 
 ```bash
 git config --global user.name "你的名字"
@@ -212,7 +214,7 @@ git config --global core.autocrlf input
 
 > **SSH Key 是什么？** 可以理解为一把"钥匙"（私钥，留在电脑上）和一把"锁"（公钥，放到 GitHub 上）。有了这对钥匙和锁，你的电脑就可以免密码和 GitHub 通信。每台电脑各生成一对，把公钥都加到 GitHub 即可。**私钥永远不要发给别人。**
 
-仍然在 Git Bash 中，生成密钥对：
+仍然在 Git Bash 中生成密钥对（📋 整块复制粘贴执行）：
 
 ```bash
 ssh-keygen -t ed25519 -C "你的邮箱"
@@ -221,7 +223,7 @@ ssh-keygen -t ed25519 -C "你的邮箱"
 - 路径：直接回车（使用默认路径 `~/.ssh/id_ed25519`）
 - 密码：直接回车（不设密码），或设一个自己记得住的
 
-查看公钥并复制：
+查看公钥并复制（📋 整块复制粘贴执行）：
 
 ```bash
 cat ~/.ssh/id_ed25519.pub
@@ -235,7 +237,7 @@ cat ~/.ssh/id_ed25519.pub
 - **Key type**：选 `Authentication Key`
 - **Key**：粘贴刚才复制的公钥
 
-验证连接：
+验证连接（📋 整块复制粘贴执行）：
 
 ```bash
 ssh -T git@github.com
@@ -249,13 +251,13 @@ ssh -T git@github.com
 
 #### 5.7.1 配置 Git 用户信息
 
-打开 **PowerShell**，先确认 Git 可用（5.5 装好后应能显示版本号）：
+打开 **PowerShell**，先确认 Git 可用（5.5 装好后应能显示版本号）。📋 整块复制粘贴执行：
 
 ```powershell
 git --version
 ```
 
-配置用户信息，下面 3 行请**逐行执行**（每复制一行按一次回车）：
+配置用户信息，下面 3 行请 ✂️ **逐行执行**（每复制一行按一次回车）：
 
 ```powershell
 git config --global user.name "你的名字"
@@ -263,7 +265,7 @@ git config --global user.email "你的邮箱"
 git config --global core.autocrlf input
 ```
 
-配置完检查：
+配置完检查（📋 整块复制粘贴执行）：
 
 ```powershell
 git config --global --list
@@ -278,6 +280,8 @@ git config --global --list
 
 **第一步：确认 ssh-keygen 可用**
 
+📋 整块复制粘贴执行：
+
 ```powershell
 Get-Command ssh-keygen
 ```
@@ -287,6 +291,8 @@ Get-Command ssh-keygen
 
 **第二步：检查是否已有密钥**
 
+📋 整块复制粘贴执行：
+
 ```powershell
 Test-Path "$env:USERPROFILE\.ssh\id_ed25519.pub"
 ```
@@ -295,6 +301,8 @@ Test-Path "$env:USERPROFILE\.ssh\id_ed25519.pub"
 - 输出 `False` → 还没有，继续第三步生成
 
 **第三步：生成密钥对**
+
+📋 整块复制粘贴执行：
 
 ```powershell
 ssh-keygen -t ed25519 -C "你的邮箱"
@@ -307,7 +315,7 @@ ssh-keygen -t ed25519 -C "你的邮箱"
 
 **第四步：复制公钥并添加到 GitHub**
 
-先查看公钥。下面两种方式任选其一：
+先查看公钥。下面两种方式任选其一，📋 复制对应那行执行：
 
 ```powershell
 # 方式一：显示在终端里，手动复制
@@ -331,6 +339,8 @@ Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard
 
 **第五步：验证连接**
 
+📋 整块复制粘贴执行：
+
 ```powershell
 ssh -T git@github.com
 ```
@@ -345,13 +355,13 @@ ssh -T git@github.com
 
 **方案 A：把系统自带的 OpenSSH 加到 PATH（最常见）**
 
-Windows 11 通常已自带 OpenSSH，只是没加到 PATH。先确认它存在：
+Windows 11 通常已自带 OpenSSH，只是没加到 PATH。先确认它存在，📋 整块复制粘贴执行：
 
 ```powershell
 Test-Path "C:\Windows\System32\OpenSSH\ssh-keygen.exe"
 ```
 
-输出 `True` 的话，**逐行执行**下面 3 行，把它加进当前用户的 PATH：
+输出 `True` 的话，📋 整块复制粘贴执行下面这段（含多行 `if` 块，必须整段一起贴），把它加进当前用户的 PATH：
 
 ```powershell
 $openSsh = "$env:WINDIR\System32\OpenSSH"
@@ -365,7 +375,7 @@ if ($userPath -notlike "*$openSsh*") {
 
 **方案 B：安装 Windows OpenSSH Client**
 
-`设置 → 系统 → 可选功能 → 添加可选功能 → 查看功能`，搜索 **OpenSSH Client** 勾选安装；或在**管理员 PowerShell** 执行：
+`设置 → 系统 → 可选功能 → 添加可选功能 → 查看功能`，搜索 **OpenSSH Client** 勾选安装；或在**管理员 PowerShell** 里 📋 整块复制粘贴执行：
 
 ```powershell
 Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
@@ -474,7 +484,7 @@ Deskflow 是一款开源的键鼠共享工具（Synergy/Barrier 的分支），�
 
 #### 第六步：防火墙放行
 
-在服务端电脑上，用管理员权限打开 PowerShell，执行：
+在服务端电脑上，用管理员权限打开 PowerShell，📋 整块复制粘贴执行：
 
 ```powershell
 New-NetFirewallRule -DisplayName "Deskflow" -Direction Inbound -Protocol TCP -LocalPort 24800 -Action Allow
@@ -497,7 +507,7 @@ New-NetFirewallRule -DisplayName "Deskflow" -Direction Inbound -Protocol TCP -Lo
 
 按以下顺序排查：
 
-1. **确认 IP 是否正常获取**：多人共用网络或网卡驱动老化时，可能没分到 DHCP 的 IP（如显示 `169.254.x.x` 的随机地址），即使同一局域网也会连不上。用 `ipconfig` 检查，如果 IP 异常，依次执行：
+1. **确认 IP 是否正常获取**：多人共用网络或网卡驱动老化时，可能没分到 DHCP 的 IP（如显示 `169.254.x.x` 的随机地址），即使同一局域网也会连不上。用 `ipconfig` 检查，如果 IP 异常，📋 整块复制粘贴执行（按顺序跑这两条）：
    ```powershell
    ipconfig /release
    ipconfig /renew
