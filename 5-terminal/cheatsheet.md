@@ -129,3 +129,15 @@ ta agents 4     # 开一个 4-pane 布局
 | `Alt+1-5` | 切换 Tab |
 | 选中文本 | 松开鼠标即复制到剪贴板（WezTerm 默认行为） |
 | 右键 | 粘贴 |
+
+### WezTerm 内置默认键（没写进配置、自带就有）
+
+这三个键没写进 `wezterm.lua` 的 `config.keys`，但 WezTerm 出厂默认就绑了，本配置也没禁用默认键，所以直接能用。
+
+| 快捷键 | 功能 |
+|--------|------|
+| `Ctrl+Shift+Space` | **Quick Select**：把屏幕上的 URL / 路径 / git hash 标上字母，按字母直接复制，比鼠标划选快得多 |
+| `Ctrl+Shift+P` | **Command Palette**：命令面板，搜得到 WezTerm 所有动作 |
+| `Ctrl+Shift+X` | **Copy Mode**：键盘式（vim 键位）选择并复制 |
+
+> Copy Mode 日常用得少——你在 tmux 里会用 tmux 自己的复制模式（`Ctrl+A Enter`），WezTerm 的 Copy Mode 主要用在不开 tmux 的纯 WezTerm 窗口里。

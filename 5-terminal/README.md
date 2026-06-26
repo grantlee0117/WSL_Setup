@@ -78,10 +78,11 @@ chmod +x setup.sh && ./setup.sh
 
 **`wezterm.lua` 配了什么**：
 
-- 配色 Catppuccin Mocha；字体 JetBrainsMono Nerd Font（带中文回退 Noto Sans CJK SC），字号 12。
+- 配色 Catppuccin Mocha；字体 JetBrainsMono Nerd Font，字号 12；中文回退默认微软雅黑（所有 Windows 都自带，换任何机器都在）。想换别的中文字形（等线 `DengXian`、黑体 `SimHei`、思源黑体 `Noto Sans SC` 等），把回退改成一只**系统里已装好**的 family 名即可——这几只不一定每台都有，填前先确认装了，改法见 `wezterm.lua` 里字体段的注释。
 - 半透明毛玻璃背景（`window_background_opacity = 0.5` + Acrylic，默认如此，想要不透明见下方自查表）。
 - 开窗直接进 WSL 的 Ubuntu（`default_domain`，脚本已按本机发行版名填好）。
 - WebGpu 渲染加速、关掉编程连字、滚动缓冲 10 万行、右键粘贴。
+- 底部 Tab 栏：只有一个 Tab 时自动隐藏，开第 2 个 Tab（`Ctrl+Shift+T`）才在底部显示（Tab 与 tmux 的分工、叠栏现象、关闭办法详见下方微调）。
 - 开了 `automatically_reload_config`：改 `~/.wezterm.lua` 存盘即时生效，不用重开（只有装字体、切默认 shell 这类才需重开终端）。
 
 **重开并自查**：关闭、重新打开 WezTerm（重开才会加载新配置、自动进 WSL Ubuntu），照下表自查：
@@ -89,8 +90,10 @@ chmod +x setup.sh && ./setup.sh
 | 看哪里 | 正常应是 | 不对时怎么弄 |
 |--------|----------|--------------|
 | 提示符 / `ll` 输出里的图标 | 文件夹、git 分支等小图标正常显示 | 显示成方框 `□` / `�` = 字体没装成功，回「装字体」把 `.ttf`「为所有用户安装」 |
+| 中文（注释、路径里的汉字） | 正常渲染、不缺字 | 变方框 / 乱码 = 中文回退字体没匹配上，改 `~/.wezterm.lua` 字体段末尾那只 family 名（默认微软雅黑、一定在；那段有注释说明换法） |
 | 开窗落在哪 | 直接进 WSL 的 Ubuntu | 报 `domain not found` / 没进 WSL = 发行版名对不上（一般只在你有多个发行版时发生），改 `~/.wezterm.lua` 的 `config.default_domain`，`wsl.exe -l -q` 查实际名 |
 | 窗口背景 | 半透明毛玻璃（默认如此） | 想要不透明就改 `~/.wezterm.lua` 的 `window_background_opacity`（`1.0` = 完全不透明） |
+| 透明 / 毛玻璃发虚或只是变暗、没真透 | 半透明毛玻璃 | WebGpu 在 Windows 上偶有渲染问题：临时把 `config.front_end` 改成 `"OpenGL"` 存盘看是否恢复，是的话就是 WebGpu 的锅 |
 
 **微调**（都在 Windows 的 `~/.wezterm.lua`，存盘即生效）：
 
@@ -98,6 +101,11 @@ chmod +x setup.sh && ./setup.sh
 - **配色**：改 `config.color_scheme`，WezTerm 内置数百套，名字见[官方配色表](https://wezterm.org/colorschemes/)。注意 tmux 状态栏和 starship 提示符也配成了 Catppuccin Mocha，只换这一处三者会不一致。
 - **透明度 / 毛玻璃**：改 `config.window_background_opacity`（`1.0` = 完全不透明、毛玻璃自动关），见上方自查表。
 - **编程连字**：把 `harfbuzz_features` 里的 `liga=0` / `clig=0` / `calt=0` 改成 `=1` 即开启。
+- **独显 / 核显**（双显卡笔记本）：WebGpu 默认走低功耗核显（终端够用、省电省热）。想强制独显，取消 `~/.wezterm.lua` 里 `config.webgpu_power_preference = "HighPerformance"` 那行注释——代价是独显常驻、更费电更热，终端一般无必要。
+- **中文回退字体**：`config.font` 的 `font_with_fallback` 末尾那只 family 名。默认微软雅黑（最稳、一定有）；想换填一只系统里已装好的 family 名（如等线 `DengXian`、黑体 `SimHei`、思源 `Noto Sans SC`），名字必须和系统登记的完全一致，写错会静默退回 WezTerm 自带兜底，文件内注释有说明。
+- **底部 Tab 栏**：WezTerm 的 Tab 是「终端窗口层」的多个独立标签页（`Ctrl+Shift+T` 新建、`Ctrl+Shift+W` 关、`Alt+1~5` 切换），跟 tmux 管的「单个标签页**内部**的 pane 分屏 / 会话恢复」是两套东西、互不冲突。默认单 Tab 时 Tab 栏自动隐藏（`hide_tab_bar_if_only_one_tab = true`），开 ≥2 个 Tab 才在底部出现——此时底部会同时有「WezTerm Tab 栏 + tmux 状态栏」两条叠着，是正常现象、不是 bug。若真不想要 WezTerm 这条 Tab 栏，设 `config.enable_tab_bar = false` 彻底关掉（Tab 功能仍在、只是没有可视栏；本配置默认保留，方便偶尔开个不进 tmux 的纯窗口时也能看到标签页）。
+- **光标样式**：本配置用默认的稳定方块。想换在 `~/.wezterm.lua` 取消 `config.default_cursor_style` 那行注释、改成想要的值——可选方块 / 下划线 / 竖条，各有「稳定（不闪）」和「闪烁」两版（`SteadyBlock`、`BlinkingBar` 等，`Steady` = 不闪、`Blinking` = 闪；文件内注释列了全部 6 个取值）。
+- **缺字告警（哨兵）**：`warn_about_missing_glyphs` 默认开着——某个字符所有字体都画不出来时，WezTerm 会弹「配置错误」窗提示你字体没配好（图标显示成方框、中文乱码这类问题的源头告警）。本配置特意保留它当哨兵；想静默可在 `~/.wezterm.lua` 取消那行注释设 `false`，但不建议关（关了真缺字也不再吭声）。
 
 > WezTerm 快捷键（新标签页 / 搜索 / 复制粘贴 / 调字号…）见 [cheatsheet.md](./cheatsheet.md)。
 

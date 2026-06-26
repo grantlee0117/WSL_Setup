@@ -25,8 +25,11 @@ FONT_NAME="JetBrainsMono"
 FONT_DIR="${WIN_HOME}/AppData/Local/Microsoft/Windows/Fonts"
 
 info "检查 JetBrainsMono Nerd Font..."
+# 注意：这里只能判断 .ttf 是否已躺在字体目录里，无法判断是否已「为所有用户安装」（写注册表）。
+# 复制到此目录 ≠ 安装，所以下面说「已就位」而非「已安装」，并仍给一句安装提示，避免假绿灯。
 if ls "${FONT_DIR}"/${FONT_NAME}Nerd* &>/dev/null; then
-    ok "字体已安装"
+    ok "字体文件已就位: ${FONT_DIR}"
+    info "若图标仍显示成方框 □，是还没装上：全选该目录 .ttf → 右键 → 为所有用户安装"
 else
     info "下载 JetBrainsMono Nerd Font..."
     FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
