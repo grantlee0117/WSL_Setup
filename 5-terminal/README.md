@@ -31,7 +31,18 @@
 
 > 类目用**角色名**（terminal-emulator / multiplexer / shell）而非工具名（wezterm / tmux），因为 tmux 只是复用器的一种实现——换成 zellij/screen 时目录语义不变。文件名仍带工具名，因为它就是那个工具的配置。
 
-**前提**：Windows 侧已安装 WezTerm。如果还没装，在 PowerShell 中 📋 执行：
+**三个角色的程序各自"装在哪"**：本目录只管**配置与接线**；三个角色对应的程序用三种不同方式安装、落点不同。照下表先备齐，再跑 `setup.sh`：
+
+| 角色 | 程序 | 装在哪 |
+|------|------|--------|
+| 终端模拟器 | WezTerm | Windows 侧 `winget`——见下方「安装 WezTerm」 |
+| 复用器 | tmux | WSL `apt`——见 [4-dev §1.7](../4-dev/README.md)；本目录 `setup.sh` 只部署 `tmux.conf` 与插件，**不装 tmux 本体** |
+| shell | zsh + oh-my-zsh | 由本目录 `setup.sh` **自动安装** |
+| shell | zoxide / fzf / eza / bat | WSL `apt`——见 [4-dev §1.7](../4-dev/README.md)；本目录只负责把它们**接进 shell**（`shell.bash` / `shell.zsh`） |
+
+> **为什么不全搬到这里来装**：tmux 和这几个 CLI 工具是 [4-dev](../4-dev/README.md) 的开发基础设施（ripgrep 还是 Claude Code 自己的依赖），纯 bash、零主题时也照用；本目录是**可选**的美化/接线层，不重复承担安装。所以"装工具"在 4-dev、"配主题/接线"在这里——边界按职责划，不按角色一刀切。
+
+**安装 WezTerm（终端模拟器）**：三个角色里只有它装在 Windows 侧。在 PowerShell 中 📋 执行（已装可跳过）：
 
 ```powershell
 winget install wez.wezterm --source winget
@@ -110,6 +121,10 @@ ta test
 ```
 
 > 应创建一个名为 `test` 的 tmux 会话并自动连接。`Ctrl+A` 然后按 `d` 退出，`ta kill test` 关闭会话。
+
+**tmux 层做了什么**（复用器）：
+
+tmux 本体由 4-dev §1.7 用 apt 装好，本目录只接管它的**配置**——`setup.sh` 把 `tmux.conf` 部署到 `~/.tmux.conf` 并装好插件，给出厂的原生 tmux 换上：前缀键 `Ctrl+B`→`Ctrl+A`、Catppuccin 状态栏、Vim 风格 pane 切换、一键分屏与 Agent Team 布局、会话保存/恢复（resurrect + continuum 重启后可恢复）。`ta` 快捷命令再把"建会话 / 连会话 / 自动分屏"收成一条命令（见下方速查表）。
 
 **shell 层做了什么**（`source ~/.bashrc` 后生效）：
 
