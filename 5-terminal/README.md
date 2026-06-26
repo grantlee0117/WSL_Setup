@@ -93,7 +93,7 @@ chmod +x setup.sh && ./setup.sh
 | 中文（注释、路径里的汉字） | 正常渲染、不缺字 | 变方框 / 乱码 = 中文回退字体没匹配上，改 `~/.wezterm.lua` 字体段末尾那只 family 名（默认微软雅黑、一定在；那段有注释说明换法） |
 | 开窗落在哪 | 直接进 WSL 的 Ubuntu | 报 `domain not found` / 没进 WSL = 发行版名对不上（一般只在你有多个发行版时发生），改 `~/.wezterm.lua` 的 `config.default_domain`，`wsl.exe -l -q` 查实际名 |
 | 窗口背景 | 半透明毛玻璃（默认如此） | 想要不透明就改 `~/.wezterm.lua` 的 `window_background_opacity`（`1.0` = 完全不透明） |
-| 透明 / 毛玻璃发虚或只是变暗、没真透 | 半透明毛玻璃 | WebGpu 在 Windows 上偶有渲染问题：临时把 `config.front_end` 改成 `"OpenGL"` 存盘看是否恢复，是的话就是 WebGpu 的锅 |
+| 窗口花屏 / 发虚 / 毛玻璃不出效果（只变暗没真透），或启动报 GPU 错 | 半透明毛玻璃、画面干净 | 显卡或驱动和 WebGpu 不对付：把 `~/.wezterm.lua` 的 `config.front_end` 改成 `"OpenGL"` 存盘看是否恢复（仍不行再试 `"Software"`），恢复了就是 WebGpu 的锅 |
 
 **微调**（都在 Windows 的 `~/.wezterm.lua`，存盘即生效）：
 
