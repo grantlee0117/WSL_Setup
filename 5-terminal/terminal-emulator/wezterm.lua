@@ -14,9 +14,10 @@ local config = wezterm.config_builder()
 --   想要别的中文字形，就填一只“系统里已装好”的 family 名（先在「设置 → 字体」确认装了再填）：
 --     "DengXian"（等线）、"SimHei"（黑体）—— 来自 Windows「简体中文补充字体」可选功能 / 中文语言包；
 --                                          干净的英文版 Windows 默认没有，要去「设置 → 应用 → 可选功能」装。
---     "Noto Sans SC"（思源黑体）—— 较新的 Windows 11（2025 年起的更新）随系统自带；旧系统 / Win10 没有，
---                                  且上面那个「简体中文补充字体」可选功能里也不含它，缺了得自行下载安装。
--- 切记 family 名要和系统里登记的完全一致：写错（例如把思源写成旧名 "Noto Sans CJK SC"）会静默匹配失败，
+--     "Noto Sans SC"（思源黑体）—— 不一定自带：微软近年更新给 Win10 / Win11 都推过 Noto CJK，但主要是当
+--                                  回退字体塞进去的，各机器是否以此名出现在字体列表里并不一致；以「设置 → 字体」
+--                                  里实际有没有为准，没有就自行从 Google Fonts 下载安装。
+-- 切记 family 名要和系统里登记的完全一致：写错（例如写成另一只 family "Noto Sans CJK SC"）会静默匹配失败，
 -- 退回 WezTerm 自带兜底、启动还多一条 missing-font 警告——本配置早先就踩过这个坑。
 config.font = wezterm.font_with_fallback({
 	{ family = "JetBrainsMono Nerd Font", weight = "Medium" },
