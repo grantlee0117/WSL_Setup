@@ -30,6 +30,8 @@ config.initial_rows = 40
 config.window_padding = { left = 8, right = 8, top = 4, bottom = 4 }
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_close_confirmation = "NeverPrompt"
+-- 改字号时不重算窗口尺寸（默认 true 会跟着缩放，按 Ctrl+Shift+↑/↓ 时窗口乱跳）
+config.adjust_window_size_when_changing_font_size = false
 
 -- Tab 栏
 config.hide_tab_bar_if_only_one_tab = true

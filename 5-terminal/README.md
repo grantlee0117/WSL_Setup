@@ -16,7 +16,7 @@
 ├── cheatsheet.md              快捷键 / 命令速查卡
 ├── config/                    配置（被各工具读取的静态文件，按角色归类）
 │   ├── terminal-emulator/     终端模拟器
-│   │   └── wezterm.lua        Catppuccin Mocha 主题、Nerd Font、默认启动 WSL、GPU 加速、快捷键
+│   │   └── wezterm.lua        Catppuccin Mocha 主题、Nerd Font、半透明毛玻璃、默认启动 WSL、GPU 加速、快捷键
 │   ├── multiplexer/           复用器
 │   │   └── tmux.conf          Vim 风格 pane 切换、Catppuccin 状态栏、Agent Team 布局、会话保存/恢复
 │   └── shell/                 shell
@@ -54,7 +54,7 @@ chmod +x scripts/setup.sh
 1. 下载 JetBrainsMono Nerd Font 到 Windows 字体目录
 2. 部署 `tmux.conf` 到 `~/.tmux.conf`
 3. 安装 TPM（tmux 插件管理器），并自动装好 4 个 tmux 插件（tpm / sensible / resurrect / continuum）
-4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`（原有配置自动备份为 `.bak`）
+4. 部署 `wezterm.lua` 到 Windows 用户目录 `~/.wezterm.lua`（按本机 `WSL_DISTRO_NAME` 自动填好 `default_domain`，免去手动核对；原有配置自动备份为 `.bak`）
 5. 安装 `ta` 快捷命令到 `~/.local/bin/`
 6. 安装 `win32yank` 到 `/usr/local/bin/`（tmux 复制绑定依赖它，修复中文乱码）
 7. 安装 `starship`，部署 `shell.bash` → `~/.config/wsl-setup/`、`starship.toml` → `~/.config/`，并在 `~/.bashrc` 末尾接好 shell 层
@@ -68,6 +68,17 @@ chmod +x scripts/setup.sh
 
    > 想在重开终端前先于当前 bash 会话试一下，可 📋 执行 `source ~/.bashrc`（只对当前 bash 窗口生效；zsh 那套要重开终端才进）。
    > 脚本不受影响：`./xxx.sh`、`bash xxx.sh` 由 shebang 决定解释器，与登录 shell 无关，照旧走 bash。
+
+   **重开 WezTerm 后，先花 10 秒照下表扫一眼**——三样都对，终端模拟器这层就成了；哪样不对，右列就是对症怎么弄：
+
+   | 看哪里 | 正常应是 | 不对时怎么弄 |
+   |--------|----------|--------------|
+   | 提示符和 `ll` 输出里的图标 | 文件夹、git 分支等小图标正常显示 | 显示成方框 `□` / `�` = 字体没装成功，回上面第 1 步把 `.ttf`「为所有用户安装」（只下载到 Fonts 目录不算装上） |
+   | 开窗后落在哪 | 直接进 WSL 的 Ubuntu，且提示符已是 zsh | 报 `domain not found` / 没进 WSL = 发行版名对不上（一般只在你有多个发行版时发生），改 Windows 侧 `~/.wezterm.lua` 的 `config.default_domain`，`wsl.exe -l -q` 查实际名 |
+   | 窗口背景 | 半透明毛玻璃（有意为之，不是 bug） | 看不惯就改 `~/.wezterm.lua` 的 `window_background_opacity`（`1.0` = 完全不透明） |
+
+   > **改 `~/.wezterm.lua` 不必重开**：配置开了 `automatically_reload_config`，存盘即时生效；只有装字体、切默认 shell 这类才需要重开终端。
+   > **想要编程连字**：默认关掉了连字（`harfbuzz_features` 里的 `liga=0` 等），要开就把那几个 `=0` 改成 `=1`。
 
 3. **（一般不用做）补装 tmux 插件**：插件已由 `setup.sh` 自动安装；只有脚本结尾提示「插件自动安装失败」时，才需要手动补装——方法见下方 ⚠️ 框。
 
@@ -142,4 +153,4 @@ ta test
 | 关闭所有会话 | `ta kill-all` |
 | 查看完整速查卡 | `ta help` 或查看 [`cheatsheet.md`](./cheatsheet.md) |
 
-> **WezTerm 快捷键**：`Ctrl+Shift+T` 新标签页、`Ctrl+Shift+W` 关闭标签页、`Alt+1-5` 切换标签页、`Ctrl+Shift+F` 搜索、右键粘贴。
+> **WezTerm 快捷键**：`Ctrl+Shift+T` 新标签页、`Ctrl+Shift+W` 关闭标签页、`Alt+1-5` 切换标签页、`Ctrl+Shift+F` 搜索、`Ctrl+Shift+C/V` 复制/粘贴、`Ctrl+Shift+↑/↓` 调字号、右键粘贴。

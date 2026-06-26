@@ -12,6 +12,7 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 
 # 3. 安装字体 (脚本会提示路径，全选 .ttf → 右键 → 为所有用户安装)
+#    图标显示成方框 □ = 这步没装成功，回来重装字体（只下载不算装上）
 # 4. 关闭 WezTerm 重新打开 → 默认进 zsh，灰字补全/命令高亮/starship 即生效
 #    （想先在当前 bash 窗口试：source ~/.bashrc）
 #    zsh/oh-my-zsh、tmux 插件、win32yank、starship 均由 setup.sh 自动装，无需手动

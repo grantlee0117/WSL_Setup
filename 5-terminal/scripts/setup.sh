@@ -94,8 +94,12 @@ if [[ -f "${WIN_HOME}/.wezterm.lua" ]]; then
     cp "${WIN_HOME}/.wezterm.lua" "${WIN_HOME}/.wezterm.lua.bak"
     warn "原 WezTerm 配置已备份到 ${WIN_HOME}/.wezterm.lua.bak"
 fi
-cp "${CONFIG_DIR}/terminal-emulator/wezterm.lua" "${WIN_HOME}/.wezterm.lua"
-ok "WezTerm 配置 → ${WIN_HOME}/.wezterm.lua"
+# wezterm.lua 模板里 default_domain 写死 Ubuntu-24.04；部署时按本机实际发行版名替换，
+# 否则发行版名一对不上，WezTerm 开窗就 domain not found、进不了 WSL。
+WSL_DISTRO="${WSL_DISTRO_NAME:-Ubuntu-24.04}"
+sed "s|^config.default_domain = .*|config.default_domain = \"WSL:${WSL_DISTRO}\"|" \
+    "${CONFIG_DIR}/terminal-emulator/wezterm.lua" > "${WIN_HOME}/.wezterm.lua"
+ok "WezTerm 配置 → ${WIN_HOME}/.wezterm.lua（default_domain = WSL:${WSL_DISTRO}）"
 
 # ─── 5. ta 快捷命令 ───────────────────────────────────────
 info "部署 ta 快捷命令..."
