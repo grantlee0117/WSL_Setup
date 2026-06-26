@@ -1,6 +1,6 @@
 # ============================================================
 #  starship 提示符 — Catppuccin Mocha
-#  部署到 ~/.config/starship.toml（由 5-terminal/setup.sh 自动部署）
+#  部署到 ~/.config/starship.toml（由 5-terminal/shell/setup.sh 自动部署）
 #  图标依赖 Nerd Font（5-terminal 已装 JetBrainsMono Nerd Font），
 #  否则箭头/图标会显示成方块。
 # ============================================================

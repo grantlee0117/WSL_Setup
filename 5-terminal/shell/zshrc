@@ -1,6 +1,6 @@
 # ============================================================
 #  WSL_Setup ~/.zshrc — zsh + oh-my-zsh 引导
-#  由 5-terminal/setup.sh 部署到 ~/.zshrc（原有的会备份为 ~/.zshrc.bak）。
+#  由 5-terminal/shell/setup.sh 部署到 ~/.zshrc（原有的会备份为 ~/.zshrc.bak）。
 #  分工：本文件只做 omz 引导；工具接线（starship/zoxide/fzf/别名/历史/
 #  autosuggestions/syntax-highlighting）全在 shell.zsh，和 bash 侧（.bashrc→shell.bash）对称。
 # ============================================================

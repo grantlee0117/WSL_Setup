@@ -2,7 +2,7 @@
 #  WSL_Setup 终端 shell 层
 #  把 4-dev §1.7 装的工具真正接进 bash：
 #    starship 提示符 / zoxide / fzf 键位 / 现代别名 / 大历史与多 pane 共享
-#  由 5-terminal/setup.sh 部署，并在 ~/.bashrc 末尾 source 本文件。
+#  由 5-terminal/shell/setup.sh 部署，并在 ~/.bashrc 末尾 source 本文件。
 #  仅作用于交互式 shell；每段都先探测命令存在再启用，缺哪个跳哪个，不报错。
 # ============================================================
 

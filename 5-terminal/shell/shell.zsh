@@ -3,7 +3,7 @@
 #  与 shell.bash 同责：把 4-dev §1.7 装的工具接进 zsh——
 #    starship 提示符 / zoxide / fzf 键位 / 现代别名 / 大历史
 #  外加 zsh 专属：autosuggestions（灰字补全）+ syntax-highlighting（命令高亮）。
-#  由 5-terminal/setup.sh 部署，并在 ~/.zshrc 末尾 source 本文件。
+#  由 5-terminal/shell/setup.sh 部署，并在 ~/.zshrc 末尾 source 本文件。
 #  仅作用于交互式 shell；每段都先探测命令/文件存在再启用，缺哪个跳哪个，不报错。
 #
 #  与 oh-my-zsh 的分工：omz 只管它的内置插件（git/sudo/...，见 ~/.zshrc 的 plugins）；
