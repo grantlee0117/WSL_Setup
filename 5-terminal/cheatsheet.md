@@ -127,4 +127,5 @@ ta agents 4     # 开一个 4-pane 布局
 | `Ctrl+Shift+C/V` | 复制/粘贴 |
 | `Ctrl+Shift+↑/↓` | 调整字体大小 |
 | `Alt+1-5` | 切换 Tab |
+| 选中文本 | 松开鼠标即复制到剪贴板（WezTerm 默认行为） |
 | 右键 | 粘贴 |

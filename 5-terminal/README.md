@@ -92,7 +92,12 @@ chmod +x setup.sh && ./setup.sh
 | 开窗落在哪 | 直接进 WSL 的 Ubuntu | 报 `domain not found` / 没进 WSL = 发行版名对不上（一般只在你有多个发行版时发生），改 `~/.wezterm.lua` 的 `config.default_domain`，`wsl.exe -l -q` 查实际名 |
 | 窗口背景 | 半透明毛玻璃（默认如此） | 想要不透明就改 `~/.wezterm.lua` 的 `window_background_opacity`（`1.0` = 完全不透明） |
 
-**微调**（都在 Windows 的 `~/.wezterm.lua`，存盘即生效）：想要编程连字就把 `harfbuzz_features` 里的 `liga=0` / `clig=0` / `calt=0` 改成 `=1`。
+**微调**（都在 Windows 的 `~/.wezterm.lua`，存盘即生效）：
+
+- **字号**：改 `config.font_size = 12.0` 的数值。`Ctrl+Shift+↑/↓` 只是临时缩放、重开复原；想永久改就改这里。
+- **配色**：改 `config.color_scheme`，WezTerm 内置数百套，名字见[官方配色表](https://wezterm.org/colorschemes/)。注意 tmux 状态栏和 starship 提示符也配成了 Catppuccin Mocha，只换这一处三者会不一致。
+- **透明度 / 毛玻璃**：改 `config.window_background_opacity`（`1.0` = 完全不透明、毛玻璃自动关），见上方自查表。
+- **编程连字**：把 `harfbuzz_features` 里的 `liga=0` / `clig=0` / `calt=0` 改成 `=1` 即开启。
 
 > WezTerm 快捷键（新标签页 / 搜索 / 复制粘贴 / 调字号…）见 [cheatsheet.md](./cheatsheet.md)。
 

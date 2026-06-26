@@ -20,7 +20,8 @@ config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 -- ─── 配色 (Catppuccin Mocha) ────────────────────────────
 config.color_scheme = "Catppuccin Mocha"
 
--- 半透明 + Acrylic 毛玻璃
+-- 半透明 + Acrylic 毛玻璃（两行配套：Acrylic 要 opacity < 1.0 才出效果；
+-- opacity 设 1.0 即完全不透明，毛玻璃自动关闭）
 config.window_background_opacity = 0.5
 config.win32_system_backdrop = "Acrylic"
 
