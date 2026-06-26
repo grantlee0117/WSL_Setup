@@ -4,6 +4,8 @@
 
 三层各自独立、各带安装脚本，按需配；要整套就三层都跑（顺序 §1→§2→§3）。
 
+命令整块复制粘贴执行；`winget` 那行在 Windows PowerShell 里跑，其余在 WSL 里。
+
 ```bash
 # 1. 终端模拟器（WezTerm）
 winget install wez.wezterm --source winget          # 在 Windows 的 PowerShell 里装
