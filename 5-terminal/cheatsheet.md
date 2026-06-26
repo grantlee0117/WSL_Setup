@@ -8,8 +8,8 @@ winget install wez.wezterm --source winget
 
 # 2. WSL 里运行配置脚本
 cd ~/projects/WSL_Setup/5-terminal
-chmod +x setup.sh
-./setup.sh
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 
 # 3. 安装字体 (脚本会提示路径，全选 .ttf → 右键 → 为所有用户安装)
 # 4. 关闭 WezTerm 重新打开

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  WezTerm + tmux + Nerd Font 一键配置
-#  用法: chmod +x setup.sh && ./setup.sh
+#  用法（在 5-terminal/ 目录下）: chmod +x scripts/setup.sh && ./scripts/setup.sh
 # ============================================================
 set -euo pipefail
 
@@ -15,7 +15,8 @@ info()  { echo -e "${CYAN}[INFO]${NC} $*"; }
 ok()    { echo -e "${GREEN}[ OK ]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # 5-terminal/scripts
+CONFIG_DIR="$(cd "${SCRIPT_DIR}/../config" && pwd)"          # 5-terminal/config
 WIN_HOME="$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")"
 
 echo ""
@@ -65,7 +66,7 @@ if [[ -f "$HOME/.tmux.conf" ]]; then
     cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
     warn "原配置已备份到 ~/.tmux.conf.bak"
 fi
-cp "${SCRIPT_DIR}/tmux.conf" "$HOME/.tmux.conf"
+cp "${CONFIG_DIR}/multiplexer/tmux.conf" "$HOME/.tmux.conf"
 ok "tmux 配置 → ~/.tmux.conf"
 
 # TPM
@@ -89,7 +90,7 @@ fi
 
 # ─── 4. WezTerm 配置 ──────────────────────────────────────
 info "部署 WezTerm 配置..."
-cp "${SCRIPT_DIR}/wezterm.lua" "${WIN_HOME}/.wezterm.lua"
+cp "${CONFIG_DIR}/terminal-emulator/wezterm.lua" "${WIN_HOME}/.wezterm.lua"
 ok "WezTerm 配置 → ${WIN_HOME}/.wezterm.lua"
 
 # ─── 5. ta 快捷命令 ───────────────────────────────────────

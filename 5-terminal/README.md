@@ -28,11 +28,11 @@ winget install wez.wezterm --source winget
 
 ```bash
 cd ~/projects/WSL_Setup/5-terminal
-chmod +x setup.sh
+chmod +x scripts/setup.sh
 ```
 
 ```bash
-./setup.sh
+./scripts/setup.sh
 ```
 
 脚本会自动完成：
