@@ -30,15 +30,18 @@ chmod +x setup.sh && ./setup.sh
 
 ## tmux 快捷键 (前缀: Ctrl+A)
 
+> 前缀 `Ctrl+A` 和 shell 里「跳到行首」的 `Ctrl+A`（readline）撞键。要给 shell 送一个真正的行首 `Ctrl+A`，**连按两下** `Ctrl+A`（第二下被 `send-prefix` 原样转发给 shell），行首功能没丢、只是多按一下。
+
 ### 日常操作
 | 快捷键 | 功能 |
 |--------|------|
 | `Ctrl+A %` | 左右分屏 |
 | `Ctrl+A "` | 上下分屏 |
 | `Ctrl+A h/j/k/l` | Vim 风格切换 pane |
+| `Ctrl+A Ctrl+Q` | 显示各 pane 编号，按数字直接跳过去 |
 | `Alt+h/j/k/l` | 调整 pane 大小 (不需要前缀) |
 | `Ctrl+A d` | 后台挂起 (detach) |
-| `Ctrl+A s` | 选择会话 |
+| `Ctrl+A s` | 选择会话 (树状预览、可缩放) |
 | `Ctrl+A c` | 新窗口 |
 | `Ctrl+A 1-9` | 切换窗口 |
 | `Ctrl+A r` | 重载配置 |
