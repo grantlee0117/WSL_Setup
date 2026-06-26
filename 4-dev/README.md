@@ -314,7 +314,7 @@ sudo apt install -y \
 ```bash
 sudo apt install -y \
     ripgrep fd-find fzf bat git-delta eza zoxide \
-    tmux htop ncdu dos2unix \
+    tmux htop ncdu dos2unix wslu \
     neovim httpie sqlite3 p7zip-full rsync pv rename
 ```
 
@@ -338,6 +338,7 @@ sudo apt install -y \
 | `pv` | 查看管道传输进度 |
 | `rename` | 用正则批量重命名文件 |
 | `dos2unix` | 修复 Windows/Linux 换行符差异 |
+| `wslu` | WSL↔Windows 互通工具集，核心是 `wslview`：把 WSL 里要打开的链接/文件甩给 Windows 默认程序（浏览器、看图等）。见下方说明 |
 
 > **命令名注意**：Debian/Ubuntu 为避免冲突给几个工具改了名——`fd-find` 的命令是 `fdfind`、`bat` 的命令是 `batcat`（`ripgrep`→`rg`、`git-delta`→`delta` 则是正常名）。想用惯用名 `fd`/`bat`，建个软链即可（`~/.local/bin` 已在 PATH）：
 >
@@ -345,6 +346,13 @@ sudo apt install -y \
 > mkdir -p ~/.local/bin
 > ln -sf "$(command -v fdfind)" ~/.local/bin/fd
 > ln -sf "$(command -v batcat)" ~/.local/bin/bat
+> ```
+
+> **wslview 怎么用**：装好 `wslu` 后，`wslview https://...` 用 Windows 默认浏览器打开链接，`wslview report.html` / `wslview out.pdf` 则交给 Windows 对应程序——在 WSL 里看 dev server 页面、生成的报告、PDF 都靠它。更重要的是后面 §1.16/§1.17/§1.18 装 Claude Code / Codex / Gemini 时的浏览器登录跳转，有了它就能自动开 Windows 浏览器，不必手动复制链接（§1.4 `gh auth login` 同理）。个别工具认 `$BROWSER` 环境变量，没自动弹出时设一下即可：
+>
+> ```bash
+> grep -qF 'BROWSER=wslview' ~/.bashrc || echo 'export BROWSER=wslview' >> ~/.bashrc
+> source ~/.bashrc
 > ```
 
 > **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。原生 tmux 的前缀键是 `Ctrl+B`——按 `Ctrl+B` 再按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。（装了下面 [5-terminal](../5-terminal/README.md) 的配置后，前缀键会改成 `Ctrl+A`。）那套完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存）也在 [5-terminal](../5-terminal/README.md)。
