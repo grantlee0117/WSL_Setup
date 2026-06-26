@@ -898,8 +898,8 @@ sudo apt update && sudo apt install -y trivy age
 ```
 
 ```bash
-# sops：把 secret 加密后安全放进 Git。不在默认源，下官方二进制（版本号会过期，装前去 release 页看最新 tag）
-curl -fsSLo sops https://github.com/getsops/sops/releases/latest/download/sops-v3.10.2.linux.amd64
+# sops：把 secret 加密后安全放进 Git。不在默认源，下官方二进制（版本号会过期，装前去 release 页看最新 tag，把路径和文件名里的版本号一起换掉）
+curl -fsSLo sops https://github.com/getsops/sops/releases/download/v3.13.1/sops-v3.13.1.linux.amd64
 sudo install -m 0755 sops /usr/local/bin/sops && rm sops
 ```
 
@@ -995,7 +995,7 @@ cargo install websocat                                          # WebSocket（�
 pipx install semgrep      # 多语言 SAST
 pipx install bandit       # Python SAST
 pipx install pip-audit    # Python 依赖漏洞
-go install github.com/google/osv-scanner/cmd/osv-scanner@latest   # 跨语言 lockfile 漏洞扫描
+go install github.com/google/osv-scanner/v2/cmd/osv-scanner@latest   # 跨语言 lockfile 漏洞扫描（v2，路径必须带 /v2，否则 @latest 只会停在旧的 v1）
 # grype / syft / trufflehog：下各自 GitHub Release 二进制
 ```
 
@@ -1050,8 +1050,8 @@ free -h && nproc
 # 6. GitHub CLI
 gh --version
 
-# 7. C/C++ 编译基础
-pkg-config --cflags openssl
+# 7. C/C++ 编译基础（打印 OpenSSL 版本号即说明 pkgconf + 头文件都就位）
+pkg-config --modversion openssl
 
 # 8. 命令行工具（Claude Code skill 依赖）
 pdftoppm -v && pandoc --version && ffmpeg -version
