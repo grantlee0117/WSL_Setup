@@ -25,7 +25,7 @@
 
 > **为什么先配**：`.wslconfig` 控制 WSL2 虚拟机的资源和网络行为，装完 WSL 再改也行，但先配好可以避免首次启动时默认设置不合适。
 
-打开 **PowerShell**（不是 Git Bash），📋 执行：
+打开 **PowerShell**（不是 Git Bash），📋 整块复制粘贴执行：
 
 ```powershell
 notepad C:\Users\你的用户名\.wslconfig
@@ -33,7 +33,7 @@ notepad C:\Users\你的用户名\.wslconfig
 
 > **注意**：把 `你的用户名` 替换成你的 Windows 用户名。不知道用户名的话，在 PowerShell 里执行 `echo $env:USERNAME` 即可查看。提示文件不存在是否新建，点"是"。
 
-📝 写入以下内容：
+📝 贴进编辑器，写入以下内容：
 
 ```ini
 [wsl2]
@@ -82,7 +82,7 @@ autoProxy=true
 
 **第一步：安装**
 
-以**管理员身份**打开 PowerShell，📋 执行：
+以**管理员身份**打开 PowerShell，📋 整块复制粘贴执行：
 
 ```powershell
 wsl --install -d Ubuntu-24.04
@@ -99,7 +99,7 @@ wsl --install -d Ubuntu-24.04
 
 **第三步：初始化并验证**
 
-重启后会自动弹出 Ubuntu 窗口（若没弹出，从开始菜单打开 Ubuntu，或在 PowerShell 里运行 `wsl`），按提示**设置 Linux 用户名和密码**。进入 Linux 提示符后，📋 验证版本：
+重启后会自动弹出 Ubuntu 窗口（若没弹出，从开始菜单打开 Ubuntu，或在 PowerShell 里运行 `wsl`），按提示**设置 Linux 用户名和密码**。进入 Linux 提示符后，📋 整块复制粘贴执行，验证版本：
 
 ```bash
 cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
@@ -161,7 +161,7 @@ cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
 
 ### 2.1 配置 wsl.conf
 
-📋 编辑配置文件：
+📋 整块复制粘贴执行，编辑配置文件：
 
 ```bash
 sudo nano /etc/wsl.conf

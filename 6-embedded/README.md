@@ -61,7 +61,7 @@ Keil 的项目配置（`.uvprojx`）、编译器（armcc/armclang）、构建过
 
 名字拆解：`arm`（ARM 架构）+ `none`（裸机，无操作系统）+ `eabi`（嵌入式二进制接口标准）+ `gcc`（GCC 编译器）。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
@@ -75,7 +75,7 @@ sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-
 | `binutils-arm-none-eabi` | 二进制工具集：`objcopy`（.elf → .bin/.hex 格式转换）、`objdump`（反汇编）、`size`（查看各段大小）、`nm`（符号表） |
 | `libnewlib-arm-none-eabi` | 嵌入式 C 标准库（`printf`、`malloc` 等函数的轻量实现） |
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 arm-none-eabi-gcc --version
@@ -87,13 +87,13 @@ arm-none-eabi-gcc --version
 
 **为什么要装**：CMake 是构建系统——用 `CMakeLists.txt` 文本文件描述"哪些文件要编译、用什么参数、怎么链接"。Ninja 是构建执行器——读取 CMake 生成的指令，实际执行编译。CubeMX 可以直接导出 CMake 项目，两者配合开箱即用。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y cmake ninja-build
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 cmake --version && ninja --version
@@ -105,13 +105,13 @@ cmake --version && ninja --version
 
 **为什么要装**：GDB 配合 OpenOCD 可以在线调试 STM32——打断点、查变量、单步执行。`gdb-multiarch` 支持所有 CPU 架构，比单一的 `gdb-arm-none-eabi` 更通用（Ubuntu 24.04 apt 源中可能没有后者）。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y gdb-multiarch
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 gdb-multiarch --version
@@ -123,13 +123,13 @@ gdb-multiarch --version
 
 **为什么要装**：OpenOCD 通过调试器硬件（ST-Link）与 STM32 芯片通信，完成烧录和调试。它是"翻译官"——把你的命令翻译成 ST-Link 能理解的 SWD/JTAG 协议。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y openocd
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 openocd --version
@@ -152,7 +152,7 @@ OpenOCD 安装后自带几百个配置文件模板，覆盖了几乎所有常见
 
 **为什么要装**：嵌入式开发中 UART 串口是最常用的调试输出方式——在代码里用 `printf` 把信息打印到串口，在电脑上用串口工具查看。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y minicom picocom
@@ -163,7 +163,7 @@ sudo apt install -y minicom picocom
 | `minicom` | 功能全面，有配置菜单，类似 Windows 下的串口调试助手 |
 | `picocom` | 极简轻量，适合快速查看串口输出。用法：`picocom -b 115200 /dev/ttyACM0` |
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 minicom --version && picocom --help 2>&1 | head -1
@@ -173,7 +173,7 @@ minicom --version && picocom --help 2>&1 | head -1
 
 ### 1.6 安装总览
 
-以上所有工具也可以一条命令装完。如果你跳过了前面逐个安装的步骤，📋 执行这一条即可：
+以上所有工具也可以一条命令装完。如果你跳过了前面逐个安装的步骤，📋 整块复制粘贴执行这一条即可：
 
 ```bash
 sudo apt install -y \
@@ -213,7 +213,7 @@ sudo apt install -y \
 
 **安装**：
 
-打开 **PowerShell（管理员）**，📋 执行：
+打开 **PowerShell（管理员）**，📋 整块复制粘贴执行：
 
 ```powershell
 winget install --interactive --exact dorssel.usbipd-win
@@ -221,7 +221,7 @@ winget install --interactive --exact dorssel.usbipd-win
 
 安装完成后**重启电脑**（usbipd 需要安装一个系统服务）。
 
-📋 验证（重启后打开 PowerShell）：
+📋 验证（重启后打开 PowerShell，整块复制粘贴执行）：
 
 ```powershell
 usbipd --version
@@ -271,7 +271,7 @@ usbipd --version
 
 > **为什么要复制**：WSL 访问 Windows 文件系统（`/mnt/c/`）的 I/O 性能很差，编译速度会慢好几倍。把项目放到 WSL 自己的文件系统（`~/`）下，编译速度正常。
 
-假设 CubeMX 生成的项目在 `C:\STM32Projects\blink`，📋 在 WSL 终端执行：
+假设 CubeMX 生成的项目在 `C:\STM32Projects\blink`，📋 在 WSL 终端整块复制粘贴执行：
 
 ```bash
 cp -r /mnt/c/STM32Projects/blink ~/projects/blink
@@ -291,7 +291,7 @@ cd ~/projects/blink
 
 > **为什么要这一步**：CubeMX 生成的工具链文件里，编译器路径很可能是硬编码的绝对路径（指向 CubeCLT 的安装位置），而不是直接写 `arm-none-eabi-gcc`。如果你没装 CubeCLT，编译会直接报"找不到编译器"。这个坑几乎 100% 会遇到。
 
-📋 先检查工具链文件中的编译器路径：
+📋 先检查工具链文件中的编译器路径（整块复制粘贴执行）：
 
 ```bash
 grep -r "arm-none-eabi-gcc" cmake/ CMakeLists.txt 2>/dev/null | head -5
@@ -338,7 +338,7 @@ cmake --build build
 | `build/项目名.bin` | 纯二进制固件，不含调试信息 |
 | `build/项目名.hex` | Intel HEX 格式，部分烧录工具需要 |
 
-📋 验证编译产物：
+📋 验证编译产物（整块复制粘贴执行）：
 
 ```bash
 ls -lh build/*.elf build/*.bin build/*.hex 2>/dev/null
@@ -421,7 +421,7 @@ openocd -f "$OPENOCD_INTERFACE" -f "$OPENOCD_TARGET" \
 echo ">>> 完成！芯片已复位运行。"
 ```
 
-📋 赋予执行权限：
+📋 赋予执行权限（整块复制粘贴执行）：
 
 ```bash
 chmod +x flash.sh
@@ -448,7 +448,7 @@ chmod +x flash.sh
 
 **① 查看已连接的 USB 设备**
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```powershell
 usbipd list
@@ -465,7 +465,7 @@ BUSID  VID:PID    DEVICE                          STATE
 
 **② 首次绑定（每个设备只需一次）**
 
-📋 执行（替换 `1-2` 为你的实际 BUSID）：
+📋 整块复制粘贴执行（替换 `1-2` 为你的实际 BUSID）：
 
 ```powershell
 usbipd bind --busid 1-2
@@ -473,7 +473,7 @@ usbipd bind --busid 1-2
 
 **③ 映射到 WSL**
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```powershell
 usbipd attach --wsl --busid 1-2
@@ -481,7 +481,7 @@ usbipd attach --wsl --busid 1-2
 
 **④ 在 WSL 中验证**
 
-📋 切换到 WSL 终端，执行：
+📋 切换到 WSL 终端，整块复制粘贴执行：
 
 ```bash
 lsusb | grep -i st-link
@@ -494,13 +494,13 @@ lsusb | grep -i st-link
 - 可以加 `--auto-attach` 参数实现自动重新映射：`usbipd attach --wsl --busid 1-2 --auto-attach`（需要 usbipd-win 4.0+；这套 `attach --wsl` 写法自 4.0.0 起）
 - 用完后可以 `usbipd detach --busid 1-2`，或者直接拔掉 USB 线
 
-> **lsusb 未找到**：如果 `lsusb` 命令不存在，📋 安装：`sudo apt install -y usbutils`
+> **lsusb 未找到**：如果 `lsusb` 命令不存在，📋 安装（整块复制粘贴执行）：`sudo apt install -y usbutils`
 
 ### 4.2 OpenOCD 烧录
 
 USB 透传成功后，在 **WSL 终端** 中执行烧录。
 
-📋 执行（根据你的芯片型号替换 target 配置文件）：
+📋 整块复制粘贴执行（根据你的芯片型号替换 target 配置文件）：
 
 ```bash
 openocd -f interface/stlink.cfg -f target/stm32f1x.cfg \
@@ -674,7 +674,7 @@ usbipd --version
 
 检查 CubeMX 生成的 `CMakeLists.txt` 或工具链文件中引用的编译器路径。如果写了绝对路径（比如 CubeCLT 的路径），需要改成 `arm-none-eabi-gcc`（不带路径，让系统从 PATH 中查找）。
 
-📋 确认编译器在 PATH 中：
+📋 确认编译器在 PATH 中（整块复制粘贴执行）：
 
 ```bash
 which arm-none-eabi-gcc
@@ -692,7 +692,7 @@ which arm-none-eabi-gcc
 
 USB 设备权限问题。两种解法：
 
-**方法 1**（推荐）：添加 udev 规则，📋 执行：
+**方法 1**（推荐）：添加 udev 规则，📋 整块复制粘贴执行：
 
 ```bash
 sudo tee /etc/udev/rules.d/99-stlink.rules > /dev/null << 'EOF'
@@ -749,7 +749,7 @@ CubeMX 版本太旧。CMake 导出需要 **6.14.0 或更高版本**。在 CubeMX
 
 ### Q：编译出的 `.elf` 文件太大，超出芯片 Flash 容量？
 
-📋 查看各段大小：
+📋 查看各段大小（整块复制粘贴执行）：
 
 ```bash
 arm-none-eabi-size build/firmware.elf

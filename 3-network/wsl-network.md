@@ -31,13 +31,13 @@ sudo apt update
 
 > **apt 是什么？** apt 是 Ubuntu 的包管理器，相当于手机上的"应用商店"。后续所有 `sudo apt install xxx` 命令都通过它下载软件。apt 有自己独立的代理配置，不读 `http_proxy` 环境变量，所以必须单独配。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo nano /etc/apt/apt.conf.d/proxy.conf
 ```
 
-📝 写入以下两行（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
+📝 以下两行粘贴进 nano 编辑器（端口改成你的 Clash 端口，常见的是 7890 或 7897）：
 
 ```
 Acquire::http::Proxy "http://127.0.0.1:7897";
@@ -104,9 +104,9 @@ sudo apt update                  # 能正常获取软件包列表、无超时即
 
 **典型症状**：`getent hosts github.com` 无返回、`ssh -T git@github.com` 报 `Temporary failure in name resolution`，但 Windows 侧一切正常。
 
-> **装了 Tailscale 的先做这步**：Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`、把 DNS 指向 `100.100.100.100`，把下面 boot command 写入的 DNS 改掉。先禁用它：📋 `sudo tailscale set --accept-dns=false`（没装 Tailscale 的跳过）。
+> **装了 Tailscale 的先做这步**：Tailscale 的 MagicDNS 会覆盖 `/etc/resolv.conf`、把 DNS 指向 `100.100.100.100`，把下面 boot command 写入的 DNS 改掉。先禁用它：📋 整块复制粘贴执行 `sudo tailscale set --accept-dns=false`（没装 Tailscale 的跳过）。
 
-**操作**：📋 编辑 `/etc/wsl.conf`：
+**操作**：📋 整块复制粘贴执行，编辑 `/etc/wsl.conf`：
 
 ```bash
 sudo nano /etc/wsl.conf

@@ -64,7 +64,7 @@ grep -qF 'export LANG=zh_CN.UTF-8' ~/.bashrc || echo 'export LANG=zh_CN.UTF-8' >
 source ~/.bashrc
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 echo $LANG
@@ -101,7 +101,7 @@ git lfs install
 
 ### 1.3 SSH Key 配置
 
-WSL 里需要**单独生成一对**密钥，和 Windows 侧的是独立的。📋 执行：
+WSL 里需要**单独生成一对**密钥，和 Windows 侧的是独立的。📋 整块复制粘贴执行：
 
 ```bash
 ssh-keygen -t ed25519 -C "你的邮箱"
@@ -109,7 +109,7 @@ ssh-keygen -t ed25519 -C "你的邮箱"
 
 一路回车（默认路径、不设密码）。
 
-📋 查看公钥：
+📋 查看公钥（整块复制粘贴执行）：
 
 ```bash
 cat ~/.ssh/id_ed25519.pub
@@ -119,7 +119,7 @@ cat ~/.ssh/id_ed25519.pub
 
 > **说明**：GitHub 允许添加多个 SSH key。每台电脑、每个环境（Windows / WSL）各自生成各自的，把公钥都加到 GitHub 即可。
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 ssh -T git@github.com
@@ -157,7 +157,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubc
 
 **第二步：安装**
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt update && sudo apt install -y gh
@@ -165,7 +165,7 @@ sudo apt update && sudo apt install -y gh
 
 **第三步：登录认证**
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 gh auth login
@@ -177,7 +177,7 @@ gh auth login
 - 协议选择 **SSH**（已在 1.3 配好密钥）
 - 登录方式选择 **Login with a web browser**，复制终端显示的一次性代码，在浏览器中打开链接粘贴即可
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 gh auth status
@@ -370,7 +370,7 @@ sudo apt install -y \
 > git clone git@github.com:你的GitHub账号/WSL_Setup.git ~/projects/WSL_Setup
 > ```
 
-📋 安装（只需一次，路径按你实际 clone 位置调整）：
+📋 安装（整块复制粘贴执行，只需一次，路径按你实际 clone 位置调整）：
 
 ```bash
 bash ~/projects/WSL_Setup/4-dev/scripts/install-fuck-zone.sh
@@ -414,7 +414,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev pipx python3-tk
 
 **用 uv 加速 Python 项目（推荐）**：
 
-`uv` 是用 Rust 写的 Python 包/环境管理器，把 `venv` + `pip` 的整套工作流包了进去，依赖解析和下载比 pip 快一到两个数量级——装 numpy/pandas/torch 这种巨型依赖时体感差距明显。它不否定上面 venv 的做法，而是上位替代（venv 的「正确性」全部保留，只是更快）。📋 用 pipx 装：
+`uv` 是用 Rust 写的 Python 包/环境管理器，把 `venv` + `pip` 的整套工作流包了进去，依赖解析和下载比 pip 快一到两个数量级——装 numpy/pandas/torch 这种巨型依赖时体感差距明显。它不否定上面 venv 的做法，而是上位替代（venv 的「正确性」全部保留，只是更快）。📋 用 pipx 装（整块复制粘贴执行）：
 
 ```bash
 pipx install uv
@@ -502,13 +502,13 @@ npx playwright install chromium  # 下载浏览器本体
 
 **为什么要装**：Java 工具链（Maven、Gradle、部分 IDE 功能）依赖 JDK。这里显式装 JDK 和常用构建工具 Maven；LibreOffice 虽也会拉入 OpenJDK，但显式安装确保版本可控。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y default-jdk maven
 ```
 
-📋 验证（整块粘贴执行）：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 java --version
@@ -536,7 +536,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 ```
 
-📋 验证（整块粘贴执行）：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 rustc --version
@@ -562,7 +562,7 @@ grep -qF '/usr/local/go/bin' ~/.bashrc || echo 'export PATH=/usr/local/go/bin:$H
 source ~/.bashrc
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 go version
@@ -618,7 +618,7 @@ sudo apt install -y libreoffice-core libreoffice-writer libreoffice-impress libr
 
 **为什么要装**：latex-document-writer skill 需要 `xelatex` 编译 LaTeX 文档（支持中文排版）。
 
-📋 执行（安装需要 10-20 分钟，耐心等待）：
+📋 整块复制粘贴执行（安装需要 10-20 分钟，耐心等待）：
 
 ```bash
 sudo apt install -y texlive-full
@@ -654,7 +654,7 @@ source ~/.bashrc
 
 > **说明**：第二步把安装路径加入 PATH——安装脚本把二进制放在 `~/.local/bin/claude`，该路径默认不在 PATH 里，不加会报 `command not found`。`grep ... ||` 的写法保证只在没写过时才追加：如果 §1.7 fuck-zone 已经写过这行 PATH，这里会自动跳过，不会让 `~/.bashrc` 出现重复行。
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 claude --version
@@ -662,7 +662,7 @@ claude --version
 
 > **首次登录**：第一次运行 `claude` 会要求登录——按提示在浏览器完成 OAuth 授权（Pro/Max 订阅）或填入 API Key 即可，之后才能正常使用。
 
-📋 安装沙盒依赖（Claude Code 使用 bubblewrap 实现 OS 级沙盒隔离）：
+📋 安装沙盒依赖（整块复制粘贴执行，Claude Code 使用 bubblewrap 实现 OS 级沙盒隔离）：
 
 ```bash
 sudo apt install -y bubblewrap socat
@@ -676,13 +676,13 @@ sudo apt install -y bubblewrap socat
 >
 > Codex CLI 是 OpenAI 的终端编程代理。需要 ChatGPT Plus/Pro/Team 账号或 OpenAI API Key。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 npm i -g @openai/codex
 ```
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 codex --version
@@ -696,7 +696,7 @@ codex --version
 >
 > Gemini CLI 是 Google 的开源终端 AI 代理（Apache 2.0）。需要 Google API Key 或 Gemini Code Assist 许可证。
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 npm i -g @google/gemini-cli
@@ -713,7 +713,7 @@ npm i -g @google/gemini-cli
 >
 > （AI Studio 申请的免费 key 对应环境变量 `GEMINI_API_KEY`；`GOOGLE_API_KEY` 是 Google Cloud 的 key，两者别混——同时设置时 `GOOGLE_API_KEY` 会优先、可能走错认证路径。）
 
-📋 验证：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 gemini --version
@@ -756,7 +756,7 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 **第三步：免 sudo 使用 Docker**
 
-📋 执行：
+📋 整块复制粘贴执行：
 
 ```bash
 sudo usermod -aG docker $USER
@@ -768,7 +768,7 @@ sudo usermod -aG docker $USER
 >
 > 没生效前 `docker` 命令会报 **`permission denied`**（`Got permission denied while trying to connect to the Docker daemon socket`），得加 `sudo` 才能用。注意 `wsl --shutdown` 会关掉**所有** WSL 发行版（其它正在跑的会话也会一起断），所以只是想验证的话 `newgrp docker` 更省事。
 
-📋 验证（整块粘贴执行）：
+📋 验证（整块复制粘贴执行）：
 
 ```bash
 docker --version
@@ -825,7 +825,7 @@ source ~/.bashrc
 
 **为什么要装**：这套环境会装多种语言、跑别人的脚本、还往**公开仓库**推代码，所以需要几件「在出问题前拦下来」的工具。`shellcheck` 走 apt，其余几个走各自官方渠道。
 
-**第一层：apt 直装的静态检查**。📋 执行：
+**第一层：apt 直装的静态检查**。📋 整块复制粘贴执行：
 
 ```bash
 sudo apt install -y shellcheck
@@ -838,7 +838,7 @@ sudo apt install -y shellcheck
 - `gitleaks`：扫描工作区和提交历史里误提交的密钥（API key、`~/.git-credentials`、`.env`、token）。注意「有意公开分享」和「无意泄露」是两回事，gitleaks 防的是后者。
 - `pre-commit`：提交前自动跑检查的框架，一份 `.pre-commit-config.yaml` 就能把 gitleaks、shellcheck、行尾/大文件检查串成提交门禁——**手动跑总会忘，钩进 commit 才算真防住**。
 
-📋 安装（gitleaks 走 Go、pre-commit 走 pipx，都复用本文已装的工具链，不引入新包管理器）：
+📋 安装（整块复制粘贴执行，gitleaks 走 Go、pre-commit 走 pipx，都复用本文已装的工具链，不引入新包管理器）：
 
 ```bash
 go install github.com/gitleaks/gitleaks/v8@latest   # 装进 $HOME/go/bin（已在 PATH）
@@ -874,7 +874,7 @@ curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/h
 sudo mv kustomize /usr/local/bin/
 ```
 
-**本地 Kubernetes 集群**（kind，基于 Docker，最适合本环境）。📋 执行：
+**本地 Kubernetes 集群**（kind，基于 Docker，最适合本环境）。📋 整块复制粘贴执行：
 
 ```bash
 curl -fsSLo kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
@@ -923,7 +923,7 @@ WSL2 用 GPU 有一套**和原生 Linux 不同的规矩**，照着来才不踩�
 
 > ⚠️ **最重要的一条**：**不要在 WSL 里再装 Linux 版 NVIDIA 驱动**（`nvidia-driver-xxx` 那种）。WSL 的 GPU 支持是 Windows 侧驱动通过 `/usr/lib/wsl/lib/` 注入 `libcuda.so` 实现的；在 WSL 里装 Linux 驱动会把它顶掉，反而用不了。WSL 里至多只需要装「CUDA Toolkit」（编译器/库，见第四步），它不含驱动。
 
-**第二步：验证 WSL 能看到 GPU**。📋 执行：
+**第二步：验证 WSL 能看到 GPU**。📋 整块复制粘贴执行：
 
 ```bash
 nvidia-smi
