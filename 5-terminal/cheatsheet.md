@@ -44,6 +44,7 @@ chmod +x setup.sh && ./setup.sh
 | `Ctrl+A s` | 选择会话 (树状预览、可缩放) |
 | `Ctrl+A c` | 新窗口 |
 | `Ctrl+A 1-9` | 切换窗口 |
+| `Ctrl+A g` | 浮动终端：临时敲命令，不打乱当前分屏（`exit` / `Ctrl+D` 关） |
 | `Ctrl+A r` | 重载配置 |
 | `Ctrl+A Enter` | 进入复制模式 (vi 键位) |
 
@@ -71,7 +72,7 @@ chmod +x setup.sh && ./setup.sh
 | 快捷键 | 功能 |
 |--------|------|
 | `Ctrl+A Ctrl+S` | 存会话骨架（布局+文字、非进程） |
-| `Ctrl+A Ctrl+R` | 恢复会话骨架 |
+| `Ctrl+A Ctrl+R` | 手动恢复会话骨架（其实下次启动 tmux 已自动恢复，此键备用） |
 | `Ctrl+A I` | 补装插件 (setup.sh 已自动装；仅装不全时兜底，大写 I 是 TPM 硬编码) |
 
 ### tmux 自带默认键（没写进配置、出厂就有）

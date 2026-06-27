@@ -63,6 +63,7 @@ show_help() {
     echo -e "  ${D}别的窗口有新输出会自动高亮该窗口标签${N}"
     echo ""
     echo -e "  ${B}其他${N}"
+    echo -e "  ${G}Ctrl+A g${N}        浮动终端 (临时敲命令，不打乱分屏；exit/Ctrl+D 关)"
     echo -e "  ${G}Ctrl+A r${N}        重载配置"
     echo -e "  ${G}Ctrl+A Enter${N}    进入复制模式 (v选择, y复制)"
     echo ""
