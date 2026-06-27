@@ -9,7 +9,7 @@
 **这一层做什么**：
 
 1. 终端模拟器 WezTerm：Catppuccin Mocha 主题、Nerd Font、半透明背景、默认启动进 WSL、GPU 加速。
-2. 复用器 tmux：会话保存/恢复、一键分屏（含 Agent Team 布局）、Vim 风格操作。
+2. 复用器 tmux：会话保存/恢复、一键分屏（含 Agent Team 布局）、方向键 + 鼠标操作、广播输入与多格监控。
 3. shell：交互 shell 换成 zsh + oh-my-zsh（灰字补全、命令高亮），并把 4-dev §1.7 装的 zoxide / fzf / eza / bat 接进 bash 和 zsh，提示符换成 starship。
 
 本目录（`5-terminal/`）按角色分成三个文件夹，每个文件夹放该角色的配置和它自己的安装脚本：
@@ -22,7 +22,7 @@
 │   ├── wezterm.lua            Catppuccin Mocha 主题、Nerd Font、半透明毛玻璃、默认启动 WSL、GPU 加速、快捷键
 │   └── setup.sh               下载 Nerd Font + 部署 ~/.wezterm.lua（自动填 default_domain）
 ├── multiplexer/               复用器（自带安装脚本，可独立配置）
-│   ├── tmux.conf              Vim 风格 pane 切换、Catppuccin 状态栏、Agent Team 布局、会话保存/恢复
+│   ├── tmux.conf              方向键 pane 切换、广播/监控、Catppuccin 状态栏(CPU/电池)、Agent Team 布局、会话保存/恢复
 │   ├── ta                     tmux 快捷命令：创建/连接/关闭会话，自动分屏
 │   └── setup.sh               tmux 本体兜底 + 部署 ~/.tmux.conf + TPM/插件 + ta + win32yank
 └── shell/                     shell（自带安装脚本，可独立配置）
@@ -126,16 +126,17 @@ chmod +x setup.sh && ./setup.sh
 
 1. tmux 本体：一般已在 [4-dev §1.7](../4-dev/README.md) 用 `apt` 装好；脚本第一步会探测，没装就 `apt install` 兜底装上。
 2. 部署 `tmux.conf` → `~/.tmux.conf`（原有的备份为 `.bak`）。
-3. 装 TPM（tmux 插件管理器）及它管理的 3 个插件 `tmux-sensible` / `tmux-resurrect` / `tmux-continuum`（用命令行 `install_plugins` 装，比进 tmux 按 `Ctrl+A I` 可靠；连 TPM 本体，`~/.tmux/plugins/` 下共 4 个）。
+3. 装 TPM（tmux 插件管理器）及它管理的 5 个插件 `tmux-sensible` / `tmux-resurrect` / `tmux-continuum` / `tmux-cpu` / `tmux-battery`（用命令行 `install_plugins` 装，比进 tmux 按 `Ctrl+A I` 可靠；连 TPM 本体，`~/.tmux/plugins/` 下共 6 个）。
 4. 装 `ta` 命令到 `~/.local/bin/`。
 5. 装 `win32yank`（修 WSL 默认 `clip.exe` 复制中文乱码）。
 
 **`tmux.conf` 配了什么**：
 
 - 前缀键从 `Ctrl+B` 改成 `Ctrl+A`。
-- Catppuccin Mocha 状态栏（左 session 名、右日期时间）。
-- Vim 风格 pane 切换、鼠标支持（点选 / 滚轮翻页 / 拖边框调大小）。
+- Catppuccin Mocha 状态栏：左侧 session 名 + 指示灯（按下前缀亮 `PREFIX`、开广播亮 `SYNC`），右侧 CPU 占用 + 电池 + 日期时间（纯文字+颜色，不依赖 Nerd Font）。
+- 方向键切 pane（前缀 + ←↓↑→，tmux 自带）、`Alt+方向键`调大小（不用前缀）、鼠标支持（点选 / 滚轮翻页 / 拖边框调大小）。不再绑 vim 的 hjkl，顺带把 `前缀+l` 还给默认的"跳上一个窗口"。
 - 一键 Agent Team 布局：三格（1 大 + 2 小）、田字格（4 等分）。
+- 多格协同 / 监控：`Ctrl+A e` 广播输入（一条命令同时发给当前窗口所有 pane）、别的窗口有新输出/响铃时标签自动高亮、`Ctrl+A M` 给 pane 设"静默 N 秒就提醒"（长任务跑完通知）、每个 pane 顶部标题栏显示「编号 命令」分清谁是谁。
 - 复制走 `win32yank`（修中文乱码）。
 - 会话保存/恢复（resurrect + continuum，每 10 分钟自动存）——**要分清两种情况，别被「恢复」二字误导**：
   - **只 detach、不关机**：进程本来就在后台真跑着，`attach` 回来即可，这是 tmux 本体能力、跟插件无关；挂长任务过夜靠的就是这个。
@@ -157,7 +158,7 @@ chmod +x setup.sh && ./setup.sh
 
 **排错**（少见）：
 
-- 插件没装全（只装上 `tpm` 自身或一个）：`Ctrl+A` 然后大写 `I` 的交互式安装有时会漏装，命令行最可靠。📋 整块复制粘贴执行（在 WSL 终端，不必进 tmux），再 `ls ~/.tmux/plugins/` 应看到 4 个：
+- 插件没装全（只装上 `tpm` 自身或一个）：`Ctrl+A` 然后大写 `I` 的交互式安装有时会漏装，命令行最可靠。📋 整块复制粘贴执行（在 WSL 终端，不必进 tmux），再 `ls ~/.tmux/plugins/` 应看到 6 个：
 
   ```bash
   ~/.tmux/plugins/tpm/bin/install_plugins

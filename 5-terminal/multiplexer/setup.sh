@@ -51,7 +51,7 @@ else
     ok "TPM 已存在"
 fi
 
-# 自动安装 tmux 插件（tmux-sensible / tmux-resurrect / tmux-continuum）
+# 自动安装 tmux 插件（tmux-sensible / tmux-resurrect / tmux-continuum / tmux-cpu / tmux-battery）
 # 注意：进 tmux 后按 Ctrl+A I 的交互式安装有时只装上一个插件，这里直接用
 # TPM 的命令行安装脚本，确保 tmux.conf 里声明的插件全部装上。
 if [[ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]]; then
