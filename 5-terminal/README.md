@@ -144,6 +144,13 @@ chmod +x setup.sh && ./setup.sh
   - **tmux 真退出后**（`wsl --shutdown`、电脑重启、tmux server 被杀）：这才轮到插件出场，但它**只恢复「会话骨架」**——窗口数、分屏布局、各 pane 的工作目录，外加当时屏幕上的**文字快照**（`capture-pane-contents`）。它**不会让你跑的命令继续跑**：进程早随重启结束了，恢复出来是新 shell，只是布局和文字长得一样。这套骨架在你**下次启动 tmux 时由 continuum 自动恢复**（`@continuum-restore on`，不用手动；想手动恢复按 `Ctrl+A Ctrl+R`）。
 - 滚动缓冲 10 万行（接 Claude Code 长输出）。
 
+**按需取舍与调整**（都在 `~/.tmux.conf`，改完 `Ctrl+A r` 重载即可；这是个跨机器复用的仓库，下面几条尤其值得照搬前知道）：
+
+- **状态栏电池段是「本机相关」的，换机器可能是空的。** 右侧 `BAT` 读的是 WSL 透传进来的 `/sys/class/power_supply/BAT*`，这台笔记本能读到。但**台式机本来没电池、或某些 WSL2 内核 / WSLg 版本没把电池透传进来**时，`#{battery_percentage}` 会返回空，状态栏就显示成「`BAT  │`」一截空白——**这不是坏了、也不报错，只是难看**。不需要电池就删两处：① `tmux.conf` 插件区的 `set -g @plugin 'tmux-plugins/tmux-battery'` 这行；② `status-right` 里 `#{battery_color_fg}BAT #{battery_percentage}#[fg=#6c7086] │ ` 这一段。CPU 段读的是 `/proc`，所有机器都正常，不受影响。
+- **盯长任务 / 多 agent 时，真正的主力信号是 `Ctrl+A M`（静默告警），不是窗口活动高亮。** `monitor-activity` 的逻辑是「别的窗口一有新输出就高亮标签」——但你多格各跑一个 agent、几乎一直在刷输出时，几乎每个非当前窗口都会**常亮**，信号被稀释、等于没用。而 `Ctrl+A M` 设的「安静 N 秒就提醒」抓的恰是**任务跑完、不再刷屏的那一刻**，才是这个场景对的信号。所以：**`Ctrl+A M` 当主力，活动高亮当辅助**（活动高亮在"偶尔有个后台窗口冒一条输出"时仍有用，故保留）。
+- **pane 顶部标题栏每个 pane 吃掉一行。** 田字格 4 格 + 终端不高时，4 条标题占 4 行，会觉得挤。「分清谁是谁」一般值这个代价；嫌挤就把 `tmux.conf` 里 `set -g pane-border-status top` 改成 `off` 关掉，或临时 `Ctrl+A z` 把当前格放大了看。
+- **`Ctrl+A C-q` 显示的 pane 编号默认只停 1 秒，已调到 2 秒**（`display-panes-time 2000`，和消息提示时长 `display-time` 对齐），手快想调短就改这个值。
+
 **`ta` 命令**：把「建会话 / 连会话 / 自动分屏」收成一条命令：
 
 | 命令 | 作用 |
