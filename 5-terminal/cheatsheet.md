@@ -37,9 +37,9 @@ chmod +x setup.sh && ./setup.sh
 |--------|------|
 | `Ctrl+A %` | 左右分屏 |
 | `Ctrl+A "` | 上下分屏 |
-| `Ctrl+A ←↓↑→` | 方向键切换 pane（tmux 自带；鼠标点击也行） |
+| `Alt+←↓↑→` | 切换 pane（不用前缀，按住 Alt 连点；`前缀+方向键`也能切） |
 | `Ctrl+A Ctrl+Q` | 显示各 pane 编号，按数字直接跳过去 |
-| `Alt+←↓↑→` | 调整 pane 大小 (不需要前缀；鼠标拖边框也行) |
+| 鼠标拖边框 | 调整 pane 大小（键盘党用 `前缀 + Alt+方向键`，tmux 自带） |
 | `Ctrl+A d` | 后台挂起 (detach) |
 | `Ctrl+A s` | 选择会话 (树状预览、可缩放) |
 | `Ctrl+A c` | 新窗口 |
