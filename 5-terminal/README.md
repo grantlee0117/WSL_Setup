@@ -26,6 +26,7 @@
 │   ├── ta                     tmux 快捷命令：创建/连接/关闭会话，自动分屏
 │   └── setup.sh               tmux 本体兜底 + 部署 ~/.tmux.conf + TPM/插件 + ta + win32yank
 └── shell/                     shell（自带安装脚本，可独立配置）
+    ├── shell.common.sh        bash/zsh 共用片段：现代别名 + fzf 配色（单处定义、两边 source，避免漂移）
     ├── shell.bash             把 4-dev §1.7 的 zoxide/fzf/eza/bat 接进 bash + 大历史/多 pane 共享
     ├── shell.zsh              同上的 zsh 版（接线对称）+ zsh 专属灰字补全/命令高亮
     ├── zshrc                  ~/.zshrc 模板：oh-my-zsh 引导（内置插件）→ 末尾 source shell.zsh
@@ -198,10 +199,12 @@ chmod +x setup.sh && ./setup.sh
 脚本做了什么（按执行先后）：
 
 1. 装 starship 提示符（到 `~/.local/bin`）。
-2. 部署 bash 接线：`shell.bash` → `~/.config/wsl-setup/`、`starship.toml` → `~/.config/`，并在 `~/.bashrc` 末尾 source。
-3. 装 zsh + oh-my-zsh，含两个外部插件 `zsh-autosuggestions`（灰字补全）、`zsh-syntax-highlighting`（命令高亮）。
+2. 部署 bash 接线：`shell.common.sh`（bash/zsh 共用）、`shell.bash` → `~/.config/wsl-setup/`、`starship.toml` → `~/.config/`，并在 `~/.bashrc` 末尾 source。
+3. 装 zsh + oh-my-zsh，含两个外部插件 `zsh-autosuggestions`（灰字补全）、`zsh-syntax-highlighting`（命令高亮）；zsh 这步装失败不致命，会跳过 zsh 部分、保留已生效的 bash 层。
 4. 部署 zsh 接线：`shell.zsh` → `~/.config/wsl-setup/`、`zshrc` → `~/.zshrc`。
 5. 把默认登录 shell 切到 zsh（重开终端生效）。
+
+> 部署到 `~/.config/` 与 `~/` 下的用户文件（`starship.toml`、`.zshrc`）只在内容与模板有别时才覆盖，且覆盖前自动备份；`~/.config/wsl-setup/` 里的 `shell.*` 是脚本托管的、直接覆盖。所以重跑脚本是幂等的，不会重复堆 `~/.bashrc` 的行，也不会把你的原配置冲没。
 
 > zoxide / fzf / eza / bat 的本体来自 [4-dev §1.7](../4-dev/README.md)，本层只负责把它们接进 shell；缺了也不报错，少接几样而已。starship 图标依赖 Nerd Font（由 §1 下载安装）——只配本层、没配 §1 的话，图标会显示成方框，单独补字体见 §1。
 
@@ -211,17 +214,19 @@ chmod +x setup.sh && ./setup.sh
 
 - **starship 提示符**：当前目录、git 分支与状态、项目语言版本、命令耗时（>2s 才显示），配色与 WezTerm/tmux 同为 Catppuccin Mocha。
 - **zoxide**：`z 关键字` 按访问频率跳到最常去的目录，不用再敲长路径。
-- **fzf 键位**：`Ctrl+R` 搜命令历史、`Ctrl+T` 选文件、`Alt+C` 跳子目录（Ubuntu 的 fzf 默认不挂键位，这里显式接上）。
-- **现代别名**：`ls`/`ll`/`la`/`lt` 走 eza（图标、git 状态、树形），`bat` = 带高亮的 cat，`fd` = 更快的 find。
+- **fzf 键位**：`Ctrl+R` 搜命令历史、`Ctrl+T` 选文件、`Alt+C` 跳子目录（Ubuntu 的 fzf 默认不挂键位，这里显式接上；新旧版都兼容——fzf ≥0.48 直接用 `fzf --bash/--zsh` 取键位，0.44（Ubuntu 24.04）则回退 source 自带的 example 脚本）。
+- **现代别名**：`ls`/`ll`/`la`/`lt` 走 eza（图标、git 状态、树形），`bat` = 带高亮的 cat，`fd` = 更快的 find。别名与 fzf 配色定义在 `shell.common.sh`，bash/zsh 共用一份。
 - **历史**：放大到 10 万条，并在多个 tmux pane / 终端间实时共享。
 
 **zsh 额外做了什么**（重开终端后默认就进 zsh）：`shell.zsh` 和 `shell.bash` 责任对称——上面那套（z / fzf / 别名 / starship / 大历史）zsh 里一样有；额外多出：
 
 - **灰字补全（autosuggestions）**：边敲边给灰色历史建议，`→` / `End` 接受整条、`Alt+F` 接受一个词。
 - **命令高亮（syntax-highlighting）**：合法命令显绿、拼错显红，回车前就看出问题。
-- **oh-my-zsh 内置插件**：`git`（海量 git 别名/补全）、`sudo`（连按两下 `Esc` 补 `sudo`）、`extract`（一条命令解任意压缩包）、`colored-man-pages`、`command-not-found`（提示该装哪个 apt 包）。
+- **oh-my-zsh 内置插件**：`git`（海量 git 别名/补全）、`sudo`（连按两下 `Esc` 补 `sudo`）、`extract`（一条命令解任意压缩包）、`colored-man-pages`、`command-not-found`（敲到没装的命令时提示该装哪个 apt 包；依赖系统的 `command-not-found` 包，精简 WSL 镜像若没装它则该项静默失效、不报错）。
 - **提示符仍是 starship**（`ZSH_THEME` 留空），与 bash 同款；历史靠 zsh 原生 `SHARE_HISTORY` 实时多 pane 共享，同样 10 万条。
 
 **脚本为何不受影响**：`chsh` 只换交互式登录 shell；脚本跑哪个解释器由它的 shebang 决定，跟登录 shell 无关，而本仓脚本都带 bash shebang，所以 `./xxx.sh`、`bash xxx.sh` 始终走 bash。「日常 zsh、脚本 bash」是默认结果，不用额外设置。想退回 bash 当默认：`chsh -s $(command -v bash)` 后重开终端，`~/.bashrc` 和 `shell.bash` 一直原样保留。
+
+> **定制与撤销**：想改别名 / 提示符 / 配色，改 `shell.common.sh`、`shell.bash`、`shell.zsh`、`starship.toml` 模板后重跑 `setup.sh` 即可——不要直接改 `~/.zshrc`，它每次重跑都会被模板覆盖（覆盖前若与模板有别会自动备份成 `.bak`，二次手改备成带时间戳的 `.bak.<时间>`，不会丢，但定制写进模板才是正路）。想**完全撤掉这一层**：`chsh -s $(command -v bash)` 切回 bash，再删 `~/.bashrc` 末尾本层加的两行（`~/.local/bin` 的 PATH 与 `source ~/.config/wsl-setup/shell.bash`）、`~/.zshrc`（原件在 `~/.zshrc.bak`）、`~/.config/wsl-setup/` 与 `~/.config/starship.toml`（原件在 `.bak`）即可；工具本体（zoxide/fzf/eza/bat）属 4-dev、不受影响。
 
 > shell / zsh 的完整键位速查见 [cheatsheet.md](./cheatsheet.md)。
