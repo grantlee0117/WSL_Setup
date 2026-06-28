@@ -75,7 +75,7 @@ chmod +x setup.sh && ./setup.sh
 1. 下载 JetBrainsMono Nerd Font 到 Windows 字体目录（装字体还要手动，见下一步）。
 2. 部署 `wezterm.lua` → Windows 的 `~/.wezterm.lua`，按本机 `WSL_DISTRO_NAME` 自动填好 `default_domain`（原配置备份为 `.bak`）。
 
-**装字体**：脚本只把字体下载到 Windows 字体目录，安装还要手动——在 Windows 资源管理器地址栏输入 `C:\Users\你的用户名\AppData\Local\Microsoft\Windows\Fonts`，全选所有 `.ttf` → 右键 → 为所有用户安装。（只下载不算装上；图标显示成方框就是这步没做。）
+**装字体**：脚本只把字体下载到 Windows 字体目录，安装还要手动——在 Windows 资源管理器地址栏输入 `C:\Users\你的用户名\AppData\Local\Microsoft\Windows\Fonts`，全选 `.ttf` → 右键 → 为所有用户安装。（只下载不算装上；图标显示成方框就是这步没做。）
 
 **`wezterm.lua` 配了什么**：
 
@@ -145,7 +145,7 @@ chmod +x setup.sh && ./setup.sh
   - **tmux 真退出后**（`wsl --shutdown`、电脑重启、tmux server 被杀）：这才轮到插件出场，但它**只恢复「会话骨架」**——窗口数、分屏布局、各 pane 的工作目录，外加当时屏幕上的**文字快照**（`capture-pane-contents`）。它**不会让你跑的命令继续跑**：进程早随重启结束了，恢复出来是新 shell，只是布局和文字长得一样。这套骨架在你**下次启动 tmux 时由 continuum 自动恢复**（`@continuum-restore on`，不用手动；想手动恢复按 `Ctrl+A Ctrl+R`）。
 - 滚动缓冲 10 万行（接 Claude Code 长输出）。
 
-**按需取舍与调整**（都在 `~/.tmux.conf`，改完 `Ctrl+A r` 重载即可；这是个跨机器复用的仓库，下面几条尤其值得照搬前知道）：
+**按需取舍与调整**（都在 `~/.tmux.conf`，改完 `Ctrl+A r` 重载即可；这是个跨机器复用的仓库，下面几条尤其值得在照搬前先看一眼）：
 
 - **状态栏电池段是「本机相关」的，换机器可能是空的。** 右侧 `BAT` 读的是 WSL 透传进来的 `/sys/class/power_supply/BAT*`，这台笔记本能读到。但**台式机本来没电池、或某些 WSL2 内核 / WSLg 版本没把电池透传进来**时，`#{battery_percentage}` 会返回空，状态栏就显示成「`BAT  │`」一截空白——**这不是坏了、也不报错，只是难看**。不需要电池就删两处：① `tmux.conf` 插件区的 `set -g @plugin 'tmux-plugins/tmux-battery'` 这行；② `status-right` 里 `#{battery_color_fg}BAT #{battery_percentage}#[fg=#6c7086] │ ` 这一段。CPU 段读的是 `/proc`，所有机器都正常，不受影响。
 - **盯长任务 / 多 agent 时，真正的主力信号是 `Ctrl+A M`（静默告警），不是窗口活动高亮。** `monitor-activity` 的逻辑是「别的窗口一有新输出就高亮标签」——但你多格各跑一个 agent、几乎一直在刷输出时，几乎每个非当前窗口都会**常亮**，信号被稀释、等于没用。而 `Ctrl+A M` 设的「安静 N 秒就提醒」抓的恰是**任务跑完、不再刷屏的那一刻**，才是这个场景对的信号。所以：**`Ctrl+A M` 当主力，活动高亮当辅助**（活动高亮在"偶尔有个后台窗口冒一条输出"时仍有用，故保留）。
@@ -218,7 +218,7 @@ chmod +x setup.sh && ./setup.sh
 - **现代别名**：`ls`/`ll`/`la`/`lt` 走 eza（图标、git 状态、树形），`bat` = 带高亮的 cat，`fd` = 更快的 find。别名与 fzf 配色定义在 `shell.common.sh`，bash/zsh 共用一份。
 - **历史**：放大到 10 万条，并在多个 tmux pane / 终端间实时共享。
 
-**zsh 额外做了什么**（重开终端后默认就进 zsh）：`shell.zsh` 和 `shell.bash` 责任对称——上面那套（z / fzf / 别名 / starship / 大历史）zsh 里一样有；额外多出：
+**zsh 额外做了什么**（重开终端后默认就进 zsh）：`shell.zsh` 和 `shell.bash` 责任对称——上面那套（z / fzf / 别名 / starship / 大历史）zsh 里一样有；多出：
 
 - **灰字补全（autosuggestions）**：边敲边给灰色历史建议，`→` / `End` 接受整条、`Alt+F` 接受一个词。
 - **命令高亮（syntax-highlighting）**：合法命令显绿、拼错显红，回车前就看出问题。

@@ -80,7 +80,7 @@ done
 ok "ta 命令就绪"
 
 # ─── 4. win32yank（修复 tmux 复制中文乱码）────────────────
-# tmux.conf 的复制绑定（Ctrl+A y / 鼠标选择）直接调用 win32yank.exe，
+# tmux.conf 的复制绑定（复制模式里按 y / 鼠标拖选）直接调用 win32yank.exe，
 # 不装会 command not found、复制中文乱码，所以并进脚本而非留给手动。
 info "检查 win32yank..."
 if command -v win32yank.exe &>/dev/null; then
