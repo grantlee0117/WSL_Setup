@@ -36,7 +36,7 @@ Keil 的项目配置（`.uvprojx`）、编译器（armcc/armclang）、构建过
 | 三（验证开发工作流） | 10-15 分钟 | 取决于项目 |
 | 四（配通烧录链路） | 5-10 分钟 | — |
 
-**风险等级说明**（同 4-dev 文档）：
+**风险等级说明**（沿用 [4-dev](../4-dev/README.md) 口径，本文只涉及其中两级）：
 
 | 等级 | 含义 |
 |:---:|------|
@@ -103,7 +103,7 @@ cmake --version && ninja --version
 
 ### 1.3 GDB 多架构调试器 🟢 无风险
 
-**为什么要装**：GDB 配合 OpenOCD 可以在线调试 STM32——打断点、查变量、单步执行。`gdb-multiarch` 支持所有 CPU 架构，比单一的 `gdb-arm-none-eabi` 更通用（Ubuntu 24.04 apt 源中可能没有后者）。
+**为什么要装**：GDB 配合 OpenOCD 可以在线调试 STM32——打断点、查变量、单步执行。`gdb-multiarch` 支持所有 CPU 架构，比单架构的 `gdb-arm-none-eabi` 更通用（Ubuntu 24.04 apt 源中可能没有后者）。
 
 📋 整块复制粘贴执行：
 
@@ -227,7 +227,7 @@ winget install --interactive --exact dorssel.usbipd-win
 usbipd --version
 ```
 
-> **说明**：新版 usbipd-win（4.0+）**WSL 侧不需要安装任何东西**。以前的版本需要在 WSL 里装 usbip 客户端和内核驱动，现在已经不需要了，WSL 内核自带支持。
+> **说明**：新版 usbipd-win（4.0+）**WSL 侧不需要安装任何东西**。以前的版本需要在 WSL 里装 usbip 客户端和内核驱动，现在 WSL 内核已自带支持。
 >
 > **参考**：[微软官方文档](https://learn.microsoft.com/en-us/windows/wsl/connect-usb) | [usbipd-win GitHub](https://github.com/dorssel/usbipd-win)
 
@@ -253,7 +253,7 @@ usbipd --version
 - 配置引脚分配、时钟树等
 - 初次使用可以只配一个 GPIO 输出（用来做最简单的 LED 闪烁验证）
 
-> **HAL vs LL 备选**：CubeMX 默认为每个外设生成 HAL 库代码。如果某个外设对性能敏感（比如高频定时器中断里的 ADC 读取），可以在 CubeMX 的外设配置页面中把该外设单独切换成 LL 库——**同一个项目里 HAL 和 LL 可以按外设混用，互不干扰**。建议先全用 HAL 跑通，以后用示波器测量发现某个中断处理耗时过长时，再把那个外设换成 LL。
+> **HAL vs LL 备选**：CubeMX 默认为每个外设生成 HAL 库代码。如果某个外设对性能敏感（比如高频定时器中断里的 ADC 读取），可以在 CubeMX 的外设配置页面中把该外设单独切换成 LL 库——**同一个项目里 HAL 和 LL 可以按外设混用，互不干扰**。建议先全用 HAL 跑通，以后用示波器测到某个中断处理耗时过长时，再把那个外设换成 LL。
 
 **③ 项目设置（关键步骤）**
 
@@ -287,31 +287,7 @@ cd ~/projects/blink
 
 > **清理 Zone.Identifier**：从 Windows 复制过来的文件会带 `Zone.Identifier` 垃圾标记文件。复制完后在项目目录执行 `fuck-zone` 清理（脚本见 [4-dev/scripts/](../4-dev/scripts/)，安装方式见 [4-dev](../4-dev/README.md) §1.7）。
 
-### 3.3 修复编译器路径（首次必做）
-
-> **为什么要这一步**：CubeMX 生成的工具链文件里，编译器路径很可能是硬编码的绝对路径（指向 CubeCLT 的安装位置），而不是直接写 `arm-none-eabi-gcc`。如果你没装 CubeCLT，编译会直接报"找不到编译器"。这个坑几乎 100% 会遇到。
-
-📋 先检查工具链文件中的编译器路径（整块复制粘贴执行）：
-
-```bash
-grep -r "arm-none-eabi-gcc" cmake/ CMakeLists.txt 2>/dev/null | head -5
-```
-
-如果看到类似这样的**绝对路径**：
-
-```
-/opt/st/stm32cubeclt/GNU-tools-for-STM32/bin/arm-none-eabi-gcc
-```
-
-需要改成不带路径的 `arm-none-eabi-gcc`（让系统从 PATH 中查找 apt 安装的版本）。具体改哪个文件取决于 CubeMX 版本——可能在 `cmake/gcc-arm-none-eabi.cmake`、`CMakeLists.txt`、或 `CMakePresets.json` 中。把所有 `/opt/st/stm32cubeclt/.../bin/` 前缀删掉即可。
-
-> **验证编译器可被找到**：
-> ```bash
-> which arm-none-eabi-gcc
-> # 应输出 /usr/bin/arm-none-eabi-gcc
-> ```
-
-### 3.4 CMake 配置与编译
+### 3.3 CMake 配置与编译
 
 进入项目目录后，✂️ **逐条执行**：
 
@@ -328,7 +304,8 @@ cmake --build build
 > **说明**：
 > - `-B build`：在 `build/` 子目录下生成构建文件，保持源码目录干净
 > - `-G Ninja`：使用 Ninja 作为执行器（换成 `-G "Unix Makefiles"` 就用 Make）
-> - CubeMX 生成的 `CMakeLists.txt` 里已经配好了交叉编译工具链（指向 `arm-none-eabi-gcc`），不需要手动指定
+>
+> **万一这一步报"找不到编译器"**：是 CubeMX 把编译器写成了它自带工具（CubeCLT）的绝对路径、你机器上没有——见 §六 常见问题第一条，改一次即可。
 
 编译成功后，固件文件在：
 
@@ -347,7 +324,7 @@ arm-none-eabi-size build/*.elf
 
 > `arm-none-eabi-size` 会显示固件各段的大小（text = 代码段, data = 已初始化数据, bss = 未初始化数据），用来评估 Flash 和 RAM 占用。
 
-### 3.5 日常开发循环
+### 3.4 日常开发循环
 
 项目跑通后，日常开发循环是这样的：
 
@@ -386,7 +363,7 @@ arm-none-eabi-size build/*.elf
 
 > **重新生成代码**：如果在 CubeMX 中修改了外设配置并重新生成，CubeMX 只会覆盖它管理的文件（HAL 配置、启动文件等），**不会覆盖你在 `/* USER CODE BEGIN */` 和 `/* USER CODE END */` 之间写的代码**。这是 CubeMX 的核心设计——用注释标记保护用户代码。
 
-### 3.6 一键构建+烧录脚本（可选）
+### 3.5 一键构建+烧录脚本（可选）
 
 编译成功后烧录虽然只是一行命令，但每次手敲还是麻烦。可以在项目根目录放一个脚本，把构建和烧录串起来。
 
@@ -441,6 +418,8 @@ chmod +x flash.sh
 ## 四、烧录
 
 > **优先级说明**：烧录链路不阻塞 AI 开发。如果你暂时不需要烧录到实际硬件（比如先搭环境、先写代码），可以跳过本节，以后再回来配。
+>
+> **关于命令里的 `firmware.elf`**：这是占位文件名。CubeMX 生成的固件名随项目名走（§3 跑的 `blink` 项目即 `build/blink.elf`），下文烧录 / 调试命令里的 `build/firmware.elf` 请换成你的实际产物；不确定就先 `ls build/*.elf` 看一眼。§3.5 的 `flash.sh` 用 `build/*.elf` 通配，无需改名。
 
 ### 4.1 USB 透传（将 ST-Link 映射进 WSL）
 
@@ -672,12 +651,27 @@ usbipd --version
 
 ### Q：`cmake -B build -G Ninja` 报错找不到编译器？
 
-检查 CubeMX 生成的 `CMakeLists.txt` 或工具链文件中引用的编译器路径。如果写了绝对路径（比如 CubeCLT 的路径），需要改成 `arm-none-eabi-gcc`（不带路径，让系统从 PATH 中查找）。
+**原因**：CubeMX 生成的工具链文件里，编译器路径有时是硬编码的绝对路径（指向它自带工具 CubeCLT 的安装位置），而不是直接写 `arm-none-eabi-gcc`。你用 apt 装编译器、又没装 CubeCLT，那个路径在你机器上不存在，cmake 自然找不到。是否如此跟 CubeMX 版本有关，部分版本会遇到。
 
-📋 确认编译器在 PATH 中（整块复制粘贴执行）：
+📋 先看工具链文件里写的是不是绝对路径（整块复制粘贴执行）：
+
+```bash
+grep -r "arm-none-eabi-gcc" cmake/ CMakeLists.txt 2>/dev/null | head -5
+```
+
+如果看到类似这样的**绝对路径**：
+
+```
+/opt/st/stm32cubeclt/GNU-tools-for-STM32/bin/arm-none-eabi-gcc
+```
+
+就把 `/opt/st/stm32cubeclt/.../bin/` 这段前缀删掉、只留 `arm-none-eabi-gcc`，让系统从 PATH 里找 apt 装的版本。具体在哪个文件取决于 CubeMX 版本——可能是 `cmake/gcc-arm-none-eabi.cmake`、`CMakeLists.txt` 或 `CMakePresets.json`。
+
+📋 改完确认编译器能被找到（整块复制粘贴执行）：
 
 ```bash
 which arm-none-eabi-gcc
+# 应输出 /usr/bin/arm-none-eabi-gcc
 ```
 
 ---
@@ -752,7 +746,7 @@ CubeMX 版本太旧。CMake 导出需要 **6.14.0 或更高版本**。在 CubeMX
 📋 查看各段大小（整块复制粘贴执行）：
 
 ```bash
-arm-none-eabi-size build/firmware.elf
+arm-none-eabi-size build/*.elf
 ```
 
 常见原因：
