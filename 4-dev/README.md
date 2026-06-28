@@ -187,7 +187,7 @@ gh auth status
 
 ### 1.5 通用 C/C++ 编译库与工具链 🟢 无风险
 
-这些大多是 `-dev` 头文件包（外加 gfortran 编译器），不改系统行为、互不冲突、卸载干净。这里覆盖面铺得尽量广，让大部分项目的依赖都能直接从源码编译过。
+这些大多是 `-dev` 头文件包（外加 gfortran 编译器），不改系统行为、互不冲突、卸载干净。这里覆盖面铺得尽量广，让大部分项目的依赖都能直接从源码编译通过。
 
 **为什么要装**：后续编译 Python C 扩展、Node.js 原生模块、任何开源项目时都需要这些头文件。
 
@@ -355,7 +355,7 @@ sudo apt install -y \
 > source ~/.bashrc
 > ```
 
-> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。原生 tmux 的前缀键是 `Ctrl+B`——按 `Ctrl+B` 再按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。（装了下面 [5-terminal](../5-terminal/README.md) 的配置后，前缀键会改成 `Ctrl+A`。）那套完整的 tmux + WezTerm 主题化配置（Catppuccin 配色、Vim 风格操作、会话自动保存）也在 [5-terminal](../5-terminal/README.md)。
+> **tmux 入门**：在终端中输入 `tmux` 进入一个新会话。原生 tmux 的前缀键是 `Ctrl+B`——按 `Ctrl+B` 再按 `D` 可以离开会话（后台继续运行），`tmux attach` 重新连接。（装了下面 [5-terminal](../5-terminal/README.md) 的配置后，前缀键会改成 `Ctrl+A`。）
 
 **清理 Zone.Identifier 垃圾文件**：
 
@@ -477,7 +477,7 @@ nvm install --lts
 
 **启用 pnpm / yarn（corepack）**：
 
-现代 TypeScript/Node 项目大量用 pnpm 或 yarn（看仓库根目录有没有 `pnpm-lock.yaml` / `yarn.lock`，或 `package.json` 里的 `packageManager` 字段）。这类仓库用 `npm install` 打开会因为 lockfile 不一致、monorepo（workspace）解析失败而出错。好在 nvm 装的 Node 自带 `corepack`，启用一下就有 pnpm/yarn，不必额外装。📋 整块复制粘贴执行：
+现代 TypeScript/Node 项目大量用 pnpm 或 yarn（看仓库根目录有没有 `pnpm-lock.yaml` / `yarn.lock`，或 `package.json` 里的 `packageManager` 字段）。这类仓库直接用 `npm install`，会因为 lockfile 不一致、monorepo（workspace）解析失败而出错。好在 nvm 装的 Node 自带 `corepack`，启用一下就有 pnpm/yarn，不必额外装。📋 整块复制粘贴执行：
 
 ```bash
 corepack enable
@@ -500,7 +500,7 @@ npx playwright install chromium  # 下载浏览器本体
 
 ### 1.10 Java 环境 🟡 低风险
 
-**为什么要装**：Java 工具链（Maven、Gradle、部分 IDE 功能）依赖 JDK。这里显式装 JDK 和常用构建工具 Maven；LibreOffice 虽也会拉入 OpenJDK，但显式安装确保版本可控。
+**为什么要装**：Java 工具链（Maven、Gradle、部分 IDE 功能）依赖 JDK。这里显式装 JDK 和常用构建工具 Maven；LibreOffice 虽也会拉入 OpenJDK，但单独装确保版本可控。
 
 📋 整块复制粘贴执行：
 
@@ -635,7 +635,7 @@ sudo apt install -y texlive-full
 > sudo apt install -y texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-lang-chinese texlive-xetex texlive-science texlive-pictures latexmk
 > ```
 
-### 1.16 Claude Code 安装
+### 1.16 Claude Code 安装 🟡 低风险
 
 > **来源**：[官方文档](https://docs.claude.com/en/docs/claude-code)
 >
@@ -670,7 +670,7 @@ sudo apt install -y bubblewrap socat
 
 > **说明**：bubblewrap + socat 是 Claude Code 沙盒功能的必要依赖。
 
-### 1.17 OpenAI Codex CLI 安装
+### 1.17 OpenAI Codex CLI 安装 🟢 无风险
 
 > **来源**：[官方 GitHub](https://github.com/openai/codex) / [官方文档](https://developers.openai.com/codex/cli/)
 >
@@ -690,7 +690,7 @@ codex --version
 
 > **WSL 注意**：如果 `command -v codex` 显示的是 `/mnt/c/Program Files/WindowsApps/...`，那是 Windows 侧 Codex App 暴露进 WSL PATH 的入口，不是上面这条 npm 在 WSL 里装的版本。开发请以 WSL 原生安装的为准，必要时用 `npm ls -g @openai/codex` 确认。
 
-### 1.18 Google Gemini CLI 安装
+### 1.18 Google Gemini CLI 安装 🟢 无风险
 
 > **来源**：[官方 GitHub](https://github.com/google-gemini/gemini-cli) / [官方文档](https://geminicli.com/docs/get-started/installation/)
 >
@@ -719,11 +719,13 @@ npm i -g @google/gemini-cli
 gemini --version
 ```
 
-### 1.19 Docker Engine 安装
+### 1.19 Docker Engine 安装 🟠 需注意
 
 > **来源**：[Docker 官方文档](https://docs.docker.com/engine/install/ubuntu/)
 >
 > 这里装的是 Docker Engine（纯命令行），不是 Docker Desktop。无商业许可限制。
+>
+> **为什么标 🟠**：会添加 Docker 官方 apt 源、装一个常驻的 systemd 服务（`dockerd` 以 root 运行），并把你加进 `docker` 组——而 `docker` 组成员等价于 root 权限（能挂载宿主任意目录）。都是成熟稳定的官方方案、不会破坏系统，但属于"要知道自己装了什么"的一类。
 
 **第一步：添加 Docker 官方 apt 源**
 
