@@ -408,7 +408,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
 > 如果你只有一台电脑，跳过本节。
 
-用 Deskflow 让两台电脑共用一套键盘鼠标（鼠标滑到哪台屏幕就控制哪台，类似 Synergy/Barrier）。配置步骤较长，且与开发环境主线无关，已拆到单独文档：
+用 Deskflow 让两台电脑共用一套键盘鼠标（鼠标滑到哪台屏幕就控制哪台，类似 Synergy/Barrier）。详细配置步骤见单独文档：
 
 👉 **[Deskflow 双机键鼠共享配置](./deskflow.md)**（含静态 IP、服务端 / 客户端配置、指纹验证、防火墙放行、开机自启、常见问题排查与可选优化）
 
