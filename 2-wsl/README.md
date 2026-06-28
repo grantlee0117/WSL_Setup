@@ -131,7 +131,7 @@ cat /etc/os-release   # 看到 VERSION_ID="24.04" 即成功，进入第二节
 > ```powershell
 > wsl --install -d Ubuntu-24.04        # 安装 24.04
 > wsl --list --verbose                 # 确认 24.04 已就绪，并看清多余发行版的名字
-> wsl --unregister Ubuntu              # 删掉多余的发行版（会清空其所有文件，确认无数据再删）
+> wsl --unregister <多余发行版名>       # 名字以上一条 --list 输出为准、未必叫 Ubuntu；会清空其所有文件，确认无数据再删
 > wsl --set-default Ubuntu-24.04       # 设为默认
 > ```
 

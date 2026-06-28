@@ -1,6 +1,6 @@
 # WSL 侧网络接入（备用：手动代理 · DNS · 排错）
 
-本仓库作者用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理）。
+本仓库作者用 Amnezia 全局 TUN（网络层接管）+ WSL2 镜像模式：WSL 与 Windows 共用网卡和路由，全局所有流量自动经 Amnezia 隧道出网。实测（2026-06）DNS、SSH、curl 全部开箱即用，**WSL 侧无需任何代理或 DNS 配置**（WireGuard、OpenVPN、Tailscale Exit Node 等全局 VPN / TUN 级工具同理——这里指它们在网络层接管出网路由的能力；其中 Tailscale 若同时开了 MagicDNS 则要单独留意，它会改写 `/etc/resolv.conf`、把 DNS 指向 `100.100.100.100`，见下文「二、手动接管 DNS」及其「原理」表）。
 
 所以本文是**备用手册**——只有改回 Clash 这类「需在 WSL 内手动配代理」的工具、或基线 DNS 失效时才用得上。先跑下面四条自检，全过就保持现状、整篇跳过：
 
@@ -212,6 +212,8 @@ if echo "$SSH_RESULT" | grep -q "successfully authenticated"; then
   echo "OK: $SSH_RESULT"
 elif echo "$SSH_RESULT" | grep -q "name resolution"; then
   echo "!! PROBLEM: DNS 解析失败 — 先按第 1/2 项修 DNS"
+elif echo "$SSH_RESULT" | grep -q "Permission denied (publickey)"; then
+  echo "OK(连通正常): 能连到 GitHub，仅 SSH key 未配/未授权 — DNS 与网络层都没问题，去 1-windows §5.6 配好 key 即可"
 elif echo "$SSH_RESULT" | grep -q "Connection timed out\|Connection refused"; then
   echo "!! PROBLEM: 连接超时/被拒 — 可能需要 SSH ProxyCommand"
 else
