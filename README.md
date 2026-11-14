@@ -8,7 +8,7 @@
 
 | 域 | 内容 | 预估耗时 |
 |------|------|:---:|
-| [1-windows](./1-windows/README.md) | Windows 侧：纯净系统 / OOBE、显示器、显卡、基础软件、Git、SSH、Deskflow | 30–60 分钟 |
+| [1-windows](./1-windows/README.md) | Windows 侧：纯净系统 / OOBE、显示器与电源、显卡、基础软件、Git、SSH、Deskflow | 30–60 分钟 |
 | [2-wsl](./2-wsl/README.md) | WSL2 安装与配置：`wsl.conf`、systemd、DNS / 网络基础 | 15–30 分钟 |
 | [3-network](./3-network/README.md) | 代理 / 网络 / DNS：Windows 侧代理、WSL 侧代理与 DNS、网络自检、故障排查 | 视情况 |
 | [4-dev](./4-dev/README.md) | 开发环境：编程语言（Python/Node/Java/Rust/Go/C++）、Claude Code、Codex/Gemini CLI、Docker、数据库客户端、性能分析、安全门禁、云原生（k8s/IaC）、可选 GPU/CUDA，以及 Claude Code skill 所需底层依赖 | 70–110 分钟 |
