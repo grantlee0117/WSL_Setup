@@ -2,3 +2,7 @@
 # 其余小安装包、配置、数据库、文档照常入库——仓库本身就是来源
 3-network/desktop/amnezia/*.exe
 3-network/**/WebView2_Bundled/
+
+# 编辑器本地配置，不入库
+.obsidian/
+.zcodeignore
