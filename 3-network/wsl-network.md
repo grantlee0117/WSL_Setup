@@ -213,7 +213,7 @@ if echo "$SSH_RESULT" | grep -q "successfully authenticated"; then
 elif echo "$SSH_RESULT" | grep -q "name resolution"; then
   echo "!! PROBLEM: DNS 解析失败 — 先按第 1/2 项修 DNS"
 elif echo "$SSH_RESULT" | grep -q "Permission denied (publickey)"; then
-  echo "OK(连通正常): 能连到 GitHub，仅 SSH key 未配/未授权 — DNS 与网络层都没问题，去 1-windows §5.6 配好 key 即可"
+  echo "OK(连通正常): 能连到 GitHub，仅 SSH key 未配/未授权 — DNS 与网络层都没问题，去 1-windows §6.6 配好 key 即可"
 elif echo "$SSH_RESULT" | grep -q "Connection timed out\|Connection refused"; then
   echo "!! PROBLEM: 连接超时/被拒 — 可能需要 SSH ProxyCommand"
 else

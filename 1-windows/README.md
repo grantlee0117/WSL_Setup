@@ -165,17 +165,33 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 
 ---
 
-## 五、安装基础软件
+## 五、浏览器就绪：登录 Edge 并同步数据
 
-以下是开发环境的基础软件，**安装顺序很重要**——刚重置完的系统没有代理，也没有好用的浏览器，所以需要按下面的顺序逐步搭建起来。
+Edge 是 Windows 11 预装浏览器，重置完开机就能用，微软服务国内也可以直连。开始装软件之前，先在 Edge 里登录你的微软账号并开启同步：
 
-### 5.1 微信
+1. 打开 Edge，点击右上角的**头像图标** → **登录**，登录你的微软账号
+2. 登录后按提示**开启同步**；若没弹提示，到 `设置 → 个人资料 → 同步` 里手动确认收藏夹、密码等项已开启
+3. 等一两分钟，让收藏夹、保存的密码、扩展等数据同步下来
+
+> **为什么放在装软件之前？** 和下一章「先装微信当文件传输通道」同理，这一步是在打通**凭据通道**——后续要用的代理订阅链接（6.3）、GitHub 账号密码、各软件官网书签，大多存在浏览器同步数据里。同步就绪后，后面每一步要用账号密码时都是现成的。
+>
+> **与第一章的本地账户不冲突**：在 Edge 里登录微软账号只是浏览器层面的登录，不会把 Windows 账户变成微软账户，也不会触发第一章提到的 BitLocker 自动加密（那是用微软账户**登录 Windows** 才会触发的）。
+>
+> 主力浏览器是 Chrome、Edge 里本来没有数据的话，这步快速过一遍即可——Chrome 的登录与同步放在 6.4（需先装好代理）。
+
+---
+
+## 六、安装基础软件
+
+以下是开发环境的基础软件，**安装顺序很重要**——刚重置完的系统没有代理，Chrome 的下载和登录也要等代理就绪，所以需要按下面的顺序逐步搭建起来。
+
+### 6.1 微信
 
 下载安装 [微信 for Windows](https://weixin.qq.com/)。
 
 > **为什么先装微信？** 刚重置完的电脑什么都没有，微信是最方便的文件传输通道——手机上的配置文件、订阅链接、安装包等都可以通过微信直接传到电脑上。也可以找朋友帮忙发文件。
 
-### 5.2 VSCode
+### 6.2 VSCode
 
 下载安装 [Visual Studio Code](https://code.visualstudio.com/)。
 
@@ -190,21 +206,23 @@ UAC（用户账户控制）会在安装软件、修改系统设置时弹出确�
 >
 > 安装完成后，在 VSCode 的扩展商店中搜索并安装 **WSL** 扩展（由 Microsoft 发布），后续配置 WSL 时会用到。
 
-### 5.3 代理工具（如需科学上网）
+### 6.3 代理工具（如需科学上网）
 
 安装 [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases) 或你习惯的代理工具。
 
-> **重要**：后续很多开发工具的下载和使用都依赖网络畅通。如果你的网络环境需要代理，务必先装好代理工具。安装包和订阅链接可以通过微信从手机传过来。
+> **重要**：后续很多开发工具的下载和使用都依赖网络畅通。如果你的网络环境需要代理，务必先装好代理工具。安装包和订阅链接可以通过微信从手机传过来；若订阅链接已在第五章 Edge 同步下来的收藏夹/密码里，直接取用即可。
 >
 > **安装之后的配置**（订阅、节点、TUN 模式、配置文件、网络排错）统一见 [3-network](../3-network/README.md)。本节只负责把软件装上。
 
-### 5.4 浏览器
+### 6.4 浏览器
 
 下载安装 [Google Chrome](https://www.google.com/chrome/)。
 
 > 有了代理之后就可以顺畅访问 Google 了。暂时没有代理时用 Edge 下载——若直连打不开 `google.com`，可用 Edge 搜国内镜像下载 Chrome 安装包。
 
-### 5.5 Git
+安装完成后，在 Chrome 里同样登录你的 Google 账号并开启同步（右上角头像 → **开启同步功能**），把书签、密码、扩展等数据同步下来——和第五章登录 Edge 是同一个道理，补齐 Chrome 侧的凭据通道。
+
+### 6.5 Git
 
 下载安装 [Git for Windows](https://git-scm.com/download/win)。
 
@@ -223,7 +241,7 @@ git config --global core.autocrlf input
 > 2. `user.email`：建议填写 GitHub 账号使用的邮箱。
 > 3. `core.autocrlf=input`：提交时把 Windows 的 CRLF 换行符转换成 LF、检出时不反向转换。Windows 上更常见的默认值是 `true`（检出再转回 CRLF）；但本仓库的开发以 WSL / Linux 为主，仓库内统一用 LF 最省事，所以选 `input` 而非 `true`，避免在 WSL 里又混进 CRLF。
 
-### 5.6 配置 SSH Key
+### 6.6 配置 SSH Key
 
 > **SSH Key 是什么？** 可以理解为一把"钥匙"（私钥，留在电脑上）和一把"锁"（公钥，放到 GitHub 上）。有了这对钥匙和锁，你的电脑就可以免密码和 GitHub 通信。每台电脑各生成一对，把公钥都加到 GitHub 即可。**私钥永远不要发给别人。**
 
@@ -258,13 +276,13 @@ ssh -T git@github.com
 
 首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。核对指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
 
-### 5.7 附：改用 PowerShell 配置 Git/SSH（可选）
+### 6.7 附：改用 PowerShell 配置 Git/SSH（可选）
 
-> 上面 5.5 / 5.6 用的是 Git for Windows 自带的 **Git Bash**，它自带 `ssh-keygen` 和 `ssh`，开箱即用、最省心，**推荐新手走这条主线**。本节是给习惯用 PowerShell 的人备的，没需求可直接跳到第六节。与 Git Bash 唯一的实质区别：PowerShell 不一定能直接找到 `ssh-keygen` / `ssh`，所以多了"第一步：确认 ssh 可用"和一段排错；其余完全等价。两种方式**二选一**即可，因为 `C:\Users\你\.gitconfig` 和 `.ssh\` 密钥是全局共享的，已经用 Git Bash 配过就不必再走本节。
+> 上面 6.5 / 6.6 用的是 Git for Windows 自带的 **Git Bash**，它自带 `ssh-keygen` 和 `ssh`，开箱即用、最省心，**推荐新手走这条主线**。本节是给习惯用 PowerShell 的人备的，没需求可直接跳到第七节。与 Git Bash 唯一的实质区别：PowerShell 不一定能直接找到 `ssh-keygen` / `ssh`，所以多了"第一步：确认 ssh 可用"和一段排错；其余完全等价。两种方式**二选一**即可，因为 `C:\Users\你\.gitconfig` 和 `.ssh\` 密钥是全局共享的，已经用 Git Bash 配过就不必再走本节。
 
-#### 5.7.1 配置 Git 用户信息
+#### 6.7.1 配置 Git 用户信息
 
-打开 **PowerShell**，先确认 Git 可用（5.5 装好后应能显示版本号）。📋 整块复制粘贴执行：
+打开 **PowerShell**，先确认 Git 可用（6.5 装好后应能显示版本号）。📋 整块复制粘贴执行：
 
 ```powershell
 git --version
@@ -289,7 +307,7 @@ git config --global --list
 > 2. `user.email`：建议填 GitHub 账号使用的邮箱。
 > 3. `core.autocrlf=input`：提交时把 Windows 的 CRLF 换行符转换成 LF、检出时不反向转换。Windows 上更常见的默认值是 `true`（检出再转回 CRLF）；但本仓库的开发以 WSL / Linux 为主，仓库内统一用 LF 最省事，所以选 `input` 而非 `true`，避免在 WSL 里又混进 CRLF。
 
-#### 5.7.2 配置 SSH Key
+#### 6.7.2 配置 SSH Key
 
 **第一步：确认 ssh-keygen 可用**
 
@@ -300,7 +318,7 @@ Get-Command ssh-keygen
 ```
 
 - 输出了 `ssh-keygen.exe` 的路径 → 正常，继续第二步
-- 报"无法将 ssh-keygen 识别为 cmdlet" → 先做下面的 **5.7.3 ssh-keygen / ssh 找不到？**，解决后再回到这里继续
+- 报"无法将 ssh-keygen 识别为 cmdlet" → 先做下面的 **6.7.3 ssh-keygen / ssh 找不到？**，解决后再回到这里继续
 
 **第二步：检查是否已有密钥**
 
@@ -360,11 +378,11 @@ ssh -T git@github.com
 
 首次连接会提示 `Are you sure you want to continue connecting (yes/no/[fingerprint])?`，这是 SSH 在确认 GitHub 服务器身份。核对指纹是 GitHub 官方的 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU` 后，输入完整的 **yes** 回车（不能只按回车）。看到 `Hi xxx! You've successfully authenticated` 即成功。
 
-- 若报"无法将 ssh 识别为 cmdlet" → 同样见下面的 **5.7.3 ssh-keygen / ssh 找不到？**
+- 若报"无法将 ssh 识别为 cmdlet" → 同样见下面的 **6.7.3 ssh-keygen / ssh 找不到？**
 
-#### 5.7.3 ssh-keygen / ssh 找不到？
+#### 6.7.3 ssh-keygen / ssh 找不到？
 
-如果第一步或第五步报"无法将 ssh-keygen（或 ssh）识别为 cmdlet"，说明系统的 OpenSSH 没加到 PATH。下面 A、B 两种解法**从上往下依次尝试**。解决后回到上面 5.7.2 继续。
+如果第一步或第五步报"无法将 ssh-keygen（或 ssh）识别为 cmdlet"，说明系统的 OpenSSH 没加到 PATH。下面 A、B 两种解法**从上往下依次尝试**。解决后回到上面 6.7.2 继续。
 
 **方案 A：把系统自带的 OpenSSH 加到 PATH（最常见）**
 
@@ -400,16 +418,17 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
 ---
 
-## 六、验证清单
+## 七、验证清单
 
 全部安装完成后，逐项验证：
 
 | 项目 | 验证方式 |
 |------|---------|
+| Edge | 已登录微软账号并开启同步，收藏夹、密码等数据已同步（第五章） |
 | 微信 | 能正常登录，能和手机互传文件 |
 | VSCode | 能正常打开，左下角能看到 WSL 扩展图标 |
 | 代理工具 | 能访问 Google |
-| Chrome | 能正常打开网页 |
+| Chrome | 已登录 Google 账号并开启同步，能正常打开网页 |
 | Git | 终端（Git Bash / PowerShell）中执行 `git --version`，显示版本号 |
 | SSH Key | 终端（Git Bash / PowerShell）中执行 `ssh -T git@github.com`，显示认证成功 |
 
@@ -417,7 +436,7 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
 ---
 
-## 七、Deskflow 双机键鼠共享配置（可选）
+## 八、Deskflow 双机键鼠共享配置（可选）
 
 > 如果你只有一台电脑，跳过本节。
 
@@ -427,6 +446,6 @@ Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
 ---
 
-## 八、WSL 配置说明
+## 九、WSL 配置说明
 
 接下来请参阅 [2-wsl](../2-wsl/README.md) 配置 WSL2 开发环境。
